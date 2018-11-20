@@ -25,15 +25,17 @@
  		</div>
  	</div>
  	<div class="col-aside-right">
- 		<div class="img-box"></div>
- 		<p class="work-name">工作圈标题最多可以有二十五个字 这里需要完整显示完的</p>
- 		<div class="avatar-box">
- 			<div v-for="item in 4" :key="item"></div>
+ 		<div class="work-circle-infos">
+	 		<div class="img-box"></div>
+	 		<p class="work-name">工作圈标题最多可以有二十五个字 这里需要完整显示完的</p>
+	 		<div class="avatar-box">
+	 			<div v-for="item in 4" :key="item"></div>
+	 		</div>
+	 		<p class="together-work-in">23人和你一起工作</p>
+	 		<button class="attention-button">
+	 			+ 关注
+	 		</button>
  		</div>
- 		<p class="together-work-in">23人和你一起工作</p>
- 		<button class="attention-button">
- 			+ 关注
- 		</button>
  	</div>
  </div>
 </template>
@@ -216,13 +218,15 @@ export default class pageIndex extends Vue {
 	}
 	.col-aside-right {
 		width: 282px;
-		background: white;
 		margin-left: 24px;
 		border-radius: 2px;
 		overflow: hidden;
 		text-align: center;
 		box-sizing: border-box;
-		padding: 32px;
+		.work-circle-infos {
+			background: white;
+			padding: 32px;
+		}
 	}
 	.col-daptive {
 		flex-grow: 1;
@@ -257,15 +261,15 @@ export default class pageIndex extends Vue {
 			};
 			&:nth-child(2) {
 				background: red;
-				transform: translateX(-10px);
+				margin-left: -10px;
 			};
 			&:nth-child(3) {
 				background: red;
-				transform: translateX(-20px);
+				margin-left: -10px;
 			};
 			&:nth-child(4) {
 				background: pink;
-				transform: translateX(-30px);
+				margin-left: -10px;
 			};
 		}
 	}
