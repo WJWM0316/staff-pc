@@ -19,6 +19,7 @@
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
+
 @Component({})
 export default class ComponentHeader extends Vue {}
 </script>

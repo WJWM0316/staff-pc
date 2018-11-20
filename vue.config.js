@@ -4,7 +4,7 @@ const resolve  = dir => { return path.join(__dirname, dir) }
 
 module.exports = {
 	lintOnSave: false,
-	baseUrl: process.env.NODE_ENV === 'production' ? `/${process.env.VUE_APP_COMPANY}` : '/',
+	baseUrl: process.env.NODE_ENV === 'development' ? '/' : '',
   configureWebpack: {
   	entry: {
 	    vendors: [
@@ -42,5 +42,8 @@ module.exports = {
         data: `@import "@/variables.scss";`
       }
     }
+  },
+  chainWebpack: config => {
+    config.plugins.delete('prefetch')
   }
 }
