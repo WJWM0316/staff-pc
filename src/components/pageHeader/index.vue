@@ -2,7 +2,7 @@
  <header id="header">
  		<div class="logo-box">
   		<router-link :to="{name: 'index'}">
-  			<img src="~IMAGES/logo.png" alt="">
+  			<!-- <img src="~IMAGES/logo.png" alt=""> -->
   		</router-link>
   	</div>
   	<el-dropdown>
