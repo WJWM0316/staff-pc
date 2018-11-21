@@ -4,7 +4,7 @@ export const routes = [
     path: '/',
     // 默认进入控制台
     redirect: {
-      name: 'inidex'
+      name: 'index'
     }
   },
   {
