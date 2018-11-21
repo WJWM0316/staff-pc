@@ -36,7 +36,6 @@ const mutations = {
   },
   [UPDATE_JOB_CIRCLE_CHECKED_STATUS] (state, options) {
     state[options.show].active = !state[options.show].active
-    // state[options.hide].active = false
   },
   [UPDATE_JOB_CIRCLE_ITEM_CHECKED_STATUS] (state, options) {
     state[options.show].list.map((field, index) => field.active = index === options.index ? true: false)

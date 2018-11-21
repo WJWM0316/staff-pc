@@ -11,3 +11,6 @@ export const nofocusJobCircleApi = params => request('/jobcircle/nofocus', 'put'
 
 // 获取全部可见的工作圈列表
 export const getAllVisibleJobcircleApi = params => request('/jobcircle/all', 'get', params)
+
+// 获取全部可见的工作圈列表
+export const getAllVisibleJobci1rcleApi = params => request(`/staff/postaffix/`, 'get', params)

@@ -78,7 +78,7 @@
  	</div>
  	<div class="col-aside-right">
  		<div class="work-circle-infos">
-	 		<div class="img-box"></div>
+	 		<div class="img-box"><i class="icon font_family icon-search"></i></div>
 	 		<p class="work-name">工作圈标题最多可以有二十五个字 这里需要完整显示完的</p>
 	 		<div class="avatar-box">
 	 			<div v-for="item in 4" :key="item"></div>
