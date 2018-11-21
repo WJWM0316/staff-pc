@@ -1,11 +1,9 @@
 <template>
   <div id="lphva">
   	<page-header></page-header>
-  	<div class="containner">
-  		<transition>
-	      <router-view />
-	    </transition>
-  	</div>
+    <transition>
+      <router-view class="containner" />
+    </transition>
   </div>
 </template>
 <script>
