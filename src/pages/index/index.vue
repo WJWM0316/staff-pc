@@ -1,10 +1,44 @@
 <template>
  <div id="index">
  	<div class="col-aside-left">
- 		<div class="navigation-box" v-for="(pItem, pIndex) in navigation" :key="pIndex">
- 			<h2 :class="{'slide-down-active': pItem.active}" @click="command(pIndex)">{{pItem.name}}<span class="icon"><i class="el-icon-caret-bottom"></i></span></h2>
- 			<ul :class="{'show-slide-down': pItem.active}">
- 				<li v-for="(cItem, cIndex) in pItem.children" :key="cIndex" @click="routeJump(pIndex, cIndex)" :class="{'router-active': cItem.active}"><span class="icon-box"></span>{{cItem.name}}</li>
+ 		<div class="navigation-box">
+ 			<h2
+ 				:class="{'slide-down-active': attentionsJobcircle.active}"
+ 				@click="command({show: 'attentionsJobcircle', hide: 'allVisibleJobcircle'})">
+	 				{{attentionsJobcircle.name}}
+	 				<span class="icon">
+	 					<i class="el-icon-caret-bottom"></i>
+	 				</span>
+ 			</h2>
+ 			<ul :class="{'show-slide-down': attentionsJobcircle.active}">
+ 				<li
+ 					v-for="(attentionsJobcircleItem, attentionsJobcircleIndex) in attentionsJobcircle.list"
+ 					:key="attentionsJobcircleIndex"
+ 					@click="routeJump({show: 'attentionsJobcircle', hide: 'allVisibleJobcircle', index: attentionsJobcircleIndex})"
+ 					:class="{'router-active': attentionsJobcircleItem.active}">
+ 						<span class="icon-box"><img :src="attentionsJobcircleItem.coverImg.smallUrl" alt=""></span>
+ 						{{attentionsJobcircleItem.name}}
+ 					</li>
+ 			</ul>
+ 		</div>
+ 		<div class="navigation-box">
+ 			<h2
+ 				:class="{'slide-down-active': allVisibleJobcircle.active}"
+ 				@click="command({show: 'allVisibleJobcircle', hide: 'attentionsJobcircle'})">
+	 				{{allVisibleJobcircle.name}}
+	 				<span class="icon">
+	 					<i class="el-icon-caret-bottom"></i>
+	 				</span>
+ 			</h2>
+ 			<ul :class="{'show-slide-down': allVisibleJobcircle.active}">
+ 				<li
+ 					v-for="(allVisibleJobcircleItem, allVisibleJobcircleIndex) in allVisibleJobcircle.list"
+ 					:key="allVisibleJobcircleIndex"
+ 					@click="routeJump({show: 'allVisibleJobcircle', hide: 'attentionsJobcircle', index: allVisibleJobcircleIndex})"
+ 					:class="{'router-active': allVisibleJobcircleItem.active}">
+ 						<span class="icon-box"><img :src="allVisibleJobcircleItem.coverImg.smallUrl" alt=""></span>
+ 						{{allVisibleJobcircleItem.name}}
+ 					</li>
  			</ul>
  		</div>
  	</div>
@@ -64,66 +98,33 @@ import Component from 'vue-class-component'
 @Component({
 	methods: {
 		...mapActions([
-			'showMsg'
+			'getAttentionsJobcircleApi',
+			'getAllVisibleJobcircleApi',
+			'updateJobCircleCheckedStatus',
+			'updateJobCircleItemCheckedStatus'
 		])
 	},
 	computed: {
     ...mapGetters([
-      'dialog'
+      'attentionsJobcircle',
+      'allVisibleJobcircle'
     ])
   }
 })
 export default class pageIndex extends Vue {
 	tabIndex = 1
-	navigation = [
-		{
-			name: '我关注的工作圈',
-			active: false,
-			children: [
-				{
-					name: '我关注的工作圈1',
-					active: false
-				},
-				{
-					name: '我关注的工作圈2',
-					active: false
-				},
-				{
-					name: '我关注的工作圈3',
-					active: false
-				}
-			]
-		},
-		{
-			name: '所有工作圈',
-			active: false,
-			children: [
-				{
-					name: '所有工作圈1',
-					active: false
-				},
-				{
-					name: '所有工作圈2',
-					active: false
-				},
-				{
-					name: '所有工作圈3',
-					active: false
-				}
-			]
-		}
-	]
-	command(index) {
-		// this.navigation[index].active = !this.navigation[index].active
-		this.navigation.map((pNavField, pNavIndex) => pNavField.active = index === pNavIndex ? !pNavField.active : false)
+	command(params) {
+		this.updateJobCircleCheckedStatus(params)
 	}
-	routeJump(pIndex, cIndex) {
-		this.navigation.map((pNavField, pNavIndex) => {
-			pNavField.children.map((cNavField, cNavIndex) => cNavField.active = cIndex === cNavIndex ? true : false)
-		})
+	routeJump(params) {
+		this.updateJobCircleItemCheckedStatus(params)
 	}
 	tabClick(index) {
 		this.tabIndex = index
+	}
+	created() {
+		this.getAttentionsJobcircleApi()
+		this.getAllVisibleJobcircleApi()
 	}
 }
 </script>
@@ -161,7 +162,7 @@ export default class pageIndex extends Vue {
 			cursor: pointer;
 			.icon {
 				float: right;
-				transition: all 1s ease;
+				transition: all .4s ease;
 			}
 		}
 		.slide-down-active{
@@ -183,12 +184,17 @@ export default class pageIndex extends Vue {
 		.icon-box {
 			width: 40px;
 			height: 40px;
-			background: pink;
 			display: inline-block;
 			border-radius: 50%;
 			vertical-align: middle;
 			margin-right: 10px;
 			margin-left: 32px;
+			position: relative;
+			img{
+				width: 100%;
+				height: 100%;
+				border-radius: 50%;
+			}
 		}
 		li {
 			height: 64px;

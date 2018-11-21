@@ -1,3 +1,10 @@
 export const GET_ARTICLELIST = 'article/GET_ARTICLELIST'
 export const SHOW_DIALOG = 'commom/SHOW_DIALOG'
 export const HIDE_DIALOG = 'commom/HIDE_DIALOG'
+export const LOGIN = 'commom/LOGIN'
+export const LOGOUT = 'commom/LOGOUT'
+
+export const GET_ATTENTIONS_JOB_CIRCLE = 'jobcircle/GET_ATTENTIONS_JOB_CIRCLE'
+export const GET_ALL_VISIBLE_JOB_CIRCLE = 'jobcircle/GET_ALL_VISIBLE_JOB_CIRCLE'
+export const UPDATE_JOB_CIRCLE_CHECKED_STATUS = 'jobcircle/UPDATE_JOB_CIRCLE_CHECKED_STATUS'
+export const UPDATE_JOB_CIRCLE_ITEM_CHECKED_STATUS = 'jobcircle/UPDATE_JOB_CIRCLE_ITEM_CHECKED_STATUS'
