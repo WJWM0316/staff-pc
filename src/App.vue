@@ -18,7 +18,6 @@ import PageHeader from 'COMPONENTS/pageHeader/index.vue'
 		PageHeader
 	}
 })
-
 export default class App extends Vue {}
 </script>
 <style lang="scss">

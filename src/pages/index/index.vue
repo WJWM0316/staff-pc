@@ -21,19 +21,39 @@
  			</div>
  		</div>
  		<div class="content">
- 			11111
+ 			<ul class="common-ul">
+ 				<li v-for="item in 5" :key="item">
+ 					<div class="li-header">
+ 						<div class="img-box"></div>
+ 						<p class="user-name">魏平</p>
+ 						<time>2018-11-12</time>
+ 					</div>
+ 					<div class="file-content">
+ 						<div class="icon-box"></div>
+ 						<div class="file-infos">
+ 							<p class="file-title">设计者，需要做出更好的设计决策，给予研发团队一种高…</p>
+ 							<p class="file-size">12M</p>
+ 						</div>
+ 						<div class="download-box">
+ 							<span><i class="el-icon-download"></i></span>
+ 						</div>
+ 					</div>
+ 				</li>
+ 			</ul>
  		</div>
  	</div>
  	<div class="col-aside-right">
- 		<div class="img-box"></div>
- 		<p class="work-name">工作圈标题最多可以有二十五个字 这里需要完整显示完的</p>
- 		<div class="avatar-box">
- 			<div v-for="item in 4" :key="item"></div>
+ 		<div class="work-circle-infos">
+	 		<div class="img-box"></div>
+	 		<p class="work-name">工作圈标题最多可以有二十五个字 这里需要完整显示完的</p>
+	 		<div class="avatar-box">
+	 			<div v-for="item in 4" :key="item"></div>
+	 		</div>
+	 		<p class="together-work-in">23人和你一起工作</p>
+	 		<button class="attention-button">
+	 			+ 关注
+	 		</button>
  		</div>
- 		<p class="together-work-in">23人和你一起工作</p>
- 		<button class="attention-button">
- 			+ 关注
- 		</button>
  	</div>
  	<preview v-if="false"></preview>
  </div>
@@ -113,13 +133,14 @@ export default class pageIndex extends Vue {
 </script>
 <style lang="scss">
 #index{
-	display: flex;
 	margin-top: 24px;
 	.col-aside-left {
 		width: 282px;
 		height: 300px;
 		margin-right: 24px;
 		box-sizing: border-box;
+		display: inline-block;
+		vertical-align: top;
 	}
 	.attention-zone {
 		width:282px;
@@ -220,32 +241,38 @@ export default class pageIndex extends Vue {
 	}
 	.col-aside-right {
 		width: 282px;
-		background: white;
 		margin-left: 24px;
 		border-radius: 2px;
 		overflow: hidden;
 		text-align: center;
 		box-sizing: border-box;
-		padding: 32px;
+		display: inline-block;
+		vertical-align: top;
+		.work-circle-infos {
+			background: white;
+			padding: 32px;
+		}
+		.img-box{
+			width: 80px;
+			height: 80px;
+			display: inline-block;
+			background: pink;
+			border-radius: 50%;
+		}
+		.work-name {
+			font-size:14px;
+			font-weight:500;
+			color:rgba(53,64,72,1);
+			line-height: 1.5;
+			margin: 0;
+			margin-bottom: 25px;
+		}
 	}
 	.col-daptive {
-		flex-grow: 1;
 		box-sizing: border-box;
-	}
-	.img-box{
-		width: 80px;
-		height: 80px;
+		width: calc(100% - 612px);
 		display: inline-block;
-		background: pink;
-		border-radius: 50%;
-	}
-	.work-name {
-		font-size:14px;
-		font-weight:500;
-		color:rgba(53,64,72,1);
-		line-height: 1.5;
-		margin: 0;
-		margin-bottom: 25px;
+		vertical-align: top;
 	}
 	.avatar-box {
 		height: 24px;
@@ -261,15 +288,15 @@ export default class pageIndex extends Vue {
 			};
 			&:nth-child(2) {
 				background: red;
-				transform: translateX(-10px);
+				margin-left: -10px;
 			};
 			&:nth-child(3) {
 				background: red;
-				transform: translateX(-20px);
+				margin-left: -10px;
 			};
 			&:nth-child(4) {
 				background: pink;
-				transform: translateX(-30px);
+				margin-left: -10px;
 			};
 		}
 	}
@@ -372,6 +399,90 @@ export default class pageIndex extends Vue {
 	.content {
 		min-height:558px;
 		background:rgba(255,255,255,1);
+	}
+	.common-ul {
+		li {
+			background:rgba(255,255,255,1);
+			box-sizing: border-box;
+			padding: 22px;
+		}
+		.file-content {
+			background:rgba(245,247,250,1);
+			border-radius:4px;
+			margin-left: 40px;
+			position: relative;
+			padding: 8px;
+			box-sizing: border-box;
+		}
+		.li-header {
+			margin-bottom: 5px;
+		}
+		.img-box {
+			width:30px;
+			height:30px;
+			border-radius: 50%;
+			background: gray;
+			display: inline-block;
+			vertical-align: middle;
+		}
+		.user-name {
+			font-size:14px;
+			font-weight:400;
+			color:rgba(53,64,72,1);
+			line-height: 30px;
+			margin: 0;
+			display: inline-block;
+			vertical-align: middle;
+			margin-left: 10px;
+		}
+		time {
+			font-size:12px;
+			font-weight:300;
+			color:rgba(146,146,146,1);
+			line-height: 30px;
+			float: right;
+		}
+		.download-box {
+			width: 70px;
+			display: block;
+			height: 46px;
+			text-align: center;
+			float: right;
+			line-height: 46px;
+		}
+		.icon-box {
+			width: 46px;
+			height: 46px;
+			background: red;
+			border-radius: 4px;
+			display: inline-block;
+			margin-right: 6px;
+		}
+		.file-infos {
+			width: calc(100% - 62px - 70px);
+			display: inline-block;
+			height: 46px;
+			vertical-align: top;
+		}
+		.file-title {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			margin: 0;
+			font-size:14px;
+			font-weight:300;
+			color:rgba(0,0,0,0.85);
+			line-height: 1;
+			margin-top: 5px;
+		}
+		.file-size {
+			font-size:12px;
+			font-weight:300;
+			color:rgba(146,146,146,1);
+			margin: 0;
+			line-height: 1;
+			margin-top: 8px;
+		}
 	}
 }
 </style>

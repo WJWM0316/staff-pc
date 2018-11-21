@@ -1,16 +1,30 @@
 import axios from 'axios'
 import { Loading } from 'element-ui'
-import router from '@/router/index'
+import Cookies from 'js-cookie'
+
+let company = Cookies.get('code')
+
+// if(!company) {
+//   window.location.href = process.env.VUE_APP__LOGIN_URL
+// }
+
+if(process.env.NODE_ENV === 'development') {
+  company = process.env.VUE_APP__TEST_COMPANY
+  Cookies.set('Authorization-Sso', process.env.VUE_APP__TEST_SSO_TOKEN)
+}
+
 let loadingInstance = null
-import { getAccessToken, removeAccessToken } from '@/store/cacheService'
-export const API_ROOT = `http://lphva.cn`
-export const upload_api = `${API_ROOT}/attaches`
+export const API_ROOT = `${process.env.VUE_APP_API}/${company}`
+
+import { removeAccessToken, getAccessToken } from '@/store/cacheService'
 
 axios.defaults.baseURL = API_ROOT
+
 // 请求拦截器
 axios.interceptors.request.use(
   config => {
     config.headers.common['Authorization'] = getAccessToken()
+    config.headers.common['Authorization-Sso'] = Cookies.get('Authorization-Sso')
     return config
   },
   error => {
@@ -25,8 +39,9 @@ axios.interceptors.response.use(
   },
   err => {
     if(err.response.data.httpStatus === 401) {
-      router.push({name: 'login'})
       removeAccessToken()
+      Cookies.remove('Authorization-Sso', { path: '' })
+      window.location.href = process.env.VUE_APP__LOGIN_URL
       return
     }
     if (loadingInstance) loadingInstance.close()
