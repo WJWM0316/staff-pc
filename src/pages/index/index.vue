@@ -35,13 +35,17 @@
  			+ 关注
  		</button>
  	</div>
+ 	<preview v-if="false"></preview>
  </div>
 </template>
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
-
+import preview from 'COMPONENTS/preview'
 @Component({
+	components: {
+		preview
+	},
 	methods: {
 		...mapActions([
 			'showMsg'
