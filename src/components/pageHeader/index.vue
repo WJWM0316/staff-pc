@@ -7,7 +7,7 @@
   	</div>
   	<el-dropdown>
 		  <span class="el-dropdown-link">
-		    欢迎登录，Charlieli<i class="el-icon-caret-bottom"></i>
+		    欢迎登录，{{userInfos.realname}}<i class="el-icon-caret-bottom"></i>
 		  </span>
 		  <el-dropdown-menu slot="dropdown">
 		  	<el-dropdown-item>切换管理员端</el-dropdown-item>
@@ -19,8 +19,13 @@
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
-
-@Component({})
+@Component({
+  computed: {
+    ...mapGetters([
+      'userInfos'
+    ])
+  }
+})
 export default class ComponentHeader extends Vue {}
 </script>
 <style lang="scss">
