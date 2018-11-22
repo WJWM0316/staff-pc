@@ -35,7 +35,7 @@ export default class ComponentHeader extends Vue {
 				this.logoutApi({code : Cookies.get('code')})
 				break
 			case 'switch':
-				window.location.href = process.env.VUE_APP__MANAGER_URL
+				window.location.replace = process.env.VUE_APP__MANAGER_URL
 				break
 			default:
 				break

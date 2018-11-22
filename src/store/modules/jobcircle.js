@@ -6,9 +6,11 @@ import {
   GET_JOB_CIRCLE_POST_AFFIX_LIST,
   GET_JOB_CIRCLE_POST_AFFIX_PICTURES_LIST,
   GET_JOB_CIRCLE_POST_AFFIX_FILES_LIST,
-  GET_JOB_CIRCLE_POST_AFFIX_URLS_LIST
+  GET_JOB_CIRCLE_POST_AFFIX_URLS_LIST,
+  GET_JOB_CIRCLE_DETAIL
 } from '../mutation-types'
 
+import defaultJobCirclePicture from 'IMAGES/img_normal_head.png'
 import {
   getAttentionsJobcircleApi,
   focusJobCircleApi,
@@ -17,7 +19,8 @@ import {
   getJobcirclePostaffixApi,
   getJobcirclePostaffixOfPictureApi,
   getJobcirclePostaffixOfFilesApi,
-  getJobcirclePostaffixOfUrlsApi
+  getJobcirclePostaffixOfUrlsApi,
+  getJobcircleDetailApi
 } from 'API/jobcircle'
 
 const state = {
@@ -34,12 +37,47 @@ const state = {
   jobcirclePostAffix: [],
   jobcirclePostAffixPicture: [],
   jobcirclePostAffixFiles: [],
-  jobcirclePostAffixUrls: []
+  jobcirclePostAffixUrls: [],
+  currentJobCircleId: null,
+  jobcircleDetail: {
+    avatarId: null,
+    content: null,
+    coverImg: {
+      smallUrl: defaultJobCirclePicture
+    },
+    coverImgId: null,
+    createdAt: null,
+    createdUid: null,
+    dynamicAt: null,
+    gender: null,
+    groupName: null,
+    id: null,
+    isAttention: null,
+    isMember: null,
+    isOwner: null,
+    isTop: null,
+    memberCount: null,
+    name: null,
+    nickname: null,
+    ownerUid: null,
+    realname: null,
+    sort: 1,
+    status: null,
+    updatedAt: null,
+    memberInfo: []
+  }
 }
 
 const mutations = {
   [GET_ATTENTIONS_JOB_CIRCLE] (state, list) {
-    list.map((field, index) => field.active = index === 0 ? true : false)
+    list.map((field, index) => {
+      if(index === 0) {
+        field.active = true
+        state.currentJobCircleId = field.id
+      } else {
+        field.active = false
+      }
+    })
     state.attentionsJobcircle.list = list
   },
   [GET_ALL_VISIBLE_JOB_CIRCLE] (state, list) {
@@ -50,7 +88,14 @@ const mutations = {
     state[options.show].active = !state[options.show].active
   },
   [UPDATE_JOB_CIRCLE_ITEM_CHECKED_STATUS] (state, options) {
-    state[options.show].list.map((field, index) => field.active = index === options.index ? true: false)
+    state[options.show].list.map((field, index) => {
+      if(index === options.index) {
+        field.active = true
+        state.currentJobCircleId = field.id
+      } else {
+        field.active = false
+      }
+    })
     state[options.hide].list.map((field, index) => field.active = false)
   },
   [GET_JOB_CIRCLE_POST_AFFIX_LIST] (state, list) {
@@ -65,6 +110,9 @@ const mutations = {
   [GET_JOB_CIRCLE_POST_AFFIX_URLS_LIST] (state, list) {
     state.jobcirclePostAffixUrls = list
   },
+  [GET_JOB_CIRCLE_DETAIL] (state, data) {
+    state.jobcircleDetail = data
+  }
 }
 
 const getters = {
@@ -73,7 +121,9 @@ const getters = {
   jobcirclePostAffix: state => state.jobcirclePostAffix,
   jobcirclePostAffixPicture: state => state.jobcirclePostAffixPicture,
   jobcirclePostAffixFiles: state => state.jobcirclePostAffixFiles,
-  jobcirclePostAffixUrls: state => state.jobcirclePostAffixUrls
+  jobcirclePostAffixUrls: state => state.jobcirclePostAffixUrls,
+  currentJobCircleId: state => state.currentJobCircleId,
+  jobcircleDetail: state => state.jobcircleDetail
 }
 
 const actions = {
@@ -212,6 +262,21 @@ const actions = {
         return error
       })
   },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   获取工作圈详情
+   */
+  getJobcircleDetailApi (store, params) {
+    return getJobcircleDetailApi(params)
+      .then(res => {
+        store.commit(GET_JOB_CIRCLE_DETAIL, res.data.data)
+        return res
+      })
+      .catch(error => {
+        return error
+      })
+  }
 }
 
 export default {

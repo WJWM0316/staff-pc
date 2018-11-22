@@ -80,18 +80,23 @@
  	</div>
  	<div class="col-aside-right">
  		<div class="work-circle-infos">
-	 		<div class="img-box"><i class="icon font_family icon-search"></i></div>
-	 		<p class="work-name">工作圈标题最多可以有二十五个字 这里需要完整显示完的</p>
-	 		<div class="avatar-box">
-	 			<div v-for="item in 4" :key="item"></div>
+	 		<div class="img-box">
+	 			<img :src="jobcircleDetail.coverImg.middleUrl" alt="">
 	 		</div>
-	 		<p class="together-work-in">23人和你一起工作</p>
+	 		<p class="work-name">{{jobcircleDetail.name}}</p>
+	 		<div class="avatar-box" v-if="jobcircleDetail.memberInfo.length">
+	 			<div v-for="(memberItem, memberIndex) in jobcircleDetail.memberInfo" :key="memberIndex">
+	 				<img :src="memberItem.avatarInfo.smallUrl" alt="">
+	 			</div>
+	 			<div class="gray" v-if="jobcircleDetail.memberInfo.length > 2"><i></i><i></i><i></i></div>
+	 		</div>
+	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
 	 		<button class="attention-button">
 	 			+ 关注
 	 		</button>
  		</div>
  	</div>
- 	<preview></preview>
+ 	<!-- <preview></preview> -->
  </div>
 </template>
 <script>
@@ -112,7 +117,8 @@ import preview from 'COMPONENTS/preview'
 			'getJobcirclePostaffixApi',
 			'getJobcirclePostaffixOfPictureApi',
 			'getJobcirclePostaffixOfFilesApi',
-			'getJobcirclePostaffixOfUrlsApi'
+			'getJobcirclePostaffixOfUrlsApi',
+			'getJobcircleDetailApi'
 		])
 	},
 	computed: {
@@ -122,48 +128,93 @@ import preview from 'COMPONENTS/preview'
       'jobcirclePostAffix',
       'jobcirclePostAffixPicture',
       'jobcirclePostAffixFiles',
-      'jobcirclePostAffixUrls'
+      'jobcirclePostAffixUrls',
+      'currentJobCircleId',
+      'jobcircleDetail'
     ])
   }
 })
 export default class pageIndex extends Vue {
 	tabIndex = 'Files'
-
   get commonList() {
     return this[`jobcirclePostAffix${this.tabIndex}`]
   }
-
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   侧边栏选中
+   */
 	command(params) {
 		this.updateJobCircleCheckedStatus(params)
 	}
-	routeJump(params) {
+	/**
+	 * @Author   小书包
+	 * @DateTime 2018-11-22
+	 * @detail   获取页面选的的工作圈信息
+	 */
+	getActiveJobCircleInfos(params) {
 		this.updateJobCircleItemCheckedStatus(params)
 		this[params.show].list.map(field => {
-			if(field.active) this.getLists({id: field.id, params: {page: 1, count: 20}})
+			if(field.active) {
+				this.getLists({id: field.id, params: {page: 1, count: 20}})
+				this.getJobcircleDetail({id: this.currentJobCircleId})
+			}
 		})
 	}
+	/**
+	 * @Author   小书包
+	 * @DateTime 2018-11-22
+	 * @detail   选显卡切换
+	 */
 	tabClick(index) {
 		this.tabIndex = index
 	}
-
-	// 获取列表数据
+	/**
+	 * @Author   小书包
+	 * @DateTime 2018-11-22
+	 * @detail   根据id获取列表数据
+	 */
 	getLists(params) {
 		this[`getJobcirclePostaffixOf${this.tabIndex}Api`](params)
 	}
+	/**
+	 * @Author   小书包
+	 * @DateTime 2018-11-22
+	 * @detail   获取工作圈详情
+	 */
+	getJobcircleDetail(params) {
+		this.getJobcircleDetailApi(params)
+	}
+	/**
+	 * @Author   小书包
+	 * @DateTime 2018-11-22
+	 * @detail   文件下载
+	 */
 	download(fileLink) {
     const event = new MouseEvent('click')
     const a = document.createElement('a')
     a.href = fileLink
     a.dispatchEvent(event)
   }
-	created() {
-		this.getAttentionsJobcircleApi()
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   初始化页面数据
+   */
+  init() {
+  	this.getAttentionsJobcircleApi()
 				.then(() => {
 					this.attentionsJobcircle.list.map(field => {
-						if(field.active) this.getLists({id: field.id, params: {page: 1, count: 20}})
+						if(field.active) {
+							this.getLists({id: field.id, params: {page: 1, count: 20}})
+							this.getJobcircleDetail({id: this.currentJobCircleId})
+						}
 					})
 				})
 		this.getAllVisibleJobcircleApi()
+  }
+	created() {
+		this.init()
 	}
 }
 </script>
@@ -297,8 +348,12 @@ export default class pageIndex extends Vue {
 			width: 80px;
 			height: 80px;
 			display: inline-block;
-			background: pink;
 			border-radius: 50%;
+			overflow: hidden;
+			img {
+				width: 100%;
+				height: 100%;
+			}
 		}
 		.work-name {
 			font-size:14px;
@@ -321,24 +376,39 @@ export default class pageIndex extends Vue {
 		> div {
 			height: 24px;
 			width: 24px;
+			line-height: 24px;
+			text-align: center;
 			border-radius: 50%;
 			display: inline-block;
 			border: 1px solid white;
+			overflow: hidden;
+			img {
+				width: 100%;
+				height: 100%;
+			}
 			&:nth-child(1) {
-				background: red;
 			};
 			&:nth-child(2) {
-				background: red;
 				margin-left: -10px;
 			};
 			&:nth-child(3) {
-				background: red;
 				margin-left: -10px;
 			};
 			&:nth-child(4) {
-				background: pink;
 				margin-left: -10px;
 			};
+		}
+		.gray {
+			background: #F8F8F8;
+			i{
+				width: 3px;
+				height: 3px;
+				border-radius: 50%;
+				background: #BCBCBC;
+				display: inline-block;
+				margin: 0 1px;
+				vertical-align: middle;
+			}
 		}
 	}
 	.together-work-in {
@@ -496,14 +566,19 @@ export default class pageIndex extends Vue {
 			text-align: center;
 			float: right;
 			line-height: 46px;
+			color: #666666;
 		}
 		.icon-box {
 			width: 46px;
 			height: 46px;
-			background: red;
 			border-radius: 4px;
 			display: inline-block;
 			margin-right: 6px;
+			overflow: hidden;
+			img {
+				width: 100%;
+				height: 100%;
+			}
 		}
 		.file-infos {
 			width: calc(100% - 62px - 70px);

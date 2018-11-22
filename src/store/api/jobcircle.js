@@ -30,3 +30,6 @@ export const getJobcirclePostaffixOfFilesApi = params => request(`/jobcircle/fil
 
 // 获取工作圈所有帖子链接分页
 export const getJobcirclePostaffixOfUrlsApi = params => request(`/jobcircle/urls/${params.id}`, 'get', params.params)
+
+// 获取工作圈详情
+export const getJobcircleDetailApi = params => request(`/jobcircle/detail/${params.id}`, 'get', params.params)
