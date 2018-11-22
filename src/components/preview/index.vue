@@ -10,17 +10,17 @@
       </div>
       <div class="sidebar">
         <div class="inner">
-          <div class="item prev">上个月</div>
-          <div class="item iconfont icon-loeft_up" @click.stop="prevOne"><i class="to_top"></i></div>
+          <div class="item prev" :class="{'disabled': noPrev}">上个月</div>
+          <div class="item iconfont" :class="{'disabled': noPrev}" @click.stop="prevOne"><i class="icon font_family icon-loeft_up"></i></div>
           <div class="swiper-container littleList">
             <div class="swiper-wrapper littleBox">
-              <div class="swiper-slide imgBox swiper-no-swiping" v-for="(item, index) in list" :key="index" @click.stop="slideTo(index)">
+              <div class="swiper-slide imgBox swiper-no-swiping" :class="{'cur': curIndex === index}" v-for="(item, index) in list" :key="index" @click.stop="slideTo(index)">
                 <img :src="item" class="imgShow">
               </div>
             </div>
           </div>
-          <div class="item" @click.stop="lastOne"><i class="iconfont icon-search"></i></div>
-          <div class="item last">下个月</div>
+          <div class="item" :class="{'disabled': noNext}" @click.stop="lastOne"><i class="icon font_family icon-loeft_down"></i></div>
+          <div class="item last" :class="{'disabled': noNext}">下个月</div>
         </div>
       </div>
     </div>
@@ -30,11 +30,31 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Swiper from 'swiper';
+import {getPicMonthListJobci1rcleApi} from 'API/jobcircle'
 @Component({
   watch: {
     curIndex (val) {
       this.swiperBig.slideTo(val)
       this.swiperLittle.slideTo(val)
+      if (this.curIndex === 0 || this.curIndex === this.list.length - 1) {
+        this.cursorClass = ''
+      }
+    }
+  },
+  computed: {
+    noPrev () {
+      if (this.curIndex === 0) {
+        return true
+      } else {
+        return false
+      }
+    },
+    noNext () {
+      if (this.curIndex === this.list.length - 1) {
+        return true
+      } else {
+        return false
+      }
     }
   }
 })
@@ -44,6 +64,7 @@ export default class ComponentPreview extends Vue {
   swiperBig = null // 跑马灯对象
   swiperLittle = null // 跑马灯对象
   curIndex = 0 // 当前索引
+  monthList = []
   list = ['http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9836dab054.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9834b54cf0.jpg!330xauto', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd98050b5e1a.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9807b777f7.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9807c89e42.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9836dab054.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9834b54cf0.jpg!330xauto', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd98050b5e1a.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9807b777f7.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9807c89e42.jpeg']
   imgLoad (e) {
     if (e.target.clientWidth / e.target.clientHeight > 1) {
@@ -54,31 +75,46 @@ export default class ComponentPreview extends Vue {
   }
   mousemoveFun (e) {
     if (e.clientY > this.$refs.priview.clientHeight / 2) {
-      this.cursorClass = 'nextOne'
+      if (!this.noNext) {
+        this.cursorClass = 'nextOne'
+      } else {
+        this.cursorClass = ''
+      }
     } else {
-      this.cursorClass = 'lastOne'
+      if (!this.noPrev) {
+        this.cursorClass = 'lastOne'
+      } else {
+        this.cursorClass = ''
+      }
     }
   }
   toggle () {
     if (this.cursorClass === 'nextOne') {
       this.swiperBig.slideNext()
-      // this.swiperLittle.slideNext()
-    } else {
+    } else if (this.cursorClass === 'lastOne') {
       this.swiperBig.slidePrev()
-      // this.swiperLittle.slidePrev()
     }
     this.curIndex = this.swiperBig.activeIndex
   }
   prevOne () {
-    this.swiperLittle.slidePrev()
-    this.curIndex = this.swiperLittle.activeIndex
+    if (!this.noPrev) {
+      this.curIndex--
+    }
   }
   lastOne () {
-    this.swiperLittle.slideNext()
-    this.curIndex = this.swiperLittle.activeIndex
+    if (!this.noNext) {
+      this.curIndex++
+    }
   }
   slideTo (index) {
     this.curIndex = index
+  }
+  async created () {
+    let data = {
+      id: this.$route.query.id
+    }
+    let res = await getPicMonthListJobci1rcleApi(data)
+    console.log(res)
   }
   mounted () {
     this.swiperBig = new Swiper ('.listBox', {
@@ -92,8 +128,6 @@ export default class ComponentPreview extends Vue {
       noSwiping : true,
       direction: 'vertical'
     })
-    this.swiperBig.params.control = this.swiperLittle
-    this.swiperLittle.params.control = this.swiperBig
   }
 }
 </script>
@@ -129,6 +163,7 @@ export default class ComponentPreview extends Vue {
       .imgBox {
         width: 934px;
         height: 100%;
+        overflow: hidden;
         .imgShow {
           display: block;
           position: absolute;
@@ -158,10 +193,19 @@ export default class ComponentPreview extends Vue {
           width: 100%;
           height: 24px;
           line-height: 24px;
-          color: #929292;
+          color: #354048;
+          background: #ffffff;
           font-size: 14px;
-          background: #666666;
           text-align: center;
+          border-radius: 2px;
+          &:hover {
+            background: #FFE266;
+            color: #354048;
+          }
+          &.disabled {
+            background: #666666;
+            color: #929292;
+          }
           &.prev {
             margin-bottom: 24px;
           }
@@ -177,10 +221,36 @@ export default class ComponentPreview extends Vue {
           .imgBox {
             width: 100%;
             height: 64px;
+            overflow: hidden;
+            &::before {
+              content: '';
+              width: 100%;
+              height: 64px;
+              position: absolute;
+              top: 0;
+              left: 0;
+              background: rgba(0, 0, 0, 0.5);
+            }
+            &:hover {
+              &::before {
+                display: none;
+              }
+            }
+            &.cur {
+              .imgShow {
+                border: 1px solid #FFE266;
+              }
+              &::before {
+                display: none;
+              }
+            }
             .imgShow {
               width: 100%;
               height: 64px;
               display: block;
+              border-radius: 2px;
+              box-sizing: border-box;
+              overflow: hidden;
             }
           }
         }

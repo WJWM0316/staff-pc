@@ -14,3 +14,12 @@ export const getAllVisibleJobcircleApi = params => request('/jobcircle/all', 'ge
 
 // 获取全部可见的工作圈列表
 export const getAllVisibleJobci1rcleApi = params => request(`/staff/postaffix/`, 'get', params)
+
+// 获取工作圈相册分月列表
+export const getPicMonthListJobci1rcleApi = params => request(`/jobcircle/picturemonth/${params.id}`, 'get', params)
+
+// 获取工作圈分月相册
+export const getPicListJobci1rcleApi = params => request(`/jobcircle/picture/${params.id}`, 'get', params)
+
+
+
