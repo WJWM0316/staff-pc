@@ -89,7 +89,7 @@
 	 		</button>
  		</div>
  	</div>
- 	<preview v-if="false"></preview>
+ 	<preview></preview>
  </div>
 </template>
 <script>

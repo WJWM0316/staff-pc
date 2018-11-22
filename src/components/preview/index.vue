@@ -3,24 +3,35 @@
     <div class="wrap">
       <div class="swiper-container listBox">
         <div class="swiper-wrapper">
-          <div class="swiper-slide imgBox swiper-no-swiping" v-for="(item, index) in list" :key="index">
-            <img :src="item" class="imgShow" :class="imgType" @load="imgLoad">
+          <div class="swiper-slide imgBox swiper-no-swiping" v-for="(item, index) in pickList" :key="index">
+            <template v-if="item.fileInfo">
+              <img v-if="item.type === '图片'" :src="item.fileInfo.url" class="imgShow" :class="item.fileInfo.width > item.fileInfo.height ? 'horizontal' : 'vertical'">
+              <video class="video" v-else :src="item.fileInfo.url" controls="controls"></video>
+            </template>
           </div>
         </div>
       </div>
       <div class="sidebar">
         <div class="inner">
-          <div class="item prev" :class="{'disabled': noPrev}">上个月</div>
+          <div class="item prev" :class="{'disabled': noLastMonth}" @click.stop="lastMonth">上个月</div>
           <div class="item iconfont" :class="{'disabled': noPrev}" @click.stop="prevOne"><i class="icon font_family icon-loeft_up"></i></div>
           <div class="swiper-container littleList">
             <div class="swiper-wrapper littleBox">
-              <div class="swiper-slide imgBox swiper-no-swiping" :class="{'cur': curIndex === index}" v-for="(item, index) in list" :key="index" @click.stop="slideTo(index)">
-                <img :src="item" class="imgShow">
+              <div class="swiper-slide imgBox swiper-no-swiping" :class="{'cur': curIndex === index}" v-for="(item, index) in pickList" :key="index" @click.stop="slideTo(index)">
+                <template v-if="item.fileInfo">
+                  <img v-if="item.type === '图片'" :src="item.fileInfo.url" class="imgShow">
+                  <div v-else class="videoMask">
+                    <video class="video" :src="item.fileInfo.url"></video>
+                    <div class="btn">
+                      <i class="icon font_family icon-play"></i>
+                    </div>
+                  </div>
+                </template>
               </div>
             </div>
           </div>
           <div class="item" :class="{'disabled': noNext}" @click.stop="lastOne"><i class="icon font_family icon-loeft_down"></i></div>
-          <div class="item last" :class="{'disabled': noNext}">下个月</div>
+          <div class="item last" :class="{'disabled': noNextMonth}" @click.stop="nextMonth">下个月</div>
         </div>
       </div>
     </div>
@@ -30,27 +41,41 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Swiper from 'swiper';
-import {getPicMonthListJobci1rcleApi} from 'API/jobcircle'
+import {getPicMonthListJobci1rcleApi, getPicListJobci1rcleApi} from 'API/jobcircle'
 @Component({
   watch: {
     curIndex (val) {
       this.swiperBig.slideTo(val)
       this.swiperLittle.slideTo(val)
-      if (this.curIndex === 0 || this.curIndex === this.list.length - 1) {
+      if (this.curIndex === 0 || this.curIndex === this.pickList.length - 1) {
         this.cursorClass = ''
       }
     }
   },
   computed: {
     noPrev () {
-      if (this.curIndex === 0) {
+      if (this.curIndex === 0 && this.noLastMonth) {
         return true
       } else {
         return false
       }
     },
     noNext () {
-      if (this.curIndex === this.list.length - 1) {
+      if (this.curIndex === this.pickList.length - 1 && this.noNextMonth) {
+        return true
+      } else {
+        return false
+      }
+    },
+    noLastMonth () {
+      if (this.curMonthIndex === 0) {
+        return true
+      } else {
+        return false
+      }
+    },
+    noNextMonth () {
+      if (this.curMonthIndex === this.monthList.length - 1) {
         return true
       } else {
         return false
@@ -65,12 +90,18 @@ export default class ComponentPreview extends Vue {
   swiperLittle = null // 跑马灯对象
   curIndex = 0 // 当前索引
   monthList = []
-  list = ['http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9836dab054.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9834b54cf0.jpg!330xauto', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd98050b5e1a.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9807b777f7.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9807c89e42.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9836dab054.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9834b54cf0.jpg!330xauto', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd98050b5e1a.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9807b777f7.jpeg', 'http://attach.xplus.ziwork.com/test/img/2018/1031/18/5bd9807c89e42.jpeg']
-  imgLoad (e) {
-    if (e.target.clientWidth / e.target.clientHeight > 1) {
-      this.imgType = 'vertical'
-    } else {
-      this.imgType = 'horizontal'
+  curMonthIndex = 0 // 当前月份索引
+  pickList = [] // 图片列表
+  lastMonth () {
+    if (!this.noLastMonth) {
+      this.curMonthIndex--
+      this.getPicList('jumpMonth')
+    }
+  }
+  nextMonth () {
+    if (!this.noNextMonth) {
+      this.curMonthIndex++
+      this.getPicList('jumpMonth')
     }
   }
   mousemoveFun (e) {
@@ -99,22 +130,53 @@ export default class ComponentPreview extends Vue {
   prevOne () {
     if (!this.noPrev) {
       this.curIndex--
+      if (this.curIndex < 0) {
+        this.lastMonth()
+      }
     }
   }
   lastOne () {
     if (!this.noNext) {
-      this.curIndex++
+      if (this.curIndex > this.pickList.length - 1) {
+        this.curMonthIndex++
+        this.getPicList('nextMonth')
+      } else {
+        this.curIndex++
+      }
     }
   }
   slideTo (index) {
     this.curIndex = index
+  }
+  async getPicList (type) {
+    let data = {
+      id: this.$route.query.id,
+      month: this.monthList[this.curMonthIndex].month
+    }
+    let res = await getPicListJobci1rcleApi(data)
+    if (type === 'jumpMonth') {
+      this.curIndex = 0
+      this.pickList = res.data.data
+    } else {
+      this.pickList = this.pickList.concat(res.data.data)
+    }
+    this.$nextTick(() => {
+      this.swiperBig.update()
+      this.swiperLittle.update()
+      setTimeout(() => {
+        if (type === 'nextMonth') {
+          this.curIndex++
+        }
+      }, 500)
+    })
   }
   async created () {
     let data = {
       id: this.$route.query.id
     }
     let res = await getPicMonthListJobci1rcleApi(data)
-    console.log(res)
+    this.monthList = res.data.data.reverse()
+    this.getPicList()
   }
   mounted () {
     this.swiperBig = new Swiper ('.listBox', {
@@ -179,6 +241,15 @@ export default class ComponentPreview extends Vue {
             height: auto;
           }
         }
+        .video {
+          display: block;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate3d(-50%, -50%, 0);
+          width: auto;
+          height: 100%;
+        }
       }
     }
     .sidebar {
@@ -220,8 +291,9 @@ export default class ComponentPreview extends Vue {
           margin-top: 6px;
           .imgBox {
             width: 100%;
-            height: 64px;
+            height: 64px !important;
             overflow: hidden;
+            margin-bottom: 6px;
             &::before {
               content: '';
               width: 100%;
@@ -237,20 +309,46 @@ export default class ComponentPreview extends Vue {
               }
             }
             &.cur {
-              .imgShow {
+              .imgShow, .videoMask {
                 border: 1px solid #FFE266;
               }
               &::before {
                 display: none;
               }
             }
-            .imgShow {
+            .imgShow, .videoMask {
               width: 100%;
               height: 64px;
               display: block;
               border-radius: 2px;
               box-sizing: border-box;
               overflow: hidden;
+            }
+            .videoMask {
+              background: #000;
+              position: relative;
+              .video {
+                width: 100%;
+                height: 64px;
+                display: block;
+              }
+              .btn {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: #F8F8F8;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                margin: -12px 0 0 -12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                .icon {
+                  font-size: 10px;
+                  color: #354048;
+                }
+              }
             }
           }
         }
