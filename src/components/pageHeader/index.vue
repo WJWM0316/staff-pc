@@ -5,13 +5,13 @@
   			<!-- <img src="~IMAGES/logo.png" alt=""> -->
   		</router-link>
   	</div>
-  	<el-dropdown>
+  	<el-dropdown @command="command">
 		  <span class="el-dropdown-link">
 		    欢迎登录，{{userInfos.realname}}<i class="el-icon-caret-bottom"></i>
 		  </span>
 		  <el-dropdown-menu slot="dropdown">
-		  	<el-dropdown-item>切换管理员端</el-dropdown-item>
-		    <el-dropdown-item>退出登录</el-dropdown-item>
+		  	<el-dropdown-item command="switch">切换管理员端</el-dropdown-item>
+		    <el-dropdown-item command="out">退出登录</el-dropdown-item>
 		  </el-dropdown-menu>
 		</el-dropdown>
  </header>
@@ -19,6 +19,8 @@
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
+import Cookies from 'js-cookie'
+
 @Component({
   computed: {
     ...mapGetters([
@@ -26,7 +28,20 @@ import Component from 'vue-class-component'
     ])
   }
 })
-export default class ComponentHeader extends Vue {}
+export default class ComponentHeader extends Vue {
+	command(action) {
+		switch(action) {
+			case 'out':
+				this.logoutApi({code : Cookies.get('code')})
+				break
+			case 'switch':
+				window.location.href = process.env.VUE_APP__MANAGER_URL
+				break
+			default:
+				break
+		}
+	}
+}
 </script>
 <style lang="scss">
 #header {
