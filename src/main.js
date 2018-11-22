@@ -9,4 +9,4 @@ new Vue({
 	store,
 	router,
   render: h => h(App)
-}).$mount('#lphva')
+}).$mount('#x-plus')
