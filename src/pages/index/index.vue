@@ -55,29 +55,32 @@
  			</div>
  		</div>
  		<div class="content">
- 			<ul class="common-ul">
- 				<li v-for="(affixItem, affixIndex) in commonList" :key="affixIndex">
- 					<div class="li-header">
- 						<div class="img-box">
- 							<img :src="affixItem.avatarInfo.smallUrl" alt="">
- 						</div>
- 						<p class="user-name">{{affixItem.realname}}</p>
- 						<time>{{affixItem.createdDay}}</time>
- 					</div>
- 					<div class="file-content">
- 						<div class="icon-box">
- 							<img :src="affixItem.fileInfo.url | fileCover" alt="">
- 						</div>
- 						<div class="file-infos">
- 							<p class="file-title">{{affixItem.fileInfo.fileName}}</p>
- 							<p class="file-size">{{affixItem.fileInfo.sizeM}}</p>
- 						</div>
- 						<div class="download-box">
- 							<span @click="download(affixItem.fileInfo.url)"><i class="icon font_family icon-xiazai"></i></span>
- 						</div>
- 					</div>
- 				</li>
- 			</ul>
+ 			<div class="month" v-for="item in 5" :key="item">
+ 				<h2><i class="icon font_family icon-riqi"></i> 2018年11月</h2>
+	 			<ul class="common-ul">
+	 				<li v-for="(affixItem, affixIndex) in commonList" :key="affixIndex">
+	 					<div class="li-header">
+	 						<div class="img-box">
+	 							<img :src="affixItem.avatarInfo.smallUrl" alt="">
+	 						</div>
+	 						<p class="user-name">{{affixItem.realname}}</p>
+	 						<time>{{affixItem.createdDay}}</time>
+	 					</div>
+	 					<div class="file-content">
+	 						<div class="icon-box">
+	 							<img :src="affixItem.fileInfo.url | fileCover" alt="">
+	 						</div>
+	 						<div class="file-infos">
+	 							<p class="file-title">{{affixItem.fileInfo.fileName}}</p>
+	 							<p class="file-size">{{affixItem.fileInfo.sizeM}}</p>
+	 						</div>
+	 						<div class="download-box">
+	 							<span @click="download(affixItem.fileInfo.url)"><i class="icon font_family icon-xiazai"></i></span>
+	 						</div>
+	 					</div>
+	 				</li>
+	 			</ul>
+ 			</div>
  		</div>
  	</div>
  	<div class="col-aside-right">
@@ -93,6 +96,7 @@
 	 			<div class="gray" v-if="jobcircleDetail.memberInfo.length > 2"><i></i><i></i><i></i></div>
 	 		</div>
 	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
+ 			<button class="attention-button" v-if="!jobcircleDetail.isAttention && !jobcircleDetail.isOwner " @click="todoAction('focus')"> + 关注 </button>
  			<button class="attention-button" v-if="!jobcircleDetail.isAttention && !jobcircleDetail.isOwner " @click="todoAction('focus')"> + 关注 </button>
  			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner ">
  				<i class="icon font_family icon-shezhi"></i> 工作圈设置
@@ -325,6 +329,9 @@ export default class pageIndex extends Vue {
 			font-weight:400;
 			color:rgba(53,64,72,1);
 			cursor: pointer;
+			padding-right: 24px;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 		}
 		.router-active {
 	    background:rgba(255,226,102,0.12);
@@ -399,6 +406,22 @@ export default class pageIndex extends Vue {
 		width: calc(100% - 612px);
 		display: inline-block;
 		vertical-align: top;
+		.month {
+			margin-bottom: 8px;
+			overflow: hidden;
+			background: white;
+			overflow: hidden;
+			h2 {
+				font-size:14px;
+				font-weight:400;
+				color:rgba(53,64,72,1);
+				margin: 0;
+				height: 46px;
+				line-height: 46px;
+				padding-left: 24px;
+				box-shadow:0px 10px 18px 0px rgba(245,247,250,0.8);
+			}
+		}
 	}
 	.avatar-box {
 		height: 24px;
@@ -546,10 +569,6 @@ export default class pageIndex extends Vue {
 			font-weight:400;
 			color:rgba(188,188,188,1);
 		}
-	}
-	.content {
-		min-height:558px;
-		background:rgba(255,255,255,1);
 	}
 	.common-ul {
 		li {
