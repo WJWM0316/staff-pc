@@ -151,7 +151,8 @@ export default class ComponentPreview extends Vue {
   async getPicList (type) {
     let data = {
       id: this.$route.query.id,
-      month: this.monthList[this.curMonthIndex].month
+      month: this.monthList[this.curMonthIndex].month,
+      globalLoading: true
     }
     let res = await getJobcirclePostaffixOfPictureApi(data)
     if (type === 'jumpMonth') {
