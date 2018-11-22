@@ -23,7 +23,7 @@ export const getPicMonthListJobci1rcleApi = params => request(`/jobcircle/pictur
 export const getJobcirclePostaffixApi = params => request(`/staff/postaffix/${params.id}`, 'get', params.params)
 
 // 获取工作圈分月相册
-export const getJobcirclePostaffixOfPictureApi = params => request(`/jobcircle/picture/${params.id}?month=${params.month}`, 'get', params.params)
+export const getJobcirclePostaffixOfPicturesApi = params => request(`/jobcircle/picture/${params.id}?month=${params.month}`, 'get', params.params)
 
 // 获取工作圈所有帖子文件分页
 export const getJobcirclePostaffixOfFilesApi = params => request(`/jobcircle/files/${params.id}`, 'get', params.params)

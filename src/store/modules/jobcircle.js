@@ -17,7 +17,7 @@ import {
   nofocusJobCircleApi,
   getAllVisibleJobcircleApi,
   getJobcirclePostaffixApi,
-  getJobcirclePostaffixOfPictureApi,
+  getJobcirclePostaffixOfPicturesApi,
   getJobcirclePostaffixOfFilesApi,
   getJobcirclePostaffixOfUrlsApi,
   getJobcircleDetailApi
@@ -140,7 +140,7 @@ const actions = {
         return res
       })
       .catch(error => {
-        return error
+        return Promise.reject(error.data || {})
       })
   },
   /**
@@ -155,7 +155,7 @@ const actions = {
         return res
       })
       .catch(error => {
-        return error
+        return Promise.reject(error.data || {})
       })
   },
   /**
@@ -169,7 +169,7 @@ const actions = {
         return res
       })
       .catch(error => {
-        return error
+        return Promise.reject(error.data || {})
       })
   },
   /**
@@ -183,7 +183,7 @@ const actions = {
         return res
       })
       .catch(error => {
-        return error
+        return Promise.reject(error.data || {})
       })
   },
   /**
@@ -214,7 +214,7 @@ const actions = {
         return res
       })
       .catch(error => {
-        return error
+        return Promise.reject(error.data || {})
       })
   },
   /**
@@ -222,14 +222,14 @@ const actions = {
    * @DateTime 2018-11-22
    * @detail   获取工作圈分月相册
    */
-  getJobcirclePostaffixOfPictureApi (store, params) {
-    return getJobcirclePostaffixOfPictureApi(params)
+  getJobcirclePostaffixOfPicturesApi (store, params) {
+    return getJobcirclePostaffixOfPicturesApi(params)
       .then(res => {
         store.commit(GET_JOB_CIRCLE_POST_AFFIX_PICTURES_LIST, res.data.data)
         return res
       })
       .catch(error => {
-        return error
+        return Promise.reject(error.data || {})
       })
   },
   /**
@@ -244,7 +244,7 @@ const actions = {
         return res
       })
       .catch(error => {
-        return error
+        return Promise.reject(error.data || {})
       })
   },
   /**
@@ -259,7 +259,7 @@ const actions = {
         return res
       })
       .catch(error => {
-        return error
+        return Promise.reject(error.data || {})
       })
   },
   /**
@@ -274,7 +274,7 @@ const actions = {
         return res
       })
       .catch(error => {
-        return error
+        return Promise.reject(error.data || {})
       })
   }
 }
