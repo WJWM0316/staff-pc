@@ -41,7 +41,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Swiper from 'swiper';
-import {getPicMonthListJobci1rcleApi, getPicListJobci1rcleApi} from 'API/jobcircle'
+import {getPicMonthListJobci1rcleApi, getJobcirclePostaffixOfPictureApi} from 'API/jobcircle'
 @Component({
   watch: {
     curIndex (val) {
@@ -153,7 +153,7 @@ export default class ComponentPreview extends Vue {
       id: this.$route.query.id,
       month: this.monthList[this.curMonthIndex].month
     }
-    let res = await getPicListJobci1rcleApi(data)
+    let res = await getJobcirclePostaffixOfPictureApi(data)
     if (type === 'jumpMonth') {
       this.curIndex = 0
       this.pickList = res.data.data

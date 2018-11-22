@@ -45,9 +45,9 @@
  	<div class="col-daptive">
  		<div class="content-header">
  			<ul class="common-tab-box">
- 				<li :class="{'tab-active': tabIndex === 1}" @click="tabClick(1)">文件</li>
- 				<li :class="{'tab-active': tabIndex === 2}" @click="tabClick(2)">相册</li>
- 				<li :class="{'tab-active': tabIndex === 3}" @click="tabClick(3)">链接</li>
+ 				<li :class="{'tab-active': tabIndex === 'Files'}" @click="tabClick('file')">文件</li>
+ 				<li :class="{'tab-active': tabIndex === 'Pictures'}" @click="tabClick('picture')">相册</li>
+ 				<li :class="{'tab-active': tabIndex === 'Urls'}" @click="tabClick('urls')">链接</li>
  			</ul>
  			<div class="common-search-box">
  				<input type="text" placeholder="搜索文件名称或关键词">
@@ -56,20 +56,22 @@
  		</div>
  		<div class="content">
  			<ul class="common-ul">
- 				<li v-for="item in 5" :key="item">
+ 				<li v-for="(affixItem, affixIndex) in commonList" :key="affixIndex">
  					<div class="li-header">
- 						<div class="img-box"></div>
- 						<p class="user-name">魏平</p>
- 						<time>2018-11-12</time>
+ 						<div class="img-box">
+ 							<img :src="affixItem.avatarInfo.smallUrl" alt="">
+ 						</div>
+ 						<p class="user-name">{{affixItem.nickname}}</p>
+ 						<time>{{affixItem.createdDay}}</time>
  					</div>
  					<div class="file-content">
  						<div class="icon-box"></div>
  						<div class="file-infos">
- 							<p class="file-title">设计者，需要做出更好的设计决策，给予研发团队一种高…</p>
- 							<p class="file-size">12M</p>
+ 							<p class="file-title">{{affixItem.fileInfo.fileName}}</p>
+ 							<p class="file-size">{{affixItem.fileInfo.sizeM}}</p>
  						</div>
  						<div class="download-box">
- 							<span><i class="el-icon-download"></i></span>
+ 							<span @click="download(affixItem.fileInfo.url)"><i class="el-icon-download"></i></span>
  						</div>
  					</div>
  				</li>
@@ -96,6 +98,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import preview from 'COMPONENTS/preview'
+
 @Component({
 	components: {
 		preview
@@ -105,29 +108,61 @@ import preview from 'COMPONENTS/preview'
 			'getAttentionsJobcircleApi',
 			'getAllVisibleJobcircleApi',
 			'updateJobCircleCheckedStatus',
-			'updateJobCircleItemCheckedStatus'
+			'updateJobCircleItemCheckedStatus',
+			'getJobcirclePostaffixApi',
+			'getJobcirclePostaffixOfPictureApi',
+			'getJobcirclePostaffixOfFilesApi',
+			'getJobcirclePostaffixOfUrlsApi'
 		])
 	},
 	computed: {
     ...mapGetters([
       'attentionsJobcircle',
-      'allVisibleJobcircle'
+      'allVisibleJobcircle',
+      'jobcirclePostAffix',
+      'jobcirclePostAffixPicture',
+      'jobcirclePostAffixFiles',
+      'jobcirclePostAffixUrls'
     ])
   }
 })
 export default class pageIndex extends Vue {
-	tabIndex = 1
+	tabIndex = 'Files'
+
+  get commonList() {
+    return this[`jobcirclePostAffix${this.tabIndex}`]
+  }
+
 	command(params) {
 		this.updateJobCircleCheckedStatus(params)
 	}
 	routeJump(params) {
 		this.updateJobCircleItemCheckedStatus(params)
+		this[params.show].list.map(field => {
+			if(field.active) this.getLists({id: field.id, params: {page: 1, count: 20}})
+		})
 	}
 	tabClick(index) {
 		this.tabIndex = index
 	}
+
+	// 获取列表数据
+	getLists(params) {
+		this[`getJobcirclePostaffixOf${this.tabIndex}Api`](params)
+	}
+	download(fileLink) {
+    const event = new MouseEvent('click')
+    const a = document.createElement('a')
+    a.href = fileLink
+    a.dispatchEvent(event)
+  }
 	created() {
 		this.getAttentionsJobcircleApi()
+				.then(() => {
+					this.attentionsJobcircle.list.map(field => {
+						if(field.active) this.getLists({id: field.id, params: {page: 1, count: 20}})
+					})
+				})
 		this.getAllVisibleJobcircleApi()
 	}
 }
@@ -430,6 +465,12 @@ export default class pageIndex extends Vue {
 			background: gray;
 			display: inline-block;
 			vertical-align: middle;
+			position: relative;
+			overflow: hidden;
+			img {
+				width: 100%;
+				height: 100%;
+			}
 		}
 		.user-name {
 			font-size:14px;

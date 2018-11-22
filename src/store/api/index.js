@@ -1,3 +1,4 @@
+// http://wap.xplus.ziwork.com/laohu/api/docs#/
 import axios from 'axios'
 import { Loading } from 'element-ui'
 import Cookies from 'js-cookie'
