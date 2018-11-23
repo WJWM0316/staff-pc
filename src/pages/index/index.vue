@@ -16,8 +16,11 @@
  					:key="attentionsJobcircleIndex"
  					@click="getActiveJobCircleInfos({show: 'attentionsJobcircle', hide: 'allVisibleJobcircle', index: attentionsJobcircleIndex})"
  					:class="{'router-active': attentionsJobcircleItem.active}">
- 						<span class="icon-box"><img :src="attentionsJobcircleItem.coverImg.smallUrl" alt=""></span>
- 						{{attentionsJobcircleItem.name}}
+ 						<div class="icon-box">
+ 							<img :src="attentionsJobcircleItem.coverImg.smallUrl" alt="">
+ 							<span class="is-top" v-if="attentionsJobcircleItem.isTop"></span>
+ 						</div>
+ 						<p>{{attentionsJobcircleItem.name}}</p>
  					</li>
  			</ul>
  		</div>
@@ -36,8 +39,11 @@
  					:key="allVisibleJobcircleIndex"
  					@click="getActiveJobCircleInfos({show: 'allVisibleJobcircle', hide: 'attentionsJobcircle', index: allVisibleJobcircleIndex})"
  					:class="{'router-active': allVisibleJobcircleItem.active}">
- 						<span class="icon-box"><img :src="allVisibleJobcircleItem.coverImg.smallUrl" alt=""></span>
- 						{{allVisibleJobcircleItem.name}}
+ 						<div class="icon-box">
+ 							<img :src="allVisibleJobcircleItem.coverImg.smallUrl" alt="">
+ 							<span class="is-top" v-if="allVisibleJobcircleItem.isTop"></span>
+ 						</div>
+ 						<p>{{allVisibleJobcircleItem.name}}</p>
  					</li>
  			</ul>
  		</div>
@@ -97,7 +103,9 @@
 	 		</div>
 	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
  			<button class="attention-button" v-if="!jobcircleDetail.isAttention && !jobcircleDetail.isOwner " @click="todoAction('focus')"> + 关注 </button>
- 			<button class="attention-button" v-if="!jobcircleDetail.isAttention && !jobcircleDetail.isOwner " @click="todoAction('focus')"> + 关注 </button>
+ 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention && !jobcircleDetail.isOwner " @click="todoAction('unfocus')"> 已关注 </button>
+ 			<button class="button-untop" v-if="!jobcircleDetail.isTop && !jobcircleDetail.isOwner " @click="todoAction('top')"> 置顶 </button>
+ 			<button class="button-top" v-if="jobcircleDetail.isTop && !jobcircleDetail.isOwner " @click="todoAction('untop')"> 取消置顶 </button>
  			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner ">
  				<i class="icon font_family icon-shezhi"></i> 工作圈设置
  			</button>
@@ -126,7 +134,10 @@ import preview from 'COMPONENTS/preview'
 			'getJobcirclePostaffixOfFilesApi',
 			'getJobcirclePostaffixOfUrlsApi',
 			'getJobcircleDetailApi',
-			'focusJobCircleApi'
+			'focusJobCircleApi',
+			'unFocusJobCircleApi',
+			'topJobCircleApi',
+			'unTopJobCircleApi'
 		])
 	},
 	computed: {
@@ -214,7 +225,46 @@ export default class pageIndex extends Vue {
   todoAction(action) {
   	switch(action) {
   		case 'focus':
-  			this.focusJobCircleApi({id: this.currentJobCircleId})
+  			this.focusJobCircleApi({id: this.currentJobCircleId, globalLoading: true})
+  					.then((res) => {
+  						this.$message({
+			          message: `${res.data.msg}~`,
+			          type: 'success'
+			        })
+  						this.getJobcircleDetail({id: this.currentJobCircleId})
+  					})
+  					.catch(error => {
+  						this.$message.error(`${error.msg}~`)
+  					})
+  			break
+  		case 'unfocus':
+  			this.unfocusJobCircleApi({id: this.currentJobCircleId, globalLoading: true})
+  					.then((res) => {
+  						this.$message({
+			          message: `${res.data.msg}~`,
+			          type: 'success'
+			        })
+  						this.getJobcircleDetail({id: this.currentJobCircleId})
+  					})
+  					.catch(error => {
+  						this.$message.error(`${error.msg}~`)
+  					})
+  			break
+  		case 'top':
+  			this.topJobCircleApi({id: this.currentJobCircleId, globalLoading: true})
+  					.then((res) => {
+  						this.$message({
+			          message: `${res.data.msg}~`,
+			          type: 'success'
+			        })
+  						this.getJobcircleDetail({id: this.currentJobCircleId})
+  					})
+  					.catch(error => {
+  						this.$message.error(`${error.msg}~`)
+  					})
+  			break
+  		case 'untop':
+  			this.unTopJobCircleApi({id: this.currentJobCircleId, globalLoading: true})
   					.then((res) => {
   						this.$message({
 			          message: `${res.data.msg}~`,
@@ -254,7 +304,6 @@ export default class pageIndex extends Vue {
 </script>
 <style lang="scss">
 #index{
-	margin-top: 24px;
 	.col-aside-left {
 		width: 282px;
 		height: 300px;
@@ -322,8 +371,6 @@ export default class pageIndex extends Vue {
 		}
 		li {
 			height: 64px;
-			overflow: hidden;
-			position: relative;
 			line-height: 64px;
 			font-size:12px;
 			font-weight:400;
@@ -332,10 +379,36 @@ export default class pageIndex extends Vue {
 			padding-right: 24px;
 			text-overflow: ellipsis;
 			white-space: nowrap;
+			position: relative;
+		}
+		p {
+			line-height: 64px;
+			font-weight:400;
+			color:rgba(53,64,72,1);
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			margin: 0;
+			display: inline-block;
+			overflow: hidden;
+			vertical-align: middle;
+			width: calc(100% - 82px)
+		}
+		.is-top {
+			width:16px;
+			height:16px;
+			background: white url(~IMAGES/icon_top.png) no-repeat center center;
+			background-size: cover;
+			border-radius:50%;
+			box-sizing: border-box;
+			text-align: center;
+			line-height: 16px;
+			display: inline-block;
+			position: absolute;
+			bottom: -3px;
+			right: -3px;
 		}
 		.router-active {
 	    background:rgba(255,226,102,0.12);
-	    position: relative;
 	    pointer-events: none;
 	    a {
 	      color: #fff;
@@ -480,6 +553,41 @@ export default class pageIndex extends Vue {
 		color: #D7AB70;
 		cursor: pointer;
 		outline: none;
+	}
+	.attentioned-button {
+		border:1px solid rgba(248,248,248,1);
+		color: #929292;
+		cursor: pointer;
+		outline: none;
+		width:98px;
+		height:36px;
+		background:rgba(248,248,248,1);
+		border-radius:4px;
+		font-size: 14px;
+	}
+	.button-top {
+		border:1px solid rgba(248,248,248,1);
+		color: #929292;
+		cursor: pointer;
+		outline: none;
+		width:98px;
+		height:36px;
+		background:rgba(248,248,248,1);
+		border-radius:4px;
+		margin-left: 16px;
+		font-size: 14px;
+	}
+	.button-untop {
+		border:1px solid #D7AB70;
+		color: #D7AB70;
+		cursor: pointer;
+		outline: none;
+		width:98px;
+		height:36px;
+		background:white;
+		border-radius:4px;
+		margin-left: 16px;
+		font-size: 14px;
 	}
 	.job-circle-setting {
 		width:126px;

@@ -14,13 +14,15 @@ import defaultJobCirclePicture from 'IMAGES/img_normal_head.png'
 import {
   getAttentionsJobcircleApi,
   focusJobCircleApi,
-  nofocusJobCircleApi,
+  unFocusJobCircleApi,
   getAllVisibleJobcircleApi,
   getJobcirclePostaffixApi,
   getJobcirclePostaffixOfPicturesApi,
   getJobcirclePostaffixOfFilesApi,
   getJobcirclePostaffixOfUrlsApi,
-  getJobcircleDetailApi
+  getJobcircleDetailApi,
+  topJobCircleApi,
+  unTopJobCircleApi
 } from 'API/jobcircle'
 
 const state = {
@@ -177,8 +179,8 @@ const actions = {
    * @DateTime 2018-11-22
    * @detail   取消关注工作圈
    */
-  nofocusJobCircleApi (store, params) {
-    return nofocusJobCircleApi(params)
+  unFocusJobCircleApi (store, params) {
+    return unFocusJobCircleApi(params)
       .then(res => {
         return res
       })
@@ -271,6 +273,34 @@ const actions = {
     return getJobcircleDetailApi(params)
       .then(res => {
         store.commit(GET_JOB_CIRCLE_DETAIL, res.data.data)
+        return res
+      })
+      .catch(error => {
+        return Promise.reject(error.data || {})
+      })
+  },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   置顶关注的工作圈
+   */
+  topJobCircleApi (store, params) {
+    return topJobCircleApi(params)
+      .then(res => {
+        return res
+      })
+      .catch(error => {
+        return Promise.reject(error.data || {})
+      })
+  },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   取消关注的工作圈置顶
+   */
+  unTopJobCircleApi (store, params) {
+    return unTopJobCircleApi(params)
+      .then(res => {
         return res
       })
       .catch(error => {
