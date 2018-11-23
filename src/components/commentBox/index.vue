@@ -24,9 +24,16 @@
 			<input type="text" placeholder="输入或粘贴链接地址">
 			<button>确定</button>
 		</div>
-		<div class="video-infos">
-			
+		<div class="video-infos" v-if="videoUpload.show">
+			<span class="btn-close"><i class="icon font_family icon-icon_errorsvg"></i></span>
+			<div class="btn-click"><i class="icon font_family icon-play"></i></div>
+			<!-- <video :src="videoUpload.infos.url" v-if="videoUpload.infos.url"> your browser does not support the video tag </video> -->
 		</div>
+		<ul class="common-list">
+			<li v-for="item in 5" :key="item">
+				<span class="btn-close"><i class="icon font_family icon-icon_errorsvg"></i></span>
+			</li>
+		</ul>
 		<div class="comment-controlls-box">
 			<ul class="controlls-list">
 				<li>
@@ -46,9 +53,9 @@
 				</li>
 				<li>
 					<el-upload
-					  :action="vedioUpload.action"
-					  :accept="vedioUpload.accept"
-					  :data="vedioUpload.params"
+					  :action="videoUpload.action"
+					  :accept="videoUpload.accept"
+					  :data="videoUpload.params"
 					  :show-file-list="false"
 					  :on-progress="handleVideoProgress"
 					  :on-success="handleVideoSuccess"
@@ -122,7 +129,8 @@ export default class ComponentCommentBox extends Vue {
   }
 
   // 视频上传
-  vedioUpload = {
+  videoUpload = {
+  	show: false,
   	action: upload_api,
     limit: 1,
     accept: '.mp4,.ogg,.flv,.avi,.wmv,.rmvb',
@@ -130,6 +138,10 @@ export default class ComponentCommentBox extends Vue {
     params: {
       token: getAccessToken(),
       attach_type: 'video',
+    },
+    progress: 0,
+    infos: {
+    	url: ''
     }
   }
 
@@ -174,7 +186,6 @@ export default class ComponentCommentBox extends Vue {
     	formData.append(`img${index + 1}`, file)
     	i = i + 1
     })
-    setTimeout(() => {console.log(i)}, 500)
     // this.uploadAttachesApi(formData)
   }
   /**
@@ -213,7 +224,7 @@ export default class ComponentCommentBox extends Vue {
   handleVideoUpload() {
   	const formData = new FormData()
     formData.append('attach_type', 'video')
-    formData.append('img1', this.vedioUpload.file)
+    formData.append('img1', this.videoUpload.file)
   	this.uploadAttachesApi(formData)
   }
   /**
@@ -223,7 +234,9 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   handleVideoChange(file) {
-  	this.vedioUpload.file = file.raw
+  	this.videoUpload.file = file.raw
+  	this.videoUpload.show = true
+  	console.log(this.videoUpload)
   }
   /**
    * @Author   小书包
@@ -232,7 +245,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}        [description]
    */
   handleVideoProgress(event, file, fileList) {
-  	console.log(event, file, fileList)
+  	this.videoUpload.progress = event.percent
   }
    /**
    * @Author   小书包
@@ -240,8 +253,8 @@ export default class ComponentCommentBox extends Vue {
    * @detail   视频上传成功
    * @return   {[type]}        [description]
    */
-  handleVideoSuccess(event, file, fileList) {
-  	console.log(event, file, fileList)
+  handleVideoSuccess(res) {
+  	this.videoUpload.infos = res.data[0]
   }
    /**
    * @Author   小书包
@@ -481,10 +494,50 @@ export default class ComponentCommentBox extends Vue {
 	.video-infos {
 		width:90px;
 		height:90px;
-		background:rgba(245,247,250,1);
+		background:#354048;
 		border-radius:4px;
 		position: relative;
 		margin-top: 24px;
+		.btn-close{
+			position: absolute;
+			top: -8px;
+			right: -8px;
+			color: #BCBCBC;
+		}
+		video{
+			width: 100%;
+			height: 100%;
+		}
+		.btn-click{
+			width:34px;
+			height:34px;
+			background:rgba(255,255,255,1);
+			border-radius: 50%;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			line-height: 34px;
+			text-align: center;
+		}
+	}
+	.common-list {
+		margin-top: 24px;
+		li {
+			width:88px;
+			height:88px;
+			background:rgba(245,247,250,1);
+			border-radius:4px;
+			position: relative;
+			display: inline-block;
+			margin-right: 24px;
+		}
+		.btn-close{
+			position: absolute;
+			top: -8px;
+			right: -8px;
+			color: #BCBCBC;
+		}
 	}
 }
 </style>
