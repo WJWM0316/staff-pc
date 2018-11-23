@@ -3,6 +3,10 @@ import {
   HIDE_DIALOG
 } from '../mutation-types'
 
+import {
+  uploadAttachesApi
+} from 'API/common'
+
 const state = {
   dialog: {
     show: true,
@@ -37,6 +41,20 @@ const actions = {
   },
   hideDialog(store, options) {
     store.commit(HIDE_DIALOG, options)
+  },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   取消关注的工作圈置顶
+   */
+  uploadAttachesApi (store, params) {
+    return uploadAttachesApi(params)
+      .then(res => {
+        return res
+      })
+      .catch(error => {
+        return Promise.reject(error.data || {})
+      })
   }
 }
 

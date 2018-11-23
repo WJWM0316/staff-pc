@@ -19,6 +19,9 @@ export const API_ROOT = `${process.env.VUE_APP_API}/${company}`
 
 import { removeAccessToken, getAccessToken } from '@/store/cacheService'
 
+// 请求的跟地址
+export const upload_api = `${API_ROOT}/attaches`
+
 axios.defaults.baseURL = API_ROOT
 
 // 请求拦截器

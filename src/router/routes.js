@@ -12,5 +12,11 @@ export const routes = [
     name: 'index',
     title: '首页',
     component: () => import(/* webpackChunkName: "index" */ '@/pages/index/index.vue'),
+  },
+  {
+    path: '/test',
+    name: 'test',
+    title: '首页',
+    component: () => import(/* webpackChunkName: "test" */ '@/pages/test/index.vue'),
   }
 ]
