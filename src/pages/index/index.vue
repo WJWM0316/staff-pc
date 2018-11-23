@@ -14,10 +14,13 @@
  				<li
  					v-for="(attentionsJobcircleItem, attentionsJobcircleIndex) in attentionsJobcircle.list"
  					:key="attentionsJobcircleIndex"
- 					@click="routeJump({show: 'attentionsJobcircle', hide: 'allVisibleJobcircle', index: attentionsJobcircleIndex})"
+ 					@click="getActiveJobCircleInfos({show: 'attentionsJobcircle', hide: 'allVisibleJobcircle', index: attentionsJobcircleIndex})"
  					:class="{'router-active': attentionsJobcircleItem.active}">
- 						<span class="icon-box"><img :src="attentionsJobcircleItem.coverImg.smallUrl" alt=""></span>
- 						{{attentionsJobcircleItem.name}}
+ 						<div class="icon-box">
+ 							<img :src="attentionsJobcircleItem.coverImg.smallUrl" alt="">
+ 							<span class="is-top" v-if="attentionsJobcircleItem.isTop"></span>
+ 						</div>
+ 						<p>{{attentionsJobcircleItem.name}}</p>
  					</li>
  			</ul>
  		</div>
@@ -34,10 +37,13 @@
  				<li
  					v-for="(allVisibleJobcircleItem, allVisibleJobcircleIndex) in allVisibleJobcircle.list"
  					:key="allVisibleJobcircleIndex"
- 					@click="routeJump({show: 'allVisibleJobcircle', hide: 'attentionsJobcircle', index: allVisibleJobcircleIndex})"
+ 					@click="getActiveJobCircleInfos({show: 'allVisibleJobcircle', hide: 'attentionsJobcircle', index: allVisibleJobcircleIndex})"
  					:class="{'router-active': allVisibleJobcircleItem.active}">
- 						<span class="icon-box"><img :src="allVisibleJobcircleItem.coverImg.smallUrl" alt=""></span>
- 						{{allVisibleJobcircleItem.name}}
+ 						<div class="icon-box">
+ 							<img :src="allVisibleJobcircleItem.coverImg.smallUrl" alt="">
+ 							<span class="is-top" v-if="allVisibleJobcircleItem.isTop"></span>
+ 						</div>
+ 						<p>{{allVisibleJobcircleItem.name}}</p>
  					</li>
  			</ul>
  		</div>
@@ -45,9 +51,9 @@
  	<div class="col-daptive">
  		<div class="content-header">
  			<ul class="common-tab-box">
- 				<li :class="{'tab-active': tabIndex === 'Files'}" @click="tabClick('file')">文件</li>
- 				<li :class="{'tab-active': tabIndex === 'Pictures'}" @click="tabClick('picture')">相册</li>
- 				<li :class="{'tab-active': tabIndex === 'Urls'}" @click="tabClick('urls')">链接</li>
+ 				<li :class="{'tab-active': tabIndex === 'Files'}" @click="tabClick('Files')">文件</li>
+ 				<li :class="{'tab-active': tabIndex === 'Pictures'}" @click="tabClick('Pictures')">相册</li>
+ 				<li :class="{'tab-active': tabIndex === 'Urls'}" @click="tabClick('Urls')">链接</li>
  			</ul>
  			<div class="common-search-box">
  				<input type="text" placeholder="搜索文件名称或关键词">
@@ -55,40 +61,54 @@
  			</div>
  		</div>
  		<div class="content">
- 			<ul class="common-ul">
- 				<li v-for="(affixItem, affixIndex) in commonList" :key="affixIndex">
- 					<div class="li-header">
- 						<div class="img-box">
- 							<img :src="affixItem.avatarInfo.smallUrl" alt="">
- 						</div>
- 						<p class="user-name">{{affixItem.nickname}}</p>
- 						<time>{{affixItem.createdDay}}</time>
- 					</div>
- 					<div class="file-content">
- 						<div class="icon-box"></div>
- 						<div class="file-infos">
- 							<p class="file-title">{{affixItem.fileInfo.fileName}}</p>
- 							<p class="file-size">{{affixItem.fileInfo.sizeM}}</p>
- 						</div>
- 						<div class="download-box">
- 							<span @click="download(affixItem.fileInfo.url)"><i class="el-icon-download"></i></span>
- 						</div>
- 					</div>
- 				</li>
- 			</ul>
+ 			<div class="month" v-for="item in 5" :key="item">
+ 				<h2><i class="icon font_family icon-riqi"></i> 2018年11月</h2>
+	 			<ul class="common-ul">
+	 				<li v-for="(affixItem, affixIndex) in commonList" :key="affixIndex">
+	 					<div class="li-header">
+	 						<div class="img-box">
+	 							<img :src="affixItem.avatarInfo.smallUrl" alt="">
+	 						</div>
+	 						<p class="user-name">{{affixItem.realname}}</p>
+	 						<time>{{affixItem.createdDay}}</time>
+	 					</div>
+	 					<div class="file-content">
+	 						<div class="icon-box">
+	 							<img :src="affixItem.fileInfo.url | fileCover" alt="">
+	 						</div>
+	 						<div class="file-infos">
+	 							<p class="file-title">{{affixItem.fileInfo.fileName}}</p>
+	 							<p class="file-size">{{affixItem.fileInfo.sizeM}}</p>
+	 						</div>
+	 						<div class="download-box">
+	 							<span @click="download(affixItem.fileInfo.url)"><i class="icon font_family icon-xiazai"></i></span>
+	 						</div>
+	 					</div>
+	 				</li>
+	 			</ul>
+ 			</div>
  		</div>
  	</div>
  	<div class="col-aside-right">
  		<div class="work-circle-infos">
-	 		<div class="img-box"><i class="icon font_family icon-search"></i></div>
-	 		<p class="work-name">工作圈标题最多可以有二十五个字 这里需要完整显示完的</p>
-	 		<div class="avatar-box">
-	 			<div v-for="item in 4" :key="item"></div>
+	 		<div class="img-box">
+	 			<img :src="jobcircleDetail.coverImg.middleUrl" alt="">
 	 		</div>
-	 		<p class="together-work-in">23人和你一起工作</p>
-	 		<button class="attention-button">
-	 			+ 关注
-	 		</button>
+	 		<p class="work-name">{{jobcircleDetail.name}}</p>
+	 		<div class="avatar-box" v-if="jobcircleDetail.memberInfo.length">
+	 			<div v-for="(memberItem, memberIndex) in jobcircleDetail.memberInfo" :key="memberIndex">
+	 				<img :src="memberItem.avatarInfo.smallUrl" alt="">
+	 			</div>
+	 			<div class="gray" v-if="jobcircleDetail.memberInfo.length > 2"><i></i><i></i><i></i></div>
+	 		</div>
+	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
+ 			<button class="attention-button" v-if="!jobcircleDetail.isAttention && !jobcircleDetail.isOwner " @click="todoAction('focus')"> + 关注 </button>
+ 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention && !jobcircleDetail.isOwner " @click="todoAction('unfocus')"> 已关注 </button>
+ 			<button class="button-untop" v-if="!jobcircleDetail.isTop && !jobcircleDetail.isOwner " @click="todoAction('top')"> 置顶 </button>
+ 			<button class="button-top" v-if="jobcircleDetail.isTop && !jobcircleDetail.isOwner " @click="todoAction('untop')"> 取消置顶 </button>
+ 			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner ">
+ 				<i class="icon font_family icon-shezhi"></i> 工作圈设置
+ 			</button>
  		</div>
  	</div>
  	<!-- <preview></preview> -->
@@ -109,9 +129,14 @@ import preview from 'COMPONENTS/preview'
 			'updateJobCircleCheckedStatus',
 			'updateJobCircleItemCheckedStatus',
 			'getJobcirclePostaffixApi',
-			'getJobcirclePostaffixOfPictureApi',
+			'getJobcirclePostaffixOfPicturesApi',
 			'getJobcirclePostaffixOfFilesApi',
-			'getJobcirclePostaffixOfUrlsApi'
+			'getJobcirclePostaffixOfUrlsApi',
+			'getJobcircleDetailApi',
+			'focusJobCircleApi',
+			'unFocusJobCircleApi',
+			'topJobCircleApi',
+			'unTopJobCircleApi'
 		])
 	},
 	computed: {
@@ -121,54 +146,163 @@ import preview from 'COMPONENTS/preview'
       'jobcirclePostAffix',
       'jobcirclePostAffixPicture',
       'jobcirclePostAffixFiles',
-      'jobcirclePostAffixUrls'
+      'jobcirclePostAffixUrls',
+      'currentJobCircleId',
+      'jobcircleDetail'
     ])
   }
 })
 export default class pageIndex extends Vue {
 	tabIndex = 'Files'
-
   get commonList() {
     return this[`jobcirclePostAffix${this.tabIndex}`]
   }
-
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   侧边栏选中
+   */
 	command(params) {
 		this.updateJobCircleCheckedStatus(params)
 	}
-	routeJump(params) {
+	/**
+	 * @Author   小书包
+	 * @DateTime 2018-11-22
+	 * @detail   获取页面选的的工作圈信息
+	 */
+	getActiveJobCircleInfos(params) {
 		this.updateJobCircleItemCheckedStatus(params)
 		this[params.show].list.map(field => {
-			if(field.active) this.getLists({id: field.id, params: {page: 1, count: 20}})
+			if(field.active) {
+				this.getLists({id: field.id, params: {page: 1, count: 20}})
+				this.getJobcircleDetail({id: this.currentJobCircleId})
+			}
 		})
 	}
+	/**
+	 * @Author   小书包
+	 * @DateTime 2018-11-22
+	 * @detail   选显卡切换
+	 */
 	tabClick(index) {
 		this.tabIndex = index
+		this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 20}})
 	}
-
-	// 获取列表数据
+	/**
+	 * @Author   小书包
+	 * @DateTime 2018-11-22
+	 * @detail   根据id获取列表数据
+	 */
 	getLists(params) {
 		this[`getJobcirclePostaffixOf${this.tabIndex}Api`](params)
 	}
+	/**
+	 * @Author   小书包
+	 * @DateTime 2018-11-22
+	 * @detail   获取工作圈详情
+	 */
+	getJobcircleDetail(params) {
+		this.getJobcircleDetailApi(params)
+	}
+	/**
+	 * @Author   小书包
+	 * @DateTime 2018-11-22
+	 * @detail   文件下载
+	 */
 	download(fileLink) {
     const event = new MouseEvent('click')
     const a = document.createElement('a')
     a.href = fileLink
     a.dispatchEvent(event)
   }
-	created() {
-		this.getAttentionsJobcircleApi()
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   待办项
+   * @return   {[type]}   [description]
+   */
+  todoAction(action) {
+  	switch(action) {
+  		case 'focus':
+  			this.focusJobCircleApi({id: this.currentJobCircleId, globalLoading: true})
+  					.then((res) => {
+  						this.$message({
+			          message: `${res.data.msg}~`,
+			          type: 'success'
+			        })
+  						this.getJobcircleDetail({id: this.currentJobCircleId})
+  					})
+  					.catch(error => {
+  						this.$message.error(`${error.msg}~`)
+  					})
+  			break
+  		case 'unfocus':
+  			this.unfocusJobCircleApi({id: this.currentJobCircleId, globalLoading: true})
+  					.then((res) => {
+  						this.$message({
+			          message: `${res.data.msg}~`,
+			          type: 'success'
+			        })
+  						this.getJobcircleDetail({id: this.currentJobCircleId})
+  					})
+  					.catch(error => {
+  						this.$message.error(`${error.msg}~`)
+  					})
+  			break
+  		case 'top':
+  			this.topJobCircleApi({id: this.currentJobCircleId, globalLoading: true})
+  					.then((res) => {
+  						this.$message({
+			          message: `${res.data.msg}~`,
+			          type: 'success'
+			        })
+  						this.getJobcircleDetail({id: this.currentJobCircleId})
+  					})
+  					.catch(error => {
+  						this.$message.error(`${error.msg}~`)
+  					})
+  			break
+  		case 'untop':
+  			this.unTopJobCircleApi({id: this.currentJobCircleId, globalLoading: true})
+  					.then((res) => {
+  						this.$message({
+			          message: `${res.data.msg}~`,
+			          type: 'success'
+			        })
+  						this.getJobcircleDetail({id: this.currentJobCircleId})
+  					})
+  					.catch(error => {
+  						this.$message.error(`${error.msg}~`)
+  					})
+  			break
+  		default:
+  			break
+  	}
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   初始化页面数据
+   */
+  init() {
+  	this.getAttentionsJobcircleApi()
 				.then(() => {
 					this.attentionsJobcircle.list.map(field => {
-						if(field.active) this.getLists({id: field.id, params: {page: 1, count: 20}})
+						if(field.active) {
+							this.getLists({id: field.id, params: {page: 1, count: 20}})
+							this.getJobcircleDetail({id: this.currentJobCircleId})
+						}
 					})
 				})
 		this.getAllVisibleJobcircleApi()
+  }
+	created() {
+		this.init()
 	}
 }
 </script>
 <style lang="scss">
 #index{
-	margin-top: 24px;
 	.col-aside-left {
 		width: 282px;
 		height: 300px;
@@ -236,17 +370,44 @@ export default class pageIndex extends Vue {
 		}
 		li {
 			height: 64px;
-			overflow: hidden;
-			position: relative;
 			line-height: 64px;
 			font-size:12px;
 			font-weight:400;
 			color:rgba(53,64,72,1);
 			cursor: pointer;
+			padding-right: 24px;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			position: relative;
+		}
+		p {
+			line-height: 64px;
+			font-weight:400;
+			color:rgba(53,64,72,1);
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			margin: 0;
+			display: inline-block;
+			overflow: hidden;
+			vertical-align: middle;
+			width: calc(100% - 82px)
+		}
+		.is-top {
+			width:16px;
+			height:16px;
+			background: white url(~IMAGES/icon_top.png) no-repeat center center;
+			background-size: cover;
+			border-radius:50%;
+			box-sizing: border-box;
+			text-align: center;
+			line-height: 16px;
+			display: inline-block;
+			position: absolute;
+			bottom: -3px;
+			right: -3px;
 		}
 		.router-active {
 	    background:rgba(255,226,102,0.12);
-	    position: relative;
 	    pointer-events: none;
 	    a {
 	      color: #fff;
@@ -296,8 +457,12 @@ export default class pageIndex extends Vue {
 			width: 80px;
 			height: 80px;
 			display: inline-block;
-			background: pink;
 			border-radius: 50%;
+			overflow: hidden;
+			img {
+				width: 100%;
+				height: 100%;
+			}
 		}
 		.work-name {
 			font-size:14px;
@@ -313,6 +478,22 @@ export default class pageIndex extends Vue {
 		width: calc(100% - 612px);
 		display: inline-block;
 		vertical-align: top;
+		.month {
+			margin-bottom: 8px;
+			overflow: hidden;
+			background: white;
+			overflow: hidden;
+			h2 {
+				font-size:14px;
+				font-weight:400;
+				color:rgba(53,64,72,1);
+				margin: 0;
+				height: 46px;
+				line-height: 46px;
+				padding-left: 24px;
+				box-shadow:0px 10px 18px 0px rgba(245,247,250,0.8);
+			}
+		}
 	}
 	.avatar-box {
 		height: 24px;
@@ -320,24 +501,39 @@ export default class pageIndex extends Vue {
 		> div {
 			height: 24px;
 			width: 24px;
+			line-height: 24px;
+			text-align: center;
 			border-radius: 50%;
 			display: inline-block;
 			border: 1px solid white;
+			overflow: hidden;
+			img {
+				width: 100%;
+				height: 100%;
+			}
 			&:nth-child(1) {
-				background: red;
 			};
 			&:nth-child(2) {
-				background: red;
 				margin-left: -10px;
 			};
 			&:nth-child(3) {
-				background: red;
 				margin-left: -10px;
 			};
 			&:nth-child(4) {
-				background: pink;
 				margin-left: -10px;
 			};
+		}
+		.gray {
+			background: #F8F8F8;
+			i{
+				width: 3px;
+				height: 3px;
+				border-radius: 50%;
+				background: #BCBCBC;
+				display: inline-block;
+				margin: 0 1px;
+				vertical-align: middle;
+			}
 		}
 	}
 	.together-work-in {
@@ -356,6 +552,51 @@ export default class pageIndex extends Vue {
 		color: #D7AB70;
 		cursor: pointer;
 		outline: none;
+	}
+	.attentioned-button {
+		border:1px solid rgba(248,248,248,1);
+		color: #929292;
+		cursor: pointer;
+		outline: none;
+		width:98px;
+		height:36px;
+		background:rgba(248,248,248,1);
+		border-radius:4px;
+		font-size: 14px;
+	}
+	.button-top {
+		border:1px solid rgba(248,248,248,1);
+		color: #929292;
+		cursor: pointer;
+		outline: none;
+		width:98px;
+		height:36px;
+		background:rgba(248,248,248,1);
+		border-radius:4px;
+		margin-left: 16px;
+		font-size: 14px;
+	}
+	.button-untop {
+		border:1px solid #D7AB70;
+		color: #D7AB70;
+		cursor: pointer;
+		outline: none;
+		width:98px;
+		height:36px;
+		background:white;
+		border-radius:4px;
+		margin-left: 16px;
+		font-size: 14px;
+	}
+	.job-circle-setting {
+		width:126px;
+		height:36px;
+		border-radius:4px;
+		border:1px solid #EBEEF5;
+		color: #666666;
+		cursor: pointer;
+		outline: none;
+		background:linear-gradient(180deg,rgba(255,255,255,1) 0%,rgba(255,255,255,1) 100%);
 	}
 	.content-header {
 		height:46px;
@@ -436,10 +677,6 @@ export default class pageIndex extends Vue {
 			color:rgba(188,188,188,1);
 		}
 	}
-	.content {
-		min-height:558px;
-		background:rgba(255,255,255,1);
-	}
 	.common-ul {
 		li {
 			background:rgba(255,255,255,1);
@@ -495,14 +732,19 @@ export default class pageIndex extends Vue {
 			text-align: center;
 			float: right;
 			line-height: 46px;
+			color: #666666;
 		}
 		.icon-box {
 			width: 46px;
 			height: 46px;
-			background: red;
 			border-radius: 4px;
 			display: inline-block;
 			margin-right: 6px;
+			overflow: hidden;
+			img {
+				width: 100%;
+				height: 100%;
+			}
 		}
 		.file-infos {
 			width: calc(100% - 62px - 70px);

@@ -52,7 +52,7 @@
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import Swiper from 'swiper';
-import {getPicMonthListJobci1rcleApi, getJobcirclePostaffixOfPictureApi} from 'API/jobcircle'
+import {getPicMonthListJobci1rcleApi, getJobcirclePostaffixOfPicturesApi} from 'API/jobcircle'
 @Component({
   watch: {
     curIndex (val) {
@@ -207,7 +207,7 @@ export default class ComponentPreview extends Vue {
       data.globalLoading = true
     }
     this.isLoging = true
-    let res = await getJobcirclePostaffixOfPictureApi(data)
+    let res = await getJobcirclePostaffixOfPicturesApi(data)
     this.isLoging = false
     if (res.data.meta) {
       if (!res.data.meta.nextPageUrl) {

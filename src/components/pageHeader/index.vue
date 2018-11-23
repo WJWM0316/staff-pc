@@ -35,7 +35,7 @@ export default class ComponentHeader extends Vue {
 				this.logoutApi({code : Cookies.get('code')})
 				break
 			case 'switch':
-				window.location.href = process.env.VUE_APP__MANAGER_URL
+				window.location.replace = process.env.VUE_APP__MANAGER_URL
 				break
 			default:
 				break
@@ -49,6 +49,12 @@ export default class ComponentHeader extends Vue {
 	line-height: 60px;
 	background:rgba(53,64,72,1);
 	padding: 0 128px;
+	box-sizing: border-box;
+	position: fixed;
+	width: 100%;
+	left: 0;
+	top: 0;
+	z-index: 10;
 	.logo-box{
 		display: inline-block;
 		transition: all ease .4s;

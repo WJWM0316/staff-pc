@@ -7,7 +7,7 @@ export const getAttentionsJobcircleApi = params => request('/jobcircle/attention
 export const focusJobCircleApi = params => request('/jobcircle/focus', 'put', params)
 
 // 取消关注工作圈
-export const nofocusJobCircleApi = params => request('/jobcircle/nofocus', 'put', params)
+export const unFocusJobCircleApi = params => request('/jobcircle/nofocus', 'put', params)
 
 // 获取全部可见的工作圈列表
 export const getAllVisibleJobcircleApi = params => request('/jobcircle/all', 'get', params)
@@ -23,10 +23,20 @@ export const getPicMonthListJobci1rcleApi = params => request(`/jobcircle/pictur
 export const getJobcirclePostaffixApi = params => request(`/staff/postaffix/${params.id}`, 'get', params.params)
 
 // 获取工作圈分月相册
-export const getJobcirclePostaffixOfPictureApi = params => request(`/jobcircle/picture/${params.id}`, 'get', params)
+export const getJobcirclePostaffixOfPicturesApi = params => request(`/jobcircle/picture/${params.id}?month=${params.month}`, 'get', params.params)
+
 
 // 获取工作圈所有帖子文件分页
 export const getJobcirclePostaffixOfFilesApi = params => request(`/jobcircle/files/${params.id}`, 'get', params.params)
 
 // 获取工作圈所有帖子链接分页
 export const getJobcirclePostaffixOfUrlsApi = params => request(`/jobcircle/urls/${params.id}`, 'get', params.params)
+
+// 获取工作圈详情
+export const getJobcircleDetailApi = params => request(`/jobcircle/detail/${params.id}`, 'get', params.params)
+
+// 置顶关注的工作圈
+export const topJobCircleApi = params => request('/jobcircle/stick', 'put', params)
+
+// 取消关注的工作圈置顶
+export const unTopJobCircleApi = params => request('/jobcircle/nostick', 'put', params)

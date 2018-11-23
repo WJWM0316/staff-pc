@@ -97,3 +97,21 @@ const communityCreateApplyStatusOptions = {
 
 // 建塔申请状态过滤
 Vue.filter('communityCreateApplyStatus', value => communityCreateApplyStatusOptions[value])
+
+// 返回文件的类型封面 value 是文件的后缀
+Vue.filter('fileCover', (value) => {
+  if (!value) {
+    return ''
+  }
+  if (value === 'doc' || value === 'docx') {
+    return 'https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/word.png'
+  } else if (value === 'xls' || value === 'xlsx') {
+    return 'https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/xls.png'
+  } else if (value === 'ppt' || value === 'pptx') {
+    return 'https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/ppt.png'
+  } else if (value === 'pdf') {
+    return 'https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/pdf.png'
+  } else {
+    return 'https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20181107163327.png'
+  }
+})
