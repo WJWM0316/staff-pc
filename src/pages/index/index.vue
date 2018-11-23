@@ -91,14 +91,13 @@
 	 		</button>
  		</div>
  	</div>
- 	<preview></preview>
+ 	<!-- <preview></preview> -->
  </div>
 </template>
 <script>
 import Vue from 'vue'
 import Component from 'vue-class-component'
 import preview from 'COMPONENTS/preview'
-
 @Component({
 	components: {
 		preview
