@@ -12,5 +12,11 @@ export const routes = [
     name: 'index',
     title: '首页',
     component: () => import(/* webpackChunkName: "index" */ '@/pages/index/index.vue'),
+  },
+  {
+    path: '/search',
+    name: 'search',
+    title: '搜索',
+    component: () => import('@/pages/search/index.vue'),
   }
 ]

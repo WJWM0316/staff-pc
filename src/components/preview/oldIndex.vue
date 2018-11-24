@@ -1,7 +1,7 @@
 <template>
-  <div class="priview" ref="priview" @mousemove="mousemoveFun" @click="toggle" :class="cursorClass">
-    <div class="closeBtn" @click.stop="closePreview">
-      <i class="icon font_family icon-btn_close"></i>
+  <div class="priview" ref="priview" @mousemove="mousemoveFun" @click.stop="toggle" :class="cursorClass">
+    <div class="closeBtn">
+      <i class="icon font_family"></i>
     </div>
     <div class="wrap">
       <div class="swiper-container listBox">
@@ -27,15 +27,14 @@
       </div>
       <div class="sidebar">
         <div class="inner">
-          <div class="item prev" :class="{'disabled': noPrevMonth}" @click.stop="lastMonth">上个月</div>
+          <div class="item prev" :class="{'disabled': noLastMonth}" @click.stop="lastMonth">上个月</div>
           <div class="item iconfont" :class="{'disabled': noPrev}" @click.stop="lastOne"><i class="icon font_family icon-loeft_up"></i></div>
           <div class="swiper-container littleList">
             <div class="swiper-wrapper littleBox">
-              <div class="swiper-slide imgBox swiper-no-swiping" v-for="(item, litIndex) in pickList" :class="{'cur': curIndex === litIndex}"  :data-num="litIndex" :key="litIndex" @click.stop="slideTo(litIndex)">
+              <div class="swiper-slide imgBox swiper-no-swiping" :class="{'cur': curIndex === index}" v-for="(item, index) in pickList" :key="index" @click="slideTo(index)">
                 <template v-if="item.fileInfo">
-                  <!-- <p class="imgShow" style="color: #000">{{index}}</p> -->
                   <img v-if="item.type === '图片'" :src="item.fileInfo.smallUrl" class="imgShow">
-                  <div v-else class="videoMask" @click="playVideo(litIndex)">
+                  <div v-else class="videoMask" @click="playVideo(index)">
                     <img class="video" :src="item.fileInfo.coverImg.url">
                     <div class="btn">
                       <i class="icon font_family icon-play"></i>
@@ -58,40 +57,21 @@ import Component from 'vue-class-component'
 import Swiper from 'swiper';
 import {getPicMonthListJobci1rcleApi, getJobcirclePostaffixOfPictureApi} from 'API/jobcircle'
 @Component({
-  props: {
-    previewData: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    }
-  },
   watch: {
-    curIndex (val, old) {
+    curIndex (val) {
       this.swiperBig.slideTo(val)
       this.swiperLittle.slideTo(val)
-      if (window.video && !window.video.paused) {
-        window.video.pause()
-      }
       if ((this.curIndex === this.pickList.length - 1 && this.noNextData && this.noNextMonth) || (this.curIndex === 0 && this.noPrevData && this.noPrevMonth)) {
         this.$message({
           showClose: true,
           message: `已经是最后一张了哦~`
         })
       }
-      if (old && this.pickList[val].month !== this.pickList[old].month) {
-        this.$message({
-          showClose: true,
-          message: `当前查看为${this.monthList[this.curMonthIndex].str}的相册`
-        })
-      }
-    },
-    previewData (val) {
     }
   },
   computed: {
     noPrev () {
-      if (this.curIndex === 0 && this.noPrevMonth) {
+      if (this.curIndex === 0 && this.noLastMonth) {
         return true
       } else {
         return false
@@ -104,15 +84,15 @@ import {getPicMonthListJobci1rcleApi, getJobcirclePostaffixOfPictureApi} from 'A
         return false
       }
     },
-    noPrevMonth () {
-      if (this.curMonthIndex === 0 || this.noLoadMonthList.length === 0) {
+    noLastMonth () {
+      if (this.curMonthIndex === 0) {
         return true
       } else {
         return false
       }
     },
     noNextMonth () {
-      if (this.curMonthIndex === this.monthList.length - 1 || this.noLoadMonthList.length === 0) {
+      if (this.curMonthIndex === this.monthList.length - 1) {
         return true
       } else {
         return false
@@ -136,7 +116,7 @@ export default class ComponentPreview extends Vue {
   pickList = [] // 图片列表
   isLoging = false
   lastMonth () {
-    if (!this.noPrevMonth) {
+    if (!this.noLastMonth) {
       this.curMonthIndex--
       this.getPicList('jumpMonth')
     }
@@ -147,14 +127,10 @@ export default class ComponentPreview extends Vue {
       this.getPicList('jumpMonth')
     }
   }
-  closePreview () {
-    this.$emit('closePreview')
-  }
   playVideo (index) {
     this.curVideoIndex = index
     this.$nextTick(() => {
-      window.video = this.$refs.video[0]
-      window.video.play()
+      this.$refs.video[index].play()
     })
   }
   mousemoveFun (e) {
@@ -173,7 +149,6 @@ export default class ComponentPreview extends Vue {
     }
   }
   preloadImages (type) {
-    console.log(this.curIndex, this.pickList.length - 4, this.noNextData, this.noNextMonth, this.monthList[this.curMonthIndex].month)
     if (this.isLoging) return // 正常加载的时候阻止掉
     if (type === 'next') {
       if (this.curIndex >= this.pickList.length - 4 && this.noNextData && !this.noNextMonth) { // 提前三张判断，没有下一页数据，切还有下个月，则加载下一个月
@@ -182,6 +157,7 @@ export default class ComponentPreview extends Vue {
         this.getPicList('nextMonth')
       } else if (this.curIndex >= this.pickList.length - 4 && !this.noNextData) { // 提前三张判断，有下一页数据，则加载下一页数据
         this.pageNum++
+        this.curIndex++
         this.getPicList('nextPage')
       }
     } else {
@@ -192,6 +168,7 @@ export default class ComponentPreview extends Vue {
         this.getPicList('lastMonth', oldNum)
       } else if (this.curIndex <= 3 && !this.noPrevData) { // 提前三张判断，有上一页数据，则加载上一页数据
         this.pageNum--
+        this.curIndex--
         this.getPicList('prevPage', oldNum)
       }
     }
@@ -213,20 +190,21 @@ export default class ComponentPreview extends Vue {
   }
   nextOne () {
     if (!this.noNext) {
-      this.curIndex++
+      if (this.curIndex < this.pickList.length - 1) {
+        this.curIndex++
+      }
       this.preloadImages('next')
     }
   }
   slideTo (index) {
-    this.curIndex = index
     this.preloadImages('next')
+    this.curIndex = index
   }
   async getPicList (type, oldNum) {
     let data = {
-      id: this.previewData.id,
+      id: this.$route.query.id,
       page: this.pageNum,
-      month: this.monthList[this.curMonthIndex].month,
-      count: 35
+      month: this.monthList[this.curMonthIndex].month
     }
     if (!type) {
       data.globalLoading = true
@@ -260,39 +238,32 @@ export default class ComponentPreview extends Vue {
       setTimeout(() => {
         if (type === 'nextMonth') {
           this.curIndex++
+          this.$message({
+            showClose: true,
+            message: `当前查看为${this.monthList[this.curMonthIndex].str}的相册`
+          })
         } else if (type === 'lastMonth') {
-          this.curIndex = this.pickList.length - oldNum + 1
-        }
-        if (!type) {
-          this.curIndex = this.previewData.index
+          this.curIndex = this.pickList.length - oldNum - 1
+          this.$message({
+            showClose: true,
+            message: `当前查看为${this.monthList[this.curMonthIndex].str}的相册`
+          })
         }
       }, 300)
     })
     // 加载月份数据的时候在noLoadMonthList去除当前月
-    if (!type || type === 'lastMonth' || type === 'nextMonth') {
-      this.noLoadMonthList.forEach((item, index) => {
-        if (item === this.monthList[this.curMonthIndex]) {
-          this.noLoadMonthList.splice(index, 1)
-        }
-      })
+    if (type === 'jumpMonth' || type === 'lastMonth' || type === 'nextMonth') {
+      this.noLoadMonthList.replace(this.curMonthIndex, 1)
     }
   }
-  created () {
+  async created () {
     let data = {
       id: this.$route.query.id
     }
-    getPicMonthListJobci1rcleApi(data).then(res => {
-      this.monthList = res.data.data.reverse()
-      this.noLoadMonthList = this.noLoadMonthList.concat(this.monthList)
-      this.monthList.forEach((item, index) => {
-        if (item.str === this.previewData.month) {
-          this.curMonthIndex = index
-        }
-      })
-      this.pageNum = this.previewData.page
-      console.log(this.monthList[this.curMonthIndex], this.pageNum, this.previewData.index)
-      this.getPicList()
-    })
+    let res = await getPicMonthListJobci1rcleApi(data)
+    this.monthList = res.data.data.reverse()
+    this.noLoadMonthList = this.monthList
+    this.getPicList()
   }
   mounted () {
     this.swiperBig = new Swiper ('.listBox', {
@@ -323,27 +294,12 @@ export default class ComponentPreview extends Vue {
   left: 0;
   background: rgba(0, 0, 0, 0.9);
   cursor: pointer;
-  z-index: 30;
+  z-index: 10;
   &.nextOne {
     cursor: url('https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/arrow_down.png'), pointer;
   }
   &.lastOne {
     cursor: url('https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/arrow_up.png'), pointer;
-  }
-  .closeBtn {
-    width: 50px;
-    height: 50px;
-    position: absolute;
-    top: 5%;
-    right: 5%;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .icon {
-      font-size: 24px;
-      color: #fff;
-    }
   }
   .wrap {
     width: 1040px;
@@ -384,7 +340,6 @@ export default class ComponentPreview extends Vue {
           transform: translate3d(-50%, -50%, 0);
           width: auto;
           height: 100%;
-          cursor: pointer;
           .btn {
             width: 80px;
             height: 80px;

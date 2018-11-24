@@ -37,7 +37,7 @@ const state = {
     list: []
   },
   jobcirclePostAffix: [],
-  jobcirclePostAffixPicture: [],
+  jobcirclePostAffixPictures: [],
   jobcirclePostAffixFiles: [],
   jobcirclePostAffixUrls: [],
   currentJobCircleId: null,
@@ -104,13 +104,13 @@ const mutations = {
     state.jobcirclePostaffix = list
   },
   [GET_JOB_CIRCLE_POST_AFFIX_PICTURES_LIST] (state, list) {
-    state.jobcirclePostAffixPicture = list
+    state.jobcirclePostAffixPictures = state.jobcirclePostAffixPictures.concat(list)
   },
   [GET_JOB_CIRCLE_POST_AFFIX_FILES_LIST] (state, list) {
-    state.jobcirclePostAffixFiles = list
+    state.jobcirclePostAffixFiles = state.jobcirclePostAffixFiles.concat(list)
   },
   [GET_JOB_CIRCLE_POST_AFFIX_URLS_LIST] (state, list) {
-    state.jobcirclePostAffixUrls = list
+    state.jobcirclePostAffixUrls = state.jobcirclePostAffixUrls.concat(list)
   },
   [GET_JOB_CIRCLE_DETAIL] (state, data) {
     state.jobcircleDetail = data
@@ -121,7 +121,7 @@ const getters = {
   attentionsJobcircle: state => state.attentionsJobcircle,
   allVisibleJobcircle: state => state.allVisibleJobcircle,
   jobcirclePostAffix: state => state.jobcirclePostAffix,
-  jobcirclePostAffixPicture: state => state.jobcirclePostAffixPicture,
+  jobcirclePostAffixPictures: state => state.jobcirclePostAffixPictures,
   jobcirclePostAffixFiles: state => state.jobcirclePostAffixFiles,
   jobcirclePostAffixUrls: state => state.jobcirclePostAffixUrls,
   currentJobCircleId: state => state.currentJobCircleId,
