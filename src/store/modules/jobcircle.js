@@ -22,7 +22,9 @@ import {
   getJobcirclePostaffixOfUrlsApi,
   getJobcircleDetailApi,
   topJobCircleApi,
-  unTopJobCircleApi
+  unTopJobCircleApi,
+  putJobCircleApi,
+  postJobCircleNoteApi
 } from 'API/jobcircle'
 
 const state = {
@@ -300,6 +302,36 @@ const actions = {
    */
   unTopJobCircleApi (store, params) {
     return unTopJobCircleApi(params)
+      .then(res => {
+        return res
+      })
+      .catch(error => {
+        return Promise.reject(error.data || {})
+      })
+  },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-09-21
+   * @detail   编辑工作圈
+   * @return   {[type]}          [description]
+   */
+  putJobCircleApi(store, params) {
+    return putJobCircleApi(params)
+      .then(res => {
+        return res
+      })
+      .catch(error => {
+        return Promise.reject(error.data || {})
+      })
+  },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-09-21
+   * @detail   添加工作圈帖子
+   * @return   {[type]}          [description]
+   */
+  postJobCircleNoteApi(store, params) {
+    return postJobCircleNoteApi(params)
       .then(res => {
         return res
       })

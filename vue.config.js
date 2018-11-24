@@ -24,7 +24,8 @@ module.exports = {
 	      'UTILS': resolve('src/utils'),
 	      'API' : resolve('src/store/api'),
 	      'STORE' : resolve('src/store'),
-	      'COMPONENTS' : resolve('src/components')
+	      'COMPONENTS' : resolve('src/components'),
+	      'COLORS' : resolve('src/eleui/colors')
 	    }
 	  },
     plugins: [
