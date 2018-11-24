@@ -25,9 +25,10 @@
 			<!-- <video :src="videoUpload.infos.url" v-if="videoUpload.infos.url"> your browser does not support the video tag </video> -->
 		</div>
 		<ul class="common-list">
-			<li v-for="(imageItem, imageIndex) in imageUpload.imgLists.length" :key="imageIndex">
+			<li v-for="(imageItem, imageIndex) in commonList" :key="imageIndex">
+				{{imageItem.percent}}
 				<span class="btn-close"><i class="icon font_family icon-icon_errorsvg"></i></span>
-				<el-progress type="circle" :percentage="25" :stroke-width="2" :width="46"></el-progress>
+				<el-progress type="circle" :percentage="imageItem.percent" :stroke-width="2" :width="46"></el-progress>
 			</li>
 		</ul>
 		<div class="comment-controlls-box">
@@ -107,7 +108,7 @@ import { upload_api } from '@/store/api/index.js'
   }
 })
 export default class ComponentCommentBox extends Vue {
-	commonFileList = []
+	commonList = []
 	// 图片上传
   imageUpload = {
   	action: upload_api,
@@ -201,8 +202,12 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}        [description]
    */
   handleImageChange(file) {
-  	console.log(file)
-  	this.imageUpload.imgLists.push(file.raw)
+  	if(!this.imageUpload.imgLists.includes(file.uid)) {
+  		this.imageUpload.imgLists.push(file.uid)
+  		this.imageUpload.limit--
+  		file.percent = 0
+  		this.commonList.push(file)
+  	}
   }
   /**
    * @Author   小书包
@@ -210,8 +215,8 @@ export default class ComponentCommentBox extends Vue {
    * @detail   图片上传进度
    * @return   {[type]}        [description]
    */
-  handleImageProgress(event, file, fileList) {
-  	console.log(event, file, fileList)
+  handleImageProgress(event) {
+  	this.commonList[this.commonList.length - 1].percent = event.percent
   }
   /**
    * @Author   小书包
@@ -220,7 +225,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}        [description]
    */
   handleImageSuccess(event, file, fileList) {
-  	console.log(event, file, fileList)
+  	// console.log(event, file, fileList)
   }
   /**
    * @Author   小书包

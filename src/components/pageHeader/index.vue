@@ -10,7 +10,7 @@
 		    欢迎登录，{{userInfos.realname}}<i class="el-icon-caret-bottom"></i>
 		  </span>
 		  <el-dropdown-menu slot="dropdown">
-		  	<el-dropdown-item command="switch">切换管理员端</el-dropdown-item>
+		  	<el-dropdown-item command="switch" v-if="hasAuthJump">切换管理员端</el-dropdown-item>
 		    <el-dropdown-item command="out">退出登录</el-dropdown-item>
 		  </el-dropdown-menu>
 		</el-dropdown>
@@ -26,16 +26,29 @@ import Cookies from 'js-cookie'
     ...mapGetters([
       'userInfos'
     ])
+  },
+  watch: {
+    'userInfos.roles': {
+      handler(roles) {
+      	const hasAuthJump = roles.some(field => field <= 3)
+        this.hasAuthJump = hasAuthJump
+      },
+      immediate: true
+    }
   }
 })
 export default class ComponentHeader extends Vue {
+	hasAuthJump = false
 	command(action) {
+		const company = process.env.NODE_ENV === 'development' ? process.env.VUE_APP__TEST_COMPANY : Cookies.get('code')
+		const isContentManager = this.userInfos.roles.some(field => field <= 3) && !this.userInfos.roles.includes(1) && !this.userInfos.roles.includes(2)
+    const routeName = isContentManager ? 'course' : 'dashboard'
 		switch(action) {
 			case 'out':
 				this.logoutApi({code : Cookies.get('code')})
 				break
 			case 'switch':
-				window.location.replace = process.env.VUE_APP__MANAGER_URL
+				window.location.replace(`${process.env.VUE_APP__MANAGER_URL}/${company}/${routeName}`)
 				break
 			default:
 				break
