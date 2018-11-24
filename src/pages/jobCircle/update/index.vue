@@ -65,7 +65,7 @@
 			  </el-form-item>
 			  <el-form-item>
 			    <el-button type="primary" @click="preSubmit" class="form-submit-btn">保存</el-button>
-			    <el-button @click="reset">取消</el-button>
+			    <el-button @click="reset" class="form-reset-btn">取消</el-button>
 			  </el-form-item>
 			</el-form>
  		</main>
@@ -262,7 +262,7 @@ export default class PageJobCircleUpdate extends Vue {
     this.putJobCircleApi(params)
         .then(res => {})
         .catch(err => {
-          this.$message.error(`${err.msg}~`);
+          this.$message.error(`${err.msg}~`)
         })
   }
   reset() {
@@ -350,6 +350,7 @@ export default class PageJobCircleUpdate extends Vue {
     this.models.width = '860px'
     this.models.minHeight = '284px'
     this.models.show = true
+    this.models.title = '选择成员'
   }
   confirm() {
   	let list = []
@@ -381,8 +382,14 @@ export default class PageJobCircleUpdate extends Vue {
     this.form.members = Object.assign(this.form.members, data)
     this.form.members.noEdit = data
     delete this.form.members.noEdit.noEdit
+    this.models.show = false
   }
-  cancel() {}
+  cancel() {
+    this.models.show = false
+    this.form['members'].value = this.form['members'].noEdit.value
+    this.form['members'].tem = this.form['members'].noEdit.tem
+    this.form['members'].show = this.form['members'].noEdit.show
+  }
   /**
    * @Author   小书包
    * @DateTime 2018-09-17

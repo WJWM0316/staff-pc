@@ -1,12 +1,7 @@
 <template>
 	<section class="comment-box">
 		<div class="simple-text">
-			<el-input
-			  type="textarea"
-			  :rows="2"
-			  placeholder="说说你的想法…"
-			  v-model="textarea">
-			</el-input>
+			<textarea id="note-content" v-model="form.content" placeholder="说说你的想法…" class="note-content"></textarea>
 		</div>
 		<div class="compress-infos" v-if="compressUpload.show">
 			<div class="img-box"></div>
@@ -21,8 +16,8 @@
 			</div>
 		</div>
 		<div class="input-link-box" v-if="inputLink.show">
-			<input type="text" placeholder="输入或粘贴链接地址">
-			<button>确定</button>
+			<input type="text" placeholder="输入或粘贴链接地址" v-model="form.urls">
+			<button @click="switchLinkBox">确定</button>
 		</div>
 		<div class="video-infos" v-if="videoUpload.show">
 			<span class="btn-close"><i class="icon font_family icon-icon_errorsvg"></i></span>
@@ -30,7 +25,7 @@
 			<!-- <video :src="videoUpload.infos.url" v-if="videoUpload.infos.url"> your browser does not support the video tag </video> -->
 		</div>
 		<ul class="common-list">
-			<li v-for="item in 5" :key="item">
+			<li v-for="(imageItem, imageIndex) in imageUpload.imgLists.length" :key="imageIndex">
 				<span class="btn-close"><i class="icon font_family icon-icon_errorsvg"></i></span>
 				<el-progress type="circle" :percentage="25" :stroke-width="2" :width="46"></el-progress>
 			</li>
@@ -76,15 +71,15 @@
 					  <i class="icon font_family icon-btn_doc"></i>文件
 					</el-upload>
 				</li>
-				<li @click="showLinkBox"><i class="icon font_family icon-btn_link"></i>链接</li>
+				<li @click="switchLinkBox"><i class="icon font_family icon-btn_link"></i>链接</li>
 			</ul>
 			<div class="submit-setting">
-				<span class="auth-setting">
-					<i class="icon font_family icon-radio_selected" v-if="!isPrivate"></i>
-					<i class="icon font_family icon-check-circle" v-if="isPrivate"></i>
+				<span class="auth-setting" @click="checked">
+					<i class="icon font_family icon-radio_selected" v-if="!form.visible"></i>
+					<i class="icon font_family icon-check-circle" v-if="form.visible"></i>
 					仅成员可见
 				</span>
-				<button class="submit-button">发布</button>
+				<button class="submit-button-default" :class="{'submit-button-active': form.content}" @click="submit">发布</button>
 			</div>
 		</div>
 	</section>
@@ -99,12 +94,13 @@ import { upload_api } from '@/store/api/index.js'
 	name: 'comment-box',
 	methods: {
 		...mapActions([
-			'uploadAttachesApi'
+			'uploadAttachesApi',
+			'postJobCircleNoteApi'
 		])
 	},
 	props: {
     // 按钮的状态
-    isPrivate: {
+    visible: {
       type: Boolean,
       default: false
     }
@@ -112,11 +108,6 @@ import { upload_api } from '@/store/api/index.js'
 })
 export default class ComponentCommentBox extends Vue {
 	commonFileList = []
-	textarea = ''
-	fileList = [
-		{name: 'food.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'},
-		{name: 'food2.jpeg', url: 'https://fuss10.elemecdn.com/3/63/4e7f3a15429bfda99bce42a18cdd1jpeg.jpeg?imageMogr2/thumbnail/360x360/format/webp/quality/100'}
-	]
 	// 图片上传
   imageUpload = {
   	action: upload_api,
@@ -164,6 +155,20 @@ export default class ComponentCommentBox extends Vue {
   	show: false,
   	value: ''
   }
+
+  form = {
+  	community_id: null,
+  	content: '',
+  	visible: false,
+  	pictures: '',
+  	videos: '',
+  	files: '',
+  	urls: ''
+  }
+  created() {
+  	const community_id = this.$route.query.id
+  	this.form.community_id = community_id
+  }
   /**
    * @Author   小书包
    * @DateTime 2018-11-23
@@ -196,6 +201,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}        [description]
    */
   handleImageChange(file) {
+  	console.log(file)
   	this.imageUpload.imgLists.push(file.raw)
   }
   /**
@@ -237,7 +243,6 @@ export default class ComponentCommentBox extends Vue {
   handleVideoChange(file) {
   	this.videoUpload.file = file.raw
   	this.videoUpload.show = true
-  	console.log(this.videoUpload)
   }
   /**
    * @Author   小书包
@@ -318,8 +323,54 @@ export default class ComponentCommentBox extends Vue {
   	this.compressUpload.file = {}
   }
 
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-24
+   * @detail   切换显示链接输入框
+   * @return   {[type]}   [description]
+   */
+  switchLinkBox() {
+  	this.inputLink.show = !this.inputLink.show
+  }
   showLinkBox() {
   	this.inputLink.show = true
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-24
+   * @detail   提交接口
+   * @return   {[type]}   [description]
+   */
+  submit() {
+  	const params = this.transformData(this.form)
+  	if(!params.content) return
+  	this.postJobCircleNoteApi(params)
+  			.then(() => {})
+  			.catch(err => {
+  				this.$message.error(`${err.msg}~`)
+  			})
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-24
+   * @detail   是否队成员可见
+   * @return   {[type]}   [description]
+   */
+  checked() {
+  	this.form.visible = !this.form.visible
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-09-12
+   * @detail   获取提交参数
+   * @return   {[type]}   [description]
+   */
+  transformData(data) {
+  	const formData = {}
+  	Object.keys(data).map(attr => {
+  		if(data[attr]) formData[attr] = data[attr]
+  	})
+    return formData
   }
 }
 </script>
@@ -329,6 +380,17 @@ export default class ComponentCommentBox extends Vue {
 	border-radius: 2px;
 	padding: 16px;
 	box-sizing: border-box;
+	.note-content {
+		width:100%;
+		height:80px;
+		background:rgba(255,255,255,1);
+		border-radius:4px;
+		border:1px solid #EBEEF5;
+		box-sizing: border-box;
+		outline: unset;
+		overflow: hidden;
+		line-height: 30px;
+	}
 	textarea::-webkit-input-placeholder{
     color: #BCBCBC;
     font-size: 12px;
@@ -359,6 +421,7 @@ export default class ComponentCommentBox extends Vue {
 		text-align: right;
 		.auth-setting {
 			display: inline-block;
+			cursor: pointer;
 		}
 		.icon-radio_selected {
 			color: #EBEEF5;
@@ -367,7 +430,7 @@ export default class ComponentCommentBox extends Vue {
 			color: #FFE266;
 		}
 	}
-	.submit-button {
+	.submit-button-default {
 		width:98px;
 		height:36px;
 		background:rgba(248,248,248,1);
@@ -388,6 +451,10 @@ export default class ComponentCommentBox extends Vue {
     border-radius: 4px;
     border: unset;
     margin-left: 24px;
+	}
+	.submit-button-active {
+		background:#FFE266;
+		color: #354048;
 	}
 	.compress-infos {
 		height:62px;

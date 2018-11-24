@@ -44,3 +44,6 @@ export const unTopJobCircleApi = params => request('/jobcircle/nostick', 'put', 
 
 // 编辑工作圈
 export const putJobCircleApi = data => request(`/staff/jobcircle/${data.id}`, 'put', Qs.stringify(data))
+
+// 添加工作圈帖子
+export const postJobCircleNoteApi = data => request('/jobcircle/post', 'post', Qs.stringify(data))
