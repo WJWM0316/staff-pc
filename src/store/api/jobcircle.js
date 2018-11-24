@@ -1,4 +1,5 @@
 import { request } from './index.js'
+import Qs from 'qs'
 
 // 获取关注的工作圈列表
 export const getAttentionsJobcircleApi = params => request('/jobcircle/attentions', 'get', params)
@@ -40,3 +41,6 @@ export const topJobCircleApi = params => request('/jobcircle/stick', 'put', para
 
 // 取消关注的工作圈置顶
 export const unTopJobCircleApi = params => request('/jobcircle/nostick', 'put', params)
+
+// 编辑工作圈
+export const putJobCircleApi = data => request(`/staff/jobcircle/${data.id}`, 'put', Qs.stringify(data))

@@ -32,6 +32,7 @@
 		<ul class="common-list">
 			<li v-for="item in 5" :key="item">
 				<span class="btn-close"><i class="icon font_family icon-icon_errorsvg"></i></span>
+				<el-progress type="circle" :percentage="25" :stroke-width="2" :width="46"></el-progress>
 			</li>
 		</ul>
 		<div class="comment-controlls-box">
@@ -537,6 +538,12 @@ export default class ComponentCommentBox extends Vue {
 			top: -8px;
 			right: -8px;
 			color: #BCBCBC;
+		}
+		.el-progress--circle{
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
 		}
 	}
 }

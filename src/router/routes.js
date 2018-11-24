@@ -14,6 +14,12 @@ export const routes = [
     component: () => import(/* webpackChunkName: "index" */ '@/pages/index/index.vue'),
   },
   {
+    path: '/jobcircle-edit',
+    name: 'jobCircleUpdate',
+    title: '工作圈设置',
+    component: () => import(/* webpackChunkName: "jobCircleUpdate" */ '@/pages/jobCircle/update/index.vue'),
+  },
+  {
     path: '/test',
     name: 'test',
     title: '首页',
