@@ -293,10 +293,10 @@ export default class ComponentCommentBox extends Vue {
   }
 
   handleImageMoveDrapend(e) {
-    [].forEach.call(this.domLists, function(dom) {
-      dom.classList.remove('over')
+  	Array.from(this.domLists).map(dom => {
+  		dom.classList.remove('over')
       dom.style.opacity = '1'
-    })
+  	})
   }
   /**
    * @Author   小书包
