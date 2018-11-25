@@ -414,6 +414,9 @@ export default class pageIndex extends Vue {
   						this.$message.error(`${error.msg}~`)
   					})
   			break
+  		case 'setting':
+  			this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
+  			break
   		default:
   			break
   	}
