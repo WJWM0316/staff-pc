@@ -29,9 +29,10 @@
         v-for="(imageItem, imageIndex) in commonList"
         :key="imageIndex"
         :data-key="imageIndex"
+        v-if="imageItem.smallUrl"
         draggable="true" :style="`background-image: url(${imageItem.smallUrl}); background-size: cover; background-repeat: no-repeat; background-position: center center;`">
 				<span class="btn-close" @click="handleRemoveUploadImage(imageIndex)"><i class="icon font_family icon-icon_errorsvg"></i></span>
-				<!-- <img :src="imageItem.smallUrl" alt=""> -->
+				<!-- <img :src="imageItem.smallUrl" alt="" v-if="imageItem.smallUrl"> -->
 				<!-- <el-progress type="circle" :percentage="imageItem.percent" :stroke-width="2" :width="46"></el-progress> -->
 			</li>
 		</ul>
@@ -103,11 +104,17 @@ import { upload_api } from '@/store/api/index.js'
 			'postJobCircleNoteApi'
 		])
 	},
-	props: {
-    // 按钮的状态
-    visible: {
-      type: Boolean,
-      default: false
+  computed: {
+    ...mapGetters([
+      'currentJobCircleId',
+    ])
+  },
+  watch: {
+    'commonList': {
+      handler(commonList) {
+        if(commonList.length) setTimeout(() => {this.handleImageRange()})
+      },
+      immediate: true
     }
   }
 })
@@ -176,10 +183,6 @@ export default class ComponentCommentBox extends Vue {
   	files: '',
   	urls: ''
   }
-  created() {
-  	const community_id = this.$route.query.id
-  	this.form.community_id = community_id
-  }
   /**
    * @Author   小书包
    * @DateTime 2018-11-23
@@ -187,7 +190,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}            [description]
    */
   handleImageExceed(files, fileList) {
-    console.log(files)
+    console.log(files, fileList)
   }
   /**
    * @Author   小书包
@@ -215,6 +218,7 @@ export default class ComponentCommentBox extends Vue {
   	if(!this.imageUpload.imgLists.includes(file.uid)) {
   		this.imageUpload.imgLists.push(file.uid)
   		this.imageUpload.limit--
+      console.log(this.imageUpload.limit)
   	}
   }
   /**
@@ -245,7 +249,7 @@ export default class ComponentCommentBox extends Vue {
   	this.commonList.splice(index, 1)
   }
 
-  test() {
+  handleImageRange() {
   	this.domLists = document.querySelectorAll('.common-list li')
   	this.dragEl = null
   	Array.from(this.domLists).map(dom => {
@@ -263,6 +267,7 @@ export default class ComponentCommentBox extends Vue {
   	this.imgEdit.start.data = this.commonList[index]
   	this.imgEdit.start.index = index
     e.target.style.opacity = '0.5'
+    e.target.classList.add('draging')
     this.dragEl = e.target
     e.dataTransfer.effectAllowed = 'move'
   }
@@ -299,6 +304,7 @@ export default class ComponentCommentBox extends Vue {
   	Array.from(this.domLists).map(dom => {
   		dom.classList.remove('over')
       dom.style.opacity = '1'
+      dom.classList.remove('draging')
   	})
   }
   /**
@@ -340,6 +346,8 @@ export default class ComponentCommentBox extends Vue {
    */
   handleVideoSuccess(res) {
   	this.videoUpload.infos = res.data[0]
+    this.form.videos = res.data[0].id
+    this.form.videos = ''
   }
    /**
    * @Author   小书包
@@ -378,18 +386,8 @@ export default class ComponentCommentBox extends Vue {
    * @detail   文件上传成功
    * @return   {[type]}        [description]
    */
-  handleCompressSuccess(event, file, fileList) {
-  	console.log(event.percent, file, fileList)
-  }
-
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   文件上传成功
-   * @return   {[type]}        [description]
-   */
-  handleCompressSuccess(event, file, fileList) {
-  	console.log(event, file, fileList)
+  handleCompressSuccess(res) {
+    this.form.files = res.data[0].id
   }
   /**
    * @Author   小书包
@@ -400,6 +398,7 @@ export default class ComponentCommentBox extends Vue {
   removeCompress() {
   	this.compressUpload.show = false
   	this.compressUpload.file = {}
+    this.form.files = ''
   }
 
   /**
@@ -454,11 +453,13 @@ export default class ComponentCommentBox extends Vue {
   	Object.keys(data).map(attr => {
   		if(data[attr]) formData[attr] = data[attr]
   	})
+    // 如果有上传图片的话
+    if(this.commonList.length) {
+      let pictures  = this.commonList.map(field => field.id)
+      this.form.pictures = pictures.join(',')
+    }
+    formData.community_id = this.currentJobCircleId
     return formData
-  }
-
-  mounted() {
-  	this.test()
   }
 }
 </script>
@@ -468,6 +469,7 @@ export default class ComponentCommentBox extends Vue {
 	border-radius: 2px;
 	padding: 16px;
 	box-sizing: border-box;
+  margin-bottom: 16px;
 	.note-content {
 		width:100%;
 		height:80px;
@@ -692,6 +694,10 @@ export default class ComponentCommentBox extends Vue {
 				height: 100%;
 			}
 		}
+    .draging{
+      border: 1px red dotted;
+      background: white !important;
+    }
 		.btn-close{
 			position: absolute;
 			top: -8px;

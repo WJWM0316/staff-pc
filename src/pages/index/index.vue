@@ -49,6 +49,7 @@
  		</div>
  	</div>
  	<div class="col-daptive">
+ 		<comment-box></comment-box>
  		<div class="content-header">
  			<ul class="common-tab-box">
  				<li :class="{'tab-active': tabIndex === 'Pictures'}" @click="tabClick('Pictures')">相册</li>
@@ -167,13 +168,16 @@ import fileBox from 'COMPONENTS/fileBox'
 import picOrVideo from 'COMPONENTS/picOrVideo'
 import adSearch from 'COMPONENTS/adSearch'
 import loadMore from 'COMPONENTS/loadMore'
+import commentBox from 'COMPONENTS/commentBox'
+
 @Component({
 	components: {
 		preview,
 		fileBox,
 		picOrVideo,
 		loadMore,
-		adSearch
+		adSearch,
+		commentBox
 	},
 	methods: {
 		...mapActions([
