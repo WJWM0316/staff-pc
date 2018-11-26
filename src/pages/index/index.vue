@@ -78,7 +78,6 @@
 			    </slot>
 			  </el-popover>
  			</div>
-
  		</div>
  		<div class="content">
  			<div class="month">
@@ -288,6 +287,7 @@ export default class pageIndex extends Vue {
 			id: this.currentJobCircleId,
 			page: Math.ceil(affixItem.index / 35)
 		}
+		alert(this.currentJobCircleId)
 		this.isPreview = true
 	}
 	/**
