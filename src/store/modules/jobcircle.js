@@ -7,7 +7,9 @@ import {
   GET_JOB_CIRCLE_POST_AFFIX_PICTURES_LIST,
   GET_JOB_CIRCLE_POST_AFFIX_FILES_LIST,
   GET_JOB_CIRCLE_POST_AFFIX_URLS_LIST,
-  GET_JOB_CIRCLE_DETAIL
+  GET_JOB_CIRCLE_DETAIL,
+  GET_JOB_CIRCLE_MEMBER_LIST,
+  GET_JOB_CIRCLE_MEMBER_HIT_LIST
 } from '../mutation-types'
 
 import defaultJobCirclePicture from 'IMAGES/img_normal_head.png'
@@ -23,8 +25,10 @@ import {
   getJobcircleDetailApi,
   topJobCircleApi,
   unTopJobCircleApi,
-  putJobCircleApi,
-  postJobCircleNoteApi
+  putJobCircleIdentityOfOwnerApi,
+  postJobCircleNoteApi,
+  getJobCircleMemberListsApi,
+  getJobCircleMemberHitListsApi
 } from 'API/jobcircle'
 
 const state = {
@@ -56,10 +60,10 @@ const state = {
     gender: null,
     groupName: null,
     id: null,
-    isAttention: null,
-    isMember: null,
-    isOwner: null,
-    isTop: null,
+    isAttention: false,
+    isMember: false,
+    isOwner: false,
+    isTop: false,
     memberCount: null,
     name: null,
     nickname: null,
@@ -69,7 +73,9 @@ const state = {
     status: null,
     updatedAt: null,
     memberInfo: []
-  }
+  },
+  jobCircleMemberLists: [],
+  jobCircleMemberHitLists: []
 }
 
 const mutations = {
@@ -116,6 +122,12 @@ const mutations = {
   },
   [GET_JOB_CIRCLE_DETAIL] (state, data) {
     state.jobcircleDetail = data
+  },
+  [GET_JOB_CIRCLE_MEMBER_LIST] (state, list) {
+    state.jobCircleMemberLists = list
+  },
+  [GET_JOB_CIRCLE_MEMBER_HIT_LIST] (state, list) {
+    state.jobCircleMemberHitLists = list
   }
 }
 
@@ -127,7 +139,9 @@ const getters = {
   jobcirclePostAffixFiles: state => state.jobcirclePostAffixFiles,
   jobcirclePostAffixUrls: state => state.jobcirclePostAffixUrls,
   currentJobCircleId: state => state.currentJobCircleId,
-  jobcircleDetail: state => state.jobcircleDetail
+  jobcircleDetail: state => state.jobcircleDetail,
+  jobCircleMemberLists: state => state.jobCircleMemberLists,
+  jobCircleMemberHitLists: state => state.jobCircleMemberHitLists
 }
 
 const actions = {
@@ -312,11 +326,41 @@ const actions = {
   /**
    * @Author   小书包
    * @DateTime 2018-09-21
-   * @detail   编辑工作圈
+   * @detail   圈主编辑工作圈
    * @return   {[type]}          [description]
    */
-  putJobCircleApi(store, params) {
-    return putJobCircleApi(params)
+  putJobCircleIdentityOfOwnerApi(store, params) {
+    return putJobCircleIdentityOfOwnerApi(params)
+      .then(res => {
+        return res
+      })
+      .catch(error => {
+        return Promise.reject(error.data || {})
+      })
+  },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-09-21
+   * @detail   非工作圈成员修改关注，置顶
+   * @return   {[type]}          [description]
+   */
+  putJobCircleIdentityOfUnMemberApi(store, params) {
+    return putJobCircleIdentityOfUnMemberApi(params)
+      .then(res => {
+        return res
+      })
+      .catch(error => {
+        return Promise.reject(error.data || {})
+      })
+  },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-09-21
+   * @detail   工作圈成员修改置顶
+   * @return   {[type]}          [description]
+   */
+  putJobCircleIdentityOfMemberApi(store, params) {
+    return putJobCircleIdentityOfMemberApi(params)
       .then(res => {
         return res
       })
@@ -333,6 +377,36 @@ const actions = {
   postJobCircleNoteApi(store, params) {
     return postJobCircleNoteApi(params)
       .then(res => {
+        return res
+      })
+      .catch(error => {
+        return Promise.reject(error.data || {})
+      })
+  },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   获取工作圈必修学员列表
+   */
+  getJobCircleMemberListsApi (store, params) {
+    return getJobCircleMemberListsApi(params)
+      .then(res => {
+        store.commit(GET_JOB_CIRCLE_MEMBER_LIST, res.data.data)
+        return res
+      })
+      .catch(error => {
+        return Promise.reject(error.data || {})
+      })
+  },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   获取工作圈不可见学员列表
+   */
+  getJobCircleMemberHitListsApi (store, params) {
+    return getJobCircleMemberHitListsApi(params)
+      .then(res => {
+        store.commit(GET_JOB_CIRCLE_MEMBER_HIT_LIST, res.data.data)
         return res
       })
       .catch(error => {
