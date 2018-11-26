@@ -147,11 +147,11 @@
 	 			<div class="gray" v-if="jobcircleDetail.memberInfo.length > 2"><i></i><i></i><i></i></div>
 	 		</div>
 	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
- 			<button class="attention-button" v-if="!jobcircleDetail.isAttention && !jobcircleDetail.isOwner " @click="todoAction('focus')"> + 关注 </button>
- 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention && !jobcircleDetail.isOwner " @click="todoAction('unfocus')"> 已关注 </button>
- 			<button class="button-untop" v-if="!jobcircleDetail.isTop && !jobcircleDetail.isOwner && jobcircleDetail.isAttention " @click="todoAction('top')"> 置顶 </button>
- 			<button class="button-top" v-if="jobcircleDetail.isTop && !jobcircleDetail.isOwner && jobcircleDetail.isAttention " @click="todoAction('untop')"> 取消置顶 </button>
- 			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner ">
+ 			<button class="attention-button" v-if="!jobcircleDetail.isAttention && !jobcircleDetail.isOwner" @click="todoAction('focus')"> + 关注 </button>
+ 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention && !jobcircleDetail.isOwner" @click="todoAction('unfocus')"> 已关注 </button>
+ 			<button class="button-untop" v-if="!jobcircleDetail.isTop && !jobcircleDetail.isOwner && jobcircleDetail.isAttention" @click="todoAction('top')"> 置顶 </button>
+ 			<button class="button-top" v-if="jobcircleDetail.isTop && !jobcircleDetail.isOwner && jobcircleDetail.isAttention" @click="todoAction('untop')"> 取消置顶 </button>
+ 			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner">
  				<i class="icon font_family icon-shezhi"></i> 工作圈设置
  			</button>
  		</div>
