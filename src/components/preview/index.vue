@@ -64,13 +64,11 @@ import {getPicMonthListJobci1rcleApi, getJobcirclePostaffixOfPictureApi} from 'A
     },
     previewList: {
       type: Array,
-      default: []
+      default: () => []
     },
     previewData: {
       type: Object,
-      default: () => {
-        return {}
-      }
+      default: () => {}
     }
   },
   watch: {
@@ -116,14 +114,14 @@ import {getPicMonthListJobci1rcleApi, getJobcirclePostaffixOfPictureApi} from 'A
       }
     },
     noPrevMonth () {
-      if ((this.curMonthIndex === 0 || this.noLoadMonthList.length === 0) && this.previewList.length > 0) {
+      if ((this.curMonthIndex === 0 || this.noLoadMonthList.length === 0) || this.previewList.length > 0) {
         return true
       } else {
         return false
       }
     },
     noNextMonth () {
-      if ((this.curMonthIndex === this.monthList.length - 1 || this.noLoadMonthList.length === 0) && this.previewList.length > 0) {
+      if ((this.curMonthIndex === this.monthList.length - 1 || this.noLoadMonthList.length === 0) || this.previewList.length > 0) {
         return true
       } else {
         return false

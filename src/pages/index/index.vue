@@ -88,7 +88,7 @@
 		 				<picOrVideo class="picOrVideo" :key="affixIndex" :fileData="affixItem" @click.native="openPreview(affixItem, affixIndex)"></picOrVideo>
 	 				</template>
 	 				<div class="loadMore">
-		 				<loadMore @loadMore="loadMore" :status="picsStatus"></loadMore>
+		 				<loadMore @loadMore="loadMore" :status="picsStatus" :list="picList"></loadMore>
 		 			</div>
 	 			</div>
 	 			<div class="common-ul" v-show="tabIndex === 'Files'">
@@ -108,7 +108,7 @@
 		 				</div>
 	 				</template>
 	 				<div class="loadMore">
-		 				<loadMore @loadMore="loadMore" :status="filesStatus"></loadMore>
+		 				<loadMore @loadMore="loadMore" :status="filesStatus" :list="fileList"></loadMore>
 		 			</div>
 	 			</div>
 	 			<div class="common-ul" v-show="tabIndex === 'Urls'">
@@ -128,7 +128,7 @@
 		 				</div>
 	 				</template>
 	 				<div class="loadMore">
-		 				<loadMore @loadMore="loadMore" :status="linksStatus"></loadMore>
+		 				<loadMore @loadMore="loadMore" :status="linksStatus" :list="linkList"></loadMore>
 		 			</div>
 	 			</div>
  			</div>
@@ -192,7 +192,10 @@ import commentBox from 'COMPONENTS/commentBox'
 			'focusJobCircleApi',
 			'unFocusJobCircleApi',
 			'topJobCircleApi',
-			'unTopJobCircleApi'
+			'unTopJobCircleApi',
+      'undataJobcirclePostaffixOfPictures',
+      'undataJobcirclePostaffixOfFiles',
+      'undataJobcirclePostaffixOfUrls'
 		])
 	},
 	computed: {
@@ -251,7 +254,15 @@ export default class pageIndex extends Vue {
   }
   toSearch () {
   	if (this.keyWord === '') return
-  	this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
+    let type = null
+    if (this.tabIndex === 'Pictures') {
+      type = '3'
+    } else if (this.tabIndex === 'Files') {
+      type = '2'
+    } else {
+      type = '4'
+    }
+  	this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=${type}`)
   }
   /**
    * @Author   小书包
@@ -268,9 +279,28 @@ export default class pageIndex extends Vue {
 	 */
 	getActiveJobCircleInfos(params) {
 		this.updateJobCircleItemCheckedStatus(params)
+    // 重置操作
+    this.undataJobcirclePostaffixOfPictures([])
+    this.undataJobcirclePostaffixOfFiles([])
+    this.undataJobcirclePostaffixOfUrls([])
+    this.picsStatus = {
+      noData: false,
+      loading: false,
+      page: 1
+    }
+    this.filesStatus = {
+      noData: false,
+      loading: false,
+      page: 1
+    }
+    this.linksStatus = {
+      noData: false,
+      loading: false,
+      page: 1
+    }
 		this[params.show].list.map(field => {
 			if(field.active) {
-				this.getLists({id: field.id, params: {page: 1, count: 35}})
+				this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
 				this.getJobcircleDetail({id: this.currentJobCircleId})
 			}
 		})
@@ -439,7 +469,7 @@ export default class pageIndex extends Vue {
 				.then(() => {
 					this.attentionsJobcircle.list.map(field => {
 						if(field.active) {
-							this.getLists({id: field.id, params: {page: 1, count: 35}})
+							this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
 							this.getJobcircleDetail({id: this.currentJobCircleId})
 						}
 					})

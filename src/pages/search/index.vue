@@ -39,7 +39,7 @@
           </div>
         </div>
         <div class="loadMore" v-show="this.typeIndex === 1">
-          <loadMore @loadMore="loadMore" :status="picsStatus"></loadMore>
+          <loadMore @loadMore="loadMore" :status="picsStatus" :list="list.picture"></loadMore>
         </div>
       </div>
       <div class="type" v-if="list.file.length > 0 && (typeIndex === 2 || typeIndex === 0)">
@@ -50,7 +50,7 @@
           </div>
         </div>
         <div class="loadMore" v-show="this.typeIndex === 2">
-          <loadMore @loadMore="loadMore" :status="filesStatus"></loadMore>
+          <loadMore @loadMore="loadMore" :status="filesStatus" :list="list.file"></loadMore>
         </div>
       </div>
       <div class="type" v-if="list.urls.length > 0 && (typeIndex === 3 || typeIndex === 0)">
@@ -61,9 +61,10 @@
           </div>
         </div>
         <div class="loadMore" v-show="this.typeIndex === 3">
-          <loadMore @loadMore="loadMore" :status="linksStatus"></loadMore>
+          <loadMore @loadMore="loadMore" :status="linksStatus" :list="list.urls"></loadMore>
         </div>
       </div>
+      <nodata v-if="list.picture.length === 0 && list.file.length === 0 && list.urls.length === 0"></nodata>
     </div>
     <preview v-if="isPreview" :previewList="list.picture" :curOpenIndex="curOpenIndex" @closePreview="closePreview"></preview>
   </div>
@@ -76,6 +77,7 @@ import adSearch from 'COMPONENTS/adSearch'
 import fileBox from 'COMPONENTS/fileBox'
 import loadMore from 'COMPONENTS/loadMore'
 import preview from 'COMPONENTS/preview'
+import nodata from 'COMPONENTS/nodata'
 import {getJobcirclePostaffixApi} from 'API/jobcircle'
 @Component({
   components: {
@@ -83,7 +85,8 @@ import {getJobcirclePostaffixApi} from 'API/jobcircle'
     preview,
     adSearch,
     fileBox,
-    loadMore
+    loadMore,
+    nodata
   },
   watch: {
     typeIndex () {

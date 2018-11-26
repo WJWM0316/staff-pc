@@ -7,7 +7,10 @@ import {
   GET_JOB_CIRCLE_POST_AFFIX_PICTURES_LIST,
   GET_JOB_CIRCLE_POST_AFFIX_FILES_LIST,
   GET_JOB_CIRCLE_POST_AFFIX_URLS_LIST,
-  GET_JOB_CIRCLE_DETAIL
+  GET_JOB_CIRCLE_DETAIL,
+  UPDATE_JOB_CIRCLE_PICTURES_LIST,
+  UPDATE_JOB_CIRCLE_FILES_LIST,
+  UPDATE_JOB_CIRCLE_URLS_LIST
 } from '../mutation-types'
 
 import defaultJobCirclePicture from 'IMAGES/img_normal_head.png'
@@ -116,6 +119,15 @@ const mutations = {
   },
   [GET_JOB_CIRCLE_DETAIL] (state, data) {
     state.jobcircleDetail = data
+  },
+  [UPDATE_JOB_CIRCLE_PICTURES_LIST] (state, data) {
+    state.jobcirclePostAffixPictures = data
+  },
+  [UPDATE_JOB_CIRCLE_FILES_LIST] (state, data) {
+    state.jobcirclePostAffixFiles = data
+  },
+  [UPDATE_JOB_CIRCLE_URLS_LIST] (state, data) {
+    state.jobcirclePostAffixUrls = data
   }
 }
 
@@ -236,6 +248,18 @@ const actions = {
         return Promise.reject(error.data || {})
       })
   },
+  // 更新图片列表
+  undataJobcirclePostaffixOfPictures (store, data) {
+     store.commit(UPDATE_JOB_CIRCLE_PICTURES_LIST, data)
+   },
+   // 更新文件列表
+  undataJobcirclePostaffixOfFiles (store, data) {
+     store.commit(UPDATE_JOB_CIRCLE_FILES_LIST, data)
+   },
+   // 更新链接列表
+  undataJobcirclePostaffixOfUrls (store, data) {
+     store.commit(UPDATE_JOB_CIRCLE_URLS_LIST, data)
+   },
   /**
    * @Author   小书包
    * @DateTime 2018-11-22
