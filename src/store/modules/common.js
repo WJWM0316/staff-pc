@@ -1,6 +1,4 @@
 import {
-  SHOW_DIALOG,
-  HIDE_DIALOG,
   SWITCH_OPEN_MODAL,
   GET_MEMBER_LISTS,
   GET_GROUP_LISTS,
@@ -11,7 +9,8 @@ import {
 import {
   uploadApi,
   getMemberListsApi,
-  getGroupListsApi
+  getGroupListsApi,
+  postAttachesConfigApi
 } from 'API/common'
 
 const state = {
@@ -20,18 +19,6 @@ const state = {
 }
 
 const mutations = {
-  [SHOW_DIALOG](state, option) {
-    state.dialog = {
-      show: true,
-      ...option
-    }
-  },
-  [HIDE_DIALOG](state, option) {
-    state.dialog = {
-      show: false,
-      ...option
-    }
-  },
   // 切换限制弹窗
   [SWITCH_OPEN_MODAL] (state, open) {
     state.openModal = !!open
@@ -150,7 +137,23 @@ const actions = {
    */
   updateMemberListsApi(store, params) {
     store.commit(UPDATE_MEMBER_LISTS, params)
-  }
+  },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-09-21
+   * @detail   提交获取上传基本信息
+   * @return   {[type]}          [description]
+   */
+  postAttachesConfigApi(store, params) {
+    return postAttachesConfigApi(params)
+      .then(res => {
+        store.commit(GET_GROUP_LISTS, res.data.data)
+        return res
+      })
+      .catch(error => {
+        return Promise.reject(error.data || {})
+      })
+  },
 }
 
 export default {

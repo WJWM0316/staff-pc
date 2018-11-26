@@ -1,7 +1,7 @@
 <template>
 	<section class="comment-box">
 		<div class="simple-text">
-			<textarea id="note-content" v-model="form.content" placeholder="说说你的想法…" class="note-content"></textarea>
+			<textarea v-model="form.content" placeholder="说说你的想法…" class="note-content" ref="note-content"></textarea>
 		</div>
 		<div class="compress-infos" v-if="compressUpload.show">
 			<div class="img-box"></div>
@@ -113,6 +113,12 @@ import { upload_api } from '@/store/api/index.js'
     'commonList': {
       handler(commonList) {
         if(commonList.length) setTimeout(() => {this.handleImageRange()})
+      },
+      immediate: true
+    },
+    'imageUpload.limit': {
+      handler(num) {
+        console.log(num)
       },
       immediate: true
     }
@@ -245,6 +251,7 @@ export default class ComponentCommentBox extends Vue {
    */
   handleRemoveUploadImage(index) {
   	this.commonList.splice(index, 1)
+    this.imageUpload.limit++
   }
 
   handleImageRange() {
@@ -507,6 +514,40 @@ export default class ComponentCommentBox extends Vue {
     formData.community_id = this.currentJobCircleId
     return formData
   }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-26
+   * @detail   获取dom的样式
+   * @return   {[type]}        [description]
+   */
+  getDomStyle(dom, domAttr) {
+    return dom.currentStyle ? dom.currentStyle[domAttr] : getComputedStyle(dom)[domAttr]
+  }
+
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-26
+   * @detail   动态设置文本域的高度
+   * @return   {[type]}   [description]
+   */
+  autoHeight(dom) {
+    let scrollHeight = dom.scrollHeight
+    let lineHeight = parseInt(this.getDomStyle(dom, 'line-height'))
+    let domHeight = parseInt(this.getDomStyle(dom, 'height'))
+    let rowNum = parseInt(domHeight / lineHeight)
+    if(rowNum <= 20) {
+      if(domHeight < scrollHeight) dom.style.height = scrollHeight + 'px'
+    } else {
+      domHeight = parseInt(this.getDomStyle(dom, 'height'))
+      dom.style = `height: ${domHeight}px; overflow-y: scroll;`
+    }
+  }
+
+  mounted() {
+    const dom = this.$refs['note-content']
+    dom.addEventListener('propertychange', () => { this.autoHeight(dom)})
+    dom.addEventListener('input', () => { this.autoHeight(dom)})
+  }
 }
 </script>
 <style lang="scss">
@@ -518,20 +559,35 @@ export default class ComponentCommentBox extends Vue {
   margin-bottom: 16px;
 	.note-content {
 		width:100%;
-		height:80px;
+		height: 80px;
 		background:rgba(255,255,255,1);
 		border-radius:4px;
 		border:1px solid #EBEEF5;
 		box-sizing: border-box;
 		outline: unset;
 		overflow: hidden;
-		line-height: 30px;
+		line-height: 1.4;
+    resize: none;
+    box-sizing: border-box;
+    padding: 5px 8px;
 	}
 	textarea::-webkit-input-placeholder{
     color: #BCBCBC;
     font-size: 12px;
     font-weight: 400;
 	}
+
+  .note-content::-webkit-scrollbar {
+    width: 5px;
+  }
+  .note-content::-webkit-scrollbar-track {
+    background-color:#EDEDED;
+    border-radius: 5px;
+  }
+  .note-content::-webkit-scrollbar-thumb {
+    background-color:#FFE266;
+    border-radius: 5px;
+  }
 	.comment-controlls-box {
 		display: flex;
 		height: 36px;
@@ -735,10 +791,15 @@ export default class ComponentCommentBox extends Vue {
 			position: relative;
 			display: inline-block;
 			margin-right: 24px;
+      margin-bottom: 24px;
 			img {
 				width: 100%;
 				height: 100%;
 			}
+      &:nth-child(5n) {
+        background: red;
+        margin-right: 0px;
+      }
 		}
     .draging{
       border: 1px red dotted;

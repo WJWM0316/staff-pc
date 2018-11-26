@@ -8,3 +8,6 @@ export const getMemberListsApi = params => request('/member/simpleList', 'get', 
 
 // 获取分组成员列表
 export const getGroupListsApi = params => request('/group', 'get', params)
+
+// 提交获取上传基本信息
+export const postAttachesConfigApi = params => request('/attaches/config', 'post', params)
