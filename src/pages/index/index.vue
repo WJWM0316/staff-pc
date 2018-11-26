@@ -7,7 +7,7 @@
  				@click="command({show: 'attentionsJobcircle', hide: 'allVisibleJobcircle'})">
 	 				{{attentionsJobcircle.name}}
 	 				<span class="icon">
-	 					<i class="el-icon-caret-bottom"></i>
+	 					<i class="el-icon-caret-top"></i>
 	 				</span>
  			</h2>
  			<ul :class="{'show-slide-down': attentionsJobcircle.active}">
@@ -30,7 +30,7 @@
  				@click="command({show: 'allVisibleJobcircle', hide: 'attentionsJobcircle'})">
 	 				{{allVisibleJobcircle.name}}
 	 				<span class="icon">
-	 					<i class="el-icon-caret-bottom"></i>
+	 					<i class="el-icon-caret-top"></i>
 	 				</span>
  			</h2>
  			<ul :class="{'show-slide-down': allVisibleJobcircle.active}">
@@ -49,7 +49,7 @@
  		</div>
  	</div>
  	<div class="col-daptive">
- 		<comment-box></comment-box>
+ 		<comment-box v-if="jobcircleDetail.isMember"></comment-box>
  		<div class="content-header">
  			<ul class="common-tab-box">
  				<li :class="{'tab-active': tabIndex === 'Pictures'}" @click="tabClick('Pictures')">相册</li>

@@ -47,8 +47,20 @@ export const topJobCircleApi = params => request('/jobcircle/stick', 'put', para
 // 取消关注的工作圈置顶
 export const unTopJobCircleApi = params => request('/jobcircle/nostick', 'put', params)
 
-// 编辑工作圈
-export const putJobCircleApi = data => request(`/staff/jobcircle/${data.id}`, 'put', Qs.stringify(data))
+// 圈主编辑工作圈
+export const putJobCircleIdentityOfOwnerApi = data => request(`/staff/jobcircle/${data.id}`, 'put', Qs.stringify(data))
+
+// 非工作圈成员修改关注，置顶
+export const putJobCircleIdentityOfUnMemberApi = data => request(`/staff/focustop/${data.id}`, 'put', Qs.stringify(data))
+
+// 工作圈成员修改置顶
+export const putJobCircleIdentityOfMemberApi = data => request(`/staff/membertop/${data.id}`, 'put', Qs.stringify(data))
 
 // 添加工作圈帖子
 export const postJobCircleNoteApi = data => request('/jobcircle/post', 'post', Qs.stringify(data))
+
+// 获取工作圈成员列表
+export const getJobCircleMemberListsApi = data => request(`/jobcircle/members/${data.id}`, 'get')
+
+// 获取工作圈不可见成员列表
+export const getJobCircleMemberHitListsApi = data => request(`/staff/circlehit/${data.id}`, 'get')

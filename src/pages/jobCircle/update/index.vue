@@ -6,63 +6,87 @@
  			</button>
  		</header>
  		<main class="job-circle-content">
+      <div class="form-header-name">工作圈设置</div>
  			<el-form :model="form" :rules="rules" ref="form" label-width="100px" class="demo-form">
-			  <el-form-item label="工作圈名称" prop="name">
-			    <el-input v-model="form.name"></el-input>
-			  </el-form-item>
+        <!-- 圈主修改工作圈 start -->
+        <template v-if="jobcircleDetail.isOwner">
+  			  <el-form-item label="工作圈名称" prop="name">
+  			    <el-input v-model="form.name" style="width: 380px;"></el-input>
+  			  </el-form-item>
 
-			   <!-- 头像设置 start-->
-			  <el-form-item
-          label=" 工作圈封面"
-          prop="check_cover_img_id"
-          class="limit-width">
+  			   <!-- 头像设置 start-->
+  			  <el-form-item
+            label=" 工作圈封面"
+            prop="check_cover_img_id"
+            class="limit-width">
 
-          <div class="img-box" v-if="form.cover_img_id.tem && !imageUpload.showError">
-            <img :src="form.cover_img_id.tem" class="upload-cover">
-          </div>
-          <my-cropper
-            :hasUploaded="imageUpload.hasUploaded"
-            :btnTxt="imageUpload.btnTxt"
-            :accept="imageUpload.accept"
-            picShape="radiu"
-            @success="imageUploadSuccess"
-            @fail="imageUploadFail"
-            />
-          <div class="upload-error-tips" :class="{'upload-error-tips-show': imageUpload.showError}">
-            <div class="tips">
-              <p><i class="el-icon-error"></i></p>
-              <p>上传失败</p>
+            <div class="img-box" v-if="form.cover_img_id.tem && !imageUpload.showError">
+              <img :src="form.cover_img_id.tem" class="upload-cover">
             </div>
-          </div>
-          <div class="upload-image-tips">{{imageUpload.tips}}</div>
-        </el-form-item>
-        <!-- 头像设置 end -->
+            <my-cropper
+              :hasUploaded="imageUpload.hasUploaded"
+              :btnTxt="imageUpload.btnTxt"
+              :accept="imageUpload.accept"
+              picShape="radiu"
+              @success="imageUploadSuccess"
+              @fail="imageUploadFail"
+              />
+            <div class="upload-error-tips" :class="{'upload-error-tips-show': imageUpload.showError}">
+              <div class="tips">
+                <p><i class="el-icon-error"></i></p>
+                <p>上传失败</p>
+              </div>
+            </div>
+            <div class="upload-image-tips">{{imageUpload.tips}}</div>
+          </el-form-item>
+          <!-- 头像设置 end -->
 
-        <!-- 选择必修学员 -->
-	      <el-form-item
-	        label="选择必修学员"
-	        class="limit-width"
-	        >
-	          <div class="selected-item" v-show="form.members.show">
-	            <span
-	              @click="removeMultipleCheck(hIndex)"
-	              v-for="(hItem, hIndex) in form.members.tem"
-	              :key="hIndex">
-	                {{hItem.realname}}<i class="el-icon-close"></i>
-	            </span>
-	          </div>
-	          <el-button
-	            class="click-item"
-	            type="primary"
-	            :class="{'zike-btn-selected': form.members.show}"
-	            @click="openModal('members')">
-	              {{form.members.show ? '重新选择' : '点击选择'}}
-	          </el-button>
-	      </el-form-item>
+          <!-- 选择必修学员 -->
+  	      <el-form-item
+  	        label="选择必修学员"
+  	        class="limit-width"
+  	        >
+  	          <div class="selected-item" v-show="form.members.show">
+  	            <span
+  	              @click="removeMultipleCheck(hIndex)"
+  	              v-for="(hItem, hIndex) in form.members.tem"
+  	              :key="hIndex">
+  	                {{hItem.realname}}<i class="el-icon-close"></i>
+  	            </span>
+  	          </div>
+  	          <el-button
+  	            class="click-item"
+  	            type="primary"
+  	            :class="{'zike-btn-selected': form.members.show}"
+  	            @click="openModal('members')">
+  	              {{form.members.show ? '重新选择' : '点击选择'}}
+  	          </el-button>
+  	      </el-form-item>
+          
+          <el-form-item label="置顶该工作圈">
+            <el-switch v-model="form.is_top"></el-switch>
+          </el-form-item>
+        </template>
+        <!-- 圈主修改工作圈 end -->
 
-	      <el-form-item label="即时配送">
-			    <el-switch v-model="form.is_top"></el-switch>
-			  </el-form-item>
+        <!-- 圈内成员修改工作圈 start -->
+        <template v-if="!jobcircleDetail.isOwner && jobcircleDetail.isMember">
+          <el-form-item label="置顶该工作圈">
+            <el-switch v-model="form.is_top"></el-switch>
+          </el-form-item>
+        </template>
+        <!-- 圈内成员修改工作圈 end -->
+
+        <!-- 非圈内成员修改工作圈 start -->
+        <template v-if="!jobcircleDetail.isOwner && !jobcircleDetail.isMember">
+          <el-form-item label="置顶该工作圈">
+            <el-switch v-model="form.is_top"></el-switch>
+          </el-form-item>
+          <el-form-item label="关注该工作圈">
+            <el-switch v-model="form.focus"></el-switch>
+          </el-form-item>
+        </template>
+        <!-- 非圈内成员修改工作圈 end -->
 			  <el-form-item>
 			    <el-button type="primary" @click="preSubmit" class="form-submit-btn">保存</el-button>
 			    <el-button @click="reset" class="form-reset-btn">取消</el-button>
@@ -144,14 +168,20 @@ import SearchBar from 'COMPONENTS/searchBar/index.vue'
 			'getGroupListsApi',
 			'classifyMemberListsByGroupIdApi',
 			'updateMemberListsApi',
-      'putJobCircleApi'
+      'putJobCircleIdentityOfOwnerApi',
+      'putJobCircleIdentityOfUnMemberApi',
+      'putJobCircleIdentityOfMemberApi',
+      'getJobCircleMemberListsApi',
+      'getJobCircleMemberHitListsApi'
 		])
 	},
 	computed: {
     ...mapGetters([
       'jobcircleDetail',
       'memberLists',
-      'groupLists'
+      'groupLists',
+      'jobCircleMemberLists',
+      'jobCircleMemberHitLists'
     ])
   }
 })
@@ -164,6 +194,12 @@ export default class PageJobCircleUpdate extends Vue {
     tips: '建议尺寸160X160px ，JPG、PNG格式，图片小于5M',
     showError: false,
     accept: '.jpeg, .png, .jpg'
+  }
+
+  apiLists = {
+    owner: 'putJobCircleIdentityOfOwnerApi',
+    menber: 'putJobCircleIdentityOfMemberApi',
+    unmember: 'putJobCircleIdentityOfMemberApi'
   }
 
 	form = {
@@ -215,7 +251,9 @@ export default class PageJobCircleUpdate extends Vue {
       [
         this.getMemberListsApi(),
         this.getGroupListsApi(),
-        this.getJobcircleDetailApi(params)
+        this.getJobcircleDetailApi(params),
+        this.getJobCircleMemberListsApi(params),
+        this.getJobCircleMemberHitListsApi(params)
       ]
     )
     .then((res) => {
@@ -225,9 +263,10 @@ export default class PageJobCircleUpdate extends Vue {
       this.form.cover_img_id.tem = this.jobcircleDetail.coverImg.smallUrl
       this.form.name = this.jobcircleDetail.name
       this.form.is_top = this.jobcircleDetail.isTop
+      this.form.focus = this.jobcircleDetail.isAttention
       this.imageUpload.hasUploaded = true
       this.imageUpload.btnTxt = '重新上传'
-      this.jobcircleDetail.memberInfo.map(field => {
+      this.jobCircleMemberLists.map(field => {
         this.form.members.value.push(field.uid)
         this.form.members.tem.push(field)
         this.form.members.show = true
@@ -244,22 +283,27 @@ export default class PageJobCircleUpdate extends Vue {
   }
   /**
    * @Author   小书包
-   * @DateTime 2018-11-24
-   * @detail   测试提交
+   * @DateTime 2018-11-26
+   * @detail   detail
    * @return   {[type]}   [description]
    */
   preSubmit() {
     this.$refs['form'].validate((valid) => {
       if (valid) {
-        const need = ['name', 'cover_img_id', 'is_top', 'id', 'members']
+        const ownerNeed = ['name', 'cover_img_id', 'is_top', 'id', 'members']
+        const menberNeed = ['is_top', 'id']
+        const unmemberNeed = ['is_top', 'id', 'focus']
+        const action = this.jobcircleDetail.isOwner ? this.apiLists['owner'] : this.jobcircleDetail.isMember ? this.apiLists['menber'] : this.apiLists['unmenber']
+        const need = this.jobcircleDetail.isOwner ? ownerNeed : this.jobcircleDetail.isMember ? menberNeed : unmemberNeed
         const params = this.transformData(this.form, need)
         params.is_top = params.is_top ? 1 : 0
-        this.submit(params)
+        params.focus = params.focus ? 1 : 0
+        this.submit(params, action)
       }
     })
   }
-  submit(params) {
-    this.putJobCircleApi(params)
+  submit(params, action) {
+    this[action](params)
         .then(res => {
           this.$message({
             message: `${res.data.msg}~`,
@@ -425,6 +469,13 @@ export default class PageJobCircleUpdate extends Vue {
 <style lang="scss">
 #job-circle-update {
 	background: white;
+  .form-header-name {
+    font-size:20px;
+    font-weight:500;
+    color:rgba(53,64,72,1);
+    line-height:1;
+    margin-bottom: 40px;
+  }
 	.jobCircle-header {
 		height:68px;
 		background:rgba(255,255,255,1);
