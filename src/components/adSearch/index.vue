@@ -55,11 +55,10 @@ export default class ComponentAdSearch extends Vue {
     this.$emit('closePopover')
   }
   search () {
-    let parmas = `id=${this.id}&keyword=${this.keyWord}&month=${this.keyTime}`
-    this.checkList.forEach((item, index) => {
-      parmas = `${parmas}&type[${index}]=${item}`
-    })
+    let parmas = `id=${this.id}&keyword=${this.keyWord}&month=${this.keyTime}&type=${this.checkList}`
     this.$router.push(`/search?${parmas}`)
+    this.$emit('search', {id: this.id, keyword: this.keyWord, month: this.keyTime, type: this.checkList})
+    this.close()
   }
 }
 </script>

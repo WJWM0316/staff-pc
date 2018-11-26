@@ -57,8 +57,8 @@
  			</ul>
  			<div class="search">
  				<div class="common-search-box">
-	 				<input type="text" placeholder="搜索文件名称或关键词">
-	 				<span class="search-button"><i class="el-icon-search"></i></span>
+	 				<input type="text" v-model="keyWord" placeholder="搜索文件名称或关键词">
+	 				<span class="search-button" @click.stop="toSearch"><i class="el-icon-search"></i></span>
 	 			</div>
 	 			<el-popover
 			    placement="bottom-end"
@@ -208,6 +208,7 @@ import loadMore from 'COMPONENTS/loadMore'
 })
 export default class pageIndex extends Vue {
 	tabIndex = 'Pictures'
+	keyWord = '' // 关键词
 	visible = false // 显示高级搜索框
 	isPreview = false // 打开预览层
 	previewData = null // 传递给预览层的数据
@@ -243,6 +244,10 @@ export default class pageIndex extends Vue {
   }
   get linkList () {
   	return this[`jobcirclePostAffixUrls`]
+  }
+  toSearch () {
+  	if (this.keyWord === '') return
+  	this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
   }
   /**
    * @Author   小书包
@@ -287,7 +292,6 @@ export default class pageIndex extends Vue {
 			id: this.currentJobCircleId,
 			page: Math.ceil(affixItem.index / 35)
 		}
-		alert(this.currentJobCircleId)
 		this.isPreview = true
 	}
 	/**
@@ -820,6 +824,7 @@ export default class pageIndex extends Vue {
 				text-align: center;
 				line-height: 30px;
 				color: #666666;
+				cursor: pointer;
 			}
 			input {
 				width: 100%;

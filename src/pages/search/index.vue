@@ -1,11 +1,11 @@
 <template>
   <div class="search">
-    <div class="condition" v-if="false">
+    <div class="condition">
       <div class="search-box">
         <span class="back"><i class="icon font_family icon-fanhui"></i>返回</span>
         <span class="input-box">
-          <input type="text" placeholder="搜索文件名称或关键词">
-          <div class="search-button"><i class="icon font_family el-icon-search"></i>搜索</div>
+          <input type="text" v-model="keyWord" placeholder="搜索文件名称或关键词">
+          <div class="search-button" @click.stop="keyWordSearch"><i class="icon font_family el-icon-search"></i>搜索</div>
         </span>
         <el-popover
           placement="bottom-end"
@@ -22,40 +22,50 @@
             </div>
           </el-button>
           <slot>
-            <adSearch :id="parseInt($route.query.id)" @closePopover="visible = !visible"></adSearch>
+            <adSearch :id="parseInt($route.query.id)" @closePopover="visible = !visible" @search="search"></adSearch>
           </slot>
         </el-popover>
       </div>
       <div class="search-type">
-        <span class="fileType" v-for="(item, index) in typeList" :key="index" :class="{'cur': typeIndex === index}">{{item}}</span>
+        <span class="fileType" v-for="(item, index) in typeList" :key="index" :class="{'cur': typeIndex === index}" @click.stop="toggle(index)">{{item}}</span>
       </div>
     </div>
     <div class="content">
-      <div class="type" v-if="list.picture.length > 0">
-        <div class="title">图片与视频<span class="more" v-if="false">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
-        <div class="inner pic">
+      <div class="type" v-if="list.picture.length > 0 && (typeIndex === 1 || typeIndex === 0)">
+        <div class="title">图片与视频<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle(1)">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
+        <div class="inner pic" :class="{'more' : this.typeIndex !== 0}">
           <div class="picBox" v-for="(item, index) in list.picture" :key="index">
-            <picOrVideo :fileData="item"></picOrVideo>
+            <picOrVideo :fileData="item" @click.native="openPreview(index)"></picOrVideo>
           </div>
         </div>
+        <div class="loadMore" v-show="this.typeIndex === 1">
+          <loadMore @loadMore="loadMore" :status="picsStatus"></loadMore>
+        </div>
       </div>
-      <div class="type" v-if="list.file.length > 0">
-        <div class="title">文件<span class="more" v-if="false">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
+      <div class="type" v-if="list.file.length > 0 && (typeIndex === 2 || typeIndex === 0)">
+        <div class="title">文件<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle(2)">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
         <div class="inner file">
           <div class="fileBox"  v-for="(item, index) in list.file" :key="index">
             <fileBox :fileData="item" type="2"></fileBox>
           </div>
         </div>
+        <div class="loadMore" v-show="this.typeIndex === 2">
+          <loadMore @loadMore="loadMore" :status="filesStatus"></loadMore>
+        </div>
       </div>
-      <div class="type" v-if="list.urls.length > 0">
-        <div class="title">链接<span class="more" v-if="false">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
+      <div class="type" v-if="list.urls.length > 0 && (typeIndex === 3 || typeIndex === 0)">
+        <div class="title">链接<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle(3)">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
         <div class="inner file">
           <div class="fileBox" v-for="(item, index) in list.urls" :key="index">
             <fileBox :fileData="item" type="2"></fileBox>
           </div>
         </div>
+        <div class="loadMore" v-show="this.typeIndex === 3">
+          <loadMore @loadMore="loadMore" :status="linksStatus"></loadMore>
+        </div>
       </div>
     </div>
+    <preview v-if="isPreview" :previewList="list.picture" :curOpenIndex="curOpenIndex" @closePreview="closePreview"></preview>
   </div>
 </template>
 <script>
@@ -64,15 +74,34 @@ import Component from 'vue-class-component'
 import picOrVideo from 'COMPONENTS/picOrVideo'
 import adSearch from 'COMPONENTS/adSearch'
 import fileBox from 'COMPONENTS/fileBox'
+import loadMore from 'COMPONENTS/loadMore'
+import preview from 'COMPONENTS/preview'
 import {getJobcirclePostaffixApi} from 'API/jobcircle'
 @Component({
   components: {
     picOrVideo,
+    preview,
     adSearch,
-    fileBox
+    fileBox,
+    loadMore
+  },
+  watch: {
+    typeIndex () {
+      this.list = {
+        picture: [],
+        file: [],
+        urls: []
+      }
+    },
+    '$route' () {
+      this.init()
+    }
   }
 })
 export default class pageSearch extends Vue {
+  keyWord = '' // 关键词
+  isPreview = false // 打开预览层
+  curOpenIndex = null // 预览的索引
   visible = false // 显示高级搜索框
   typeIndex = 0 // 选择的搜索类型
   typeList = ['全部', '相册', '文件', '链接']
@@ -81,14 +110,137 @@ export default class pageSearch extends Vue {
     file: [],
     urls: []
   }
-  getListData () {
+  picsStatus = {
+    noData: false,
+    loading: false,
+    page: 1
+  }
+  filesStatus = {
+    noData: false,
+    loading: false,
+    page: 1
+  }
+  linksStatus = {
+    noData: false,
+    loading: false,
+    page: 1
+  }
+  toggle (index) {
+    this.typeIndex = index
+    let params = this.$route.query
+    switch (this.typeIndex) {
+      case 0:
+        params.type = [2,3,4]
+        break
+      case 1:
+        params.type = [3]
+        break
+      case 2:
+        params.type = [2]
+        break
+      case 3:
+        params.type = [4]
+        break
+    }
+    this.getListData(params)
+  }
+  search (params) {
+    this.getListData(params)
+  }
+  keyWordSearch () {
+    if (this.keyWord === '') return
     let data = this.$route.query
+    data.keyword = this.keyWord
+    this.getListData(data)
+  }
+  openPreview (index) {
+    this.isPreview = true
+    this.curOpenIndex = index
+  }
+  closePreview () {
+    this.isPreview = false
+  }
+  getListData (params) {
+    let data = {}
+    if (params) {
+      data = params
+    } else {
+      data = this.$route.query
+      data.type = data.type.split(',')
+    }
+    if (this.typeIndex === 0) {
+      data.count = 7
+    } else {
+      data.count = 20
+    }
     getJobcirclePostaffixApi(data).then(res => {
-      this.list = res.data.data
+      switch (this.typeIndex) {
+        case 1:
+          this.list.picture = this.list.picture.concat(res.data.data.picture)
+          this.picsStatus.loading = false
+          if (res.data.data.picture.length === 0) {
+            this.picsStatus.noData = true
+          }
+          break
+        case 2:
+          this.list.file = this.list.file.concat(res.data.data.file)
+          this.filesStatus.loading = false
+          if (res.data.data.file.length === 0) {
+            this.filesStatus.noData = true
+          }
+          break
+        case 3:
+          this.list.urls = this.list.urls.concat(res.data.data.urls)
+          this.linksStatus.loading = false
+          if (res.data.data.urls.length === 0) {
+            this.linksStatus.noData = true
+          }
+          break
+        default:
+          this.list = res.data.data
+      }
     })
   }
-  created () {
+  loadMore () {
+    let data = this.$route.query
+    switch (this.typeIndex) {
+      case 1:
+        this.picsStatus.page++
+        this.picsStatus.loading = true
+        data.page = this.picsStatus.page
+        break
+      case 2:
+        this.filesStatus.page++
+        this.filesStatus.loading = true
+        data.page = this.filesStatus.page
+        break
+      case 3:
+        this.linksStatus.page++
+        this.linksStatus.loading = true
+        data.page = this.linksStatus.page
+        break
+    }
+    this.getListData(data)
+  }
+  init () {
+    switch (this.$route.query.type) {
+      case '3':
+        this.typeIndex = 1
+        break
+      case '2':
+        this.typeIndex = 2
+        break
+      case '4':
+        this.typeIndex = 3
+        break
+      default:
+        this.typeIndex = 0
+        break
+    }
     this.getListData()
+  }
+  created () {
+    this.init()
   }
 }
 </script>
@@ -141,6 +293,8 @@ export default class pageSearch extends Vue {
             color: #666666;
             display: flex;
             align-items: center;
+            font-size: 14px;
+            cursor: pointer;
           }
         }
         .adSearch {
@@ -167,6 +321,7 @@ export default class pageSearch extends Vue {
           text-align: center;
           font-size: 14px;
           color: #354048;
+          cursor: pointer;
           &.cur {
             font-weight: 700;
             position: relative;
@@ -187,18 +342,21 @@ export default class pageSearch extends Vue {
     .content {
       background: #fff;
       margin-top: 16px;
+      padding-top: 43px;
       .type {
+        padding-bottom: 43px;
         .title {
           font-size: 20px;
           font-weight: 400;
           line-height: 40px;
           color: #666666;
-          padding: 43px 24px 0 23px;
+          padding: 0 24px 0 23px;
           box-shadow:0px 1px 0px 0px rgba(235,238,245,1);
           .more {
             float: right;
             font-size: 14px;
             color: #666666;
+            cursor: pointer;
             .icon {
               font-size: 12px;
               vertical-align: 1px;
@@ -219,8 +377,17 @@ export default class pageSearch extends Vue {
             height: 130px;
             float: left;
             margin: 24px 8px 0 0;
-            &:last-child {
+            &:nth-child(7n) {
               margin: 24px 0 0 0;
+            }
+          }
+          &.more {
+            padding-top: 24px;
+            .picBox {
+              margin: 0 8px 8px 0;
+              &:nth-child(7n) {
+                margin: 0 0 8px 0;
+              }
             }
           }
           .fileBox {

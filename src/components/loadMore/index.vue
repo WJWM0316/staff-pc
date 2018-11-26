@@ -28,7 +28,7 @@
     }
   }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .loadMore {
   padding: 20px 0;
   text-align: center; 
@@ -42,6 +42,8 @@
     &.loading {
       .icon {
         vertical-align: -1px;
+        display: inline-block;
+        animation: loading 3s linear infinite;
       }
     }
   }

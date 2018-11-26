@@ -27,7 +27,7 @@
       </div>
       <div class="sidebar">
         <div class="inner">
-          <div class="item prev" :class="{'disabled': noPrevMonth}" @click.stop="lastMonth">上个月</div>
+          <div class="item prev" :class="{'disabled': noPrevMonth}" @click.stop="lastMonth" v-show="previewList.length === 0">上个月</div>
           <div class="item iconfont" :class="{'disabled': noPrev}" @click.stop="lastOne"><i class="icon font_family icon-loeft_up"></i></div>
           <div class="swiper-container littleList">
             <div class="swiper-wrapper littleBox">
@@ -46,7 +46,7 @@
             </div>
           </div>
           <div class="item" :class="{'disabled': noNext}" @click.stop="nextOne"><i class="icon font_family icon-loeft_down"></i></div>
-          <div class="item last" :class="{'disabled': noNextMonth}" @click.stop="nextMonth">下个月</div>
+          <div class="item last" :class="{'disabled': noNextMonth}" @click.stop="nextMonth" v-show="previewList.length === 0">下个月</div>
         </div>
       </div>
     </div>
@@ -59,6 +59,13 @@ import Swiper from 'swiper';
 import {getPicMonthListJobci1rcleApi, getJobcirclePostaffixOfPictureApi} from 'API/jobcircle'
 @Component({
   props: {
+    curOpenIndex: {
+      type: Number
+    },
+    previewList: {
+      type: Array,
+      default: []
+    },
     previewData: {
       type: Object,
       default: () => {
@@ -87,9 +94,13 @@ import {getPicMonthListJobci1rcleApi, getJobcirclePostaffixOfPictureApi} from 'A
       }
     },
     previewData (val) {
-    }
+    },
+    previewList () {}
   },
   computed: {
+    ...mapGetters([
+      'currentJobCircleId'
+    ]),
     noPrev () {
       if (this.curIndex === 0 && this.noPrevMonth) {
         return true
@@ -105,14 +116,14 @@ import {getPicMonthListJobci1rcleApi, getJobcirclePostaffixOfPictureApi} from 'A
       }
     },
     noPrevMonth () {
-      if (this.curMonthIndex === 0 || this.noLoadMonthList.length === 0) {
+      if ((this.curMonthIndex === 0 || this.noLoadMonthList.length === 0) && this.previewList.length > 0) {
         return true
       } else {
         return false
       }
     },
     noNextMonth () {
-      if (this.curMonthIndex === this.monthList.length - 1 || this.noLoadMonthList.length === 0) {
+      if ((this.curMonthIndex === this.monthList.length - 1 || this.noLoadMonthList.length === 0) && this.previewList.length > 0) {
         return true
       } else {
         return false
@@ -173,7 +184,7 @@ export default class ComponentPreview extends Vue {
     }
   }
   preloadImages (type) {
-    console.log(this.curIndex, this.pickList.length - 4, this.noNextData, this.noNextMonth, this.monthList[this.curMonthIndex].month)
+    if (this.previewList.length > 0) return
     if (this.isLoging) return // 正常加载的时候阻止掉
     if (type === 'next') {
       if (this.curIndex >= this.pickList.length - 4 && this.noNextData && !this.noNextMonth) { // 提前三张判断，没有下一页数据，切还有下个月，则加载下一个月
@@ -222,8 +233,9 @@ export default class ComponentPreview extends Vue {
     this.preloadImages('next')
   }
   async getPicList (type, oldNum) {
+    if (this.previewList.length > 0) return
     let data = {
-      id: this.previewData.id,
+      id: this.currentJobCircleId,
       page: this.pageNum,
       month: this.monthList[this.curMonthIndex].month,
       count: 35
@@ -278,8 +290,15 @@ export default class ComponentPreview extends Vue {
     }
   }
   created () {
+    if (this.previewList.length !== 0) {
+      this.pickList = this.previewList
+      this.$nextTick(() => {
+        this.curIndex = this.curOpenIndex
+      })
+      return
+    }
     let data = {
-      id: this.$route.query.id
+      id: this.currentJobCircleId
     }
     getPicMonthListJobci1rcleApi(data).then(res => {
       this.monthList = res.data.data.reverse()
@@ -290,7 +309,6 @@ export default class ComponentPreview extends Vue {
         }
       })
       this.pageNum = this.previewData.page
-      console.log(this.monthList[this.curMonthIndex], this.pageNum, this.previewData.index)
       this.getPicList()
     })
   }
