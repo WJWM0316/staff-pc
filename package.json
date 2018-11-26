@@ -4,7 +4,7 @@
   "private": true,
   "ahthor": "lizifa",
   "scripts": {
-    "serve": "vue-cli-service serve --mode test",
+    "serve": "vue-cli-service serve --mode local",
     "build:dev": "vue-cli-service build --mode development",
     "build:pro": "vue-cli-service build --mode production",
     "lint": "vue-cli-service lint"
