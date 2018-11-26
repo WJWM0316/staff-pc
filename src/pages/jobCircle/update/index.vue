@@ -260,7 +260,12 @@ export default class PageJobCircleUpdate extends Vue {
   }
   submit(params) {
     this.putJobCircleApi(params)
-        .then(res => {})
+        .then(res => {
+          this.$message({
+            message: `${res.data.msg}~`,
+            type: 'success'
+          })
+        })
         .catch(err => {
           this.$message.error(`${err.msg}~`)
         })

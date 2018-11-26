@@ -25,10 +25,14 @@
 			<!-- <video :src="videoUpload.infos.url" v-if="videoUpload.infos.url"> your browser does not support the video tag </video> -->
 		</div>
 		<ul class="common-list">
-			<li v-for="(imageItem, imageIndex) in commonList" :key="imageIndex">
-				{{imageItem.percent}}
-				<span class="btn-close"><i class="icon font_family icon-icon_errorsvg"></i></span>
-				<el-progress type="circle" :percentage="imageItem.percent" :stroke-width="2" :width="46"></el-progress>
+			<li
+        v-for="(imageItem, imageIndex) in commonList"
+        :key="imageIndex"
+        :data-key="imageIndex"
+        draggable="true" :style="`background-image: url(${imageItem.smallUrl}); background-size: cover; background-repeat: no-repeat; background-position: center center;`">
+				<span class="btn-close" @click="handleRemoveUploadImage(imageIndex)"><i class="icon font_family icon-icon_errorsvg"></i></span>
+				<!-- <img :src="imageItem.smallUrl" alt=""> -->
+				<!-- <el-progress type="circle" :percentage="imageItem.percent" :stroke-width="2" :width="46"></el-progress> -->
 			</li>
 		</ul>
 		<div class="comment-controlls-box">
@@ -108,7 +112,13 @@ import { upload_api } from '@/store/api/index.js'
   }
 })
 export default class ComponentCommentBox extends Vue {
+	imgEdit = {
+		start: {index: null, data: null},
+		end: {index: null, data: null}
+	}
 	commonList = []
+	domLists = null
+	dragEl = null
 	// 图片上传
   imageUpload = {
   	action: upload_api,
@@ -205,8 +215,6 @@ export default class ComponentCommentBox extends Vue {
   	if(!this.imageUpload.imgLists.includes(file.uid)) {
   		this.imageUpload.imgLists.push(file.uid)
   		this.imageUpload.limit--
-  		file.percent = 0
-  		this.commonList.push(file)
   	}
   }
   /**
@@ -216,7 +224,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}        [description]
    */
   handleImageProgress(event) {
-  	this.commonList[this.commonList.length - 1].percent = event.percent
+  	// this.commonList[this.commonList.length - 1].percent = event.percent
   }
   /**
    * @Author   小书包
@@ -224,8 +232,74 @@ export default class ComponentCommentBox extends Vue {
    * @detail   图片上传进度
    * @return   {[type]}        [description]
    */
-  handleImageSuccess(event, file, fileList) {
-  	// console.log(event, file, fileList)
+  handleImageSuccess(res) {
+  	this.commonList.push(res.data[0])
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-23
+   * @detail   图片上传进度
+   * @return   {[type]}        [description]
+   */
+  handleRemoveUploadImage(index) {
+  	this.commonList.splice(index, 1)
+  }
+
+  test() {
+  	this.domLists = document.querySelectorAll('.common-list li')
+  	this.dragEl = null
+  	Array.from(this.domLists).map(dom => {
+  		dom.addEventListener('dragstart', this.handleImageMoveDragStart,false)
+	    dom.addEventListener('dragenter', this.handleImageMoveDragEnter, false)
+	    dom.addEventListener('dragover', this.handleImageMoveDragOver, false)
+	    dom.addEventListener('dragleave', this.handleImageMoveDragLeave, false)
+	    dom.addEventListener('drop', this.handleImageMoveDrop, false)
+	    dom.addEventListener('dragend', this.handleImageMoveDrapend, false)
+  	})
+  }
+
+  handleImageMoveDragStart(e) {
+  	const index = e.target.getAttribute('data-key')
+  	this.imgEdit.start.data = this.commonList[index]
+  	this.imgEdit.start.index = index
+    e.target.style.opacity = '0.5'
+    this.dragEl = e.target
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  handleImageMoveDragEnter(e) {
+    e.target.classList.add('over')
+  }
+
+  handleImageMoveDragOver(e) {
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+    e.dataTransfer.dropEffect = 'move'
+    return false
+  }
+
+  handleImageMoveDragLeave(e) {
+    e.target.classList.remove('over')
+  }   
+
+  handleImageMoveDrop(e) {
+  	const index = e.target.getAttribute('data-key')
+    if (e.stopPropagation) {
+      e.stopPropagation()
+    }
+    if (this.dragEl != e.target) {
+    	this.commonList.splice(this.imgEdit.start.index, 1, this.commonList[index])
+    	this.commonList.splice(index, 1, this.imgEdit.start.data)
+    }
+    return false
+  }
+
+  handleImageMoveDrapend(e) {
+  	Array.from(this.domLists).map(dom => {
+  		dom.classList.remove('over')
+      dom.style.opacity = '1'
+  	})
   }
   /**
    * @Author   小书包
@@ -350,7 +424,12 @@ export default class ComponentCommentBox extends Vue {
   	const params = this.transformData(this.form)
   	if(!params.content) return
   	this.postJobCircleNoteApi(params)
-  			.then(() => {})
+  			.then((res) => {
+  				this.$message({
+            message: `${res.data.msg}~`,
+            type: 'success'
+          })
+  			})
   			.catch(err => {
   				this.$message.error(`${err.msg}~`)
   			})
@@ -376,6 +455,10 @@ export default class ComponentCommentBox extends Vue {
   		if(data[attr]) formData[attr] = data[attr]
   	})
     return formData
+  }
+
+  mounted() {
+  	this.test()
   }
 }
 </script>
@@ -604,6 +687,10 @@ export default class ComponentCommentBox extends Vue {
 			position: relative;
 			display: inline-block;
 			margin-right: 24px;
+			img {
+				width: 100%;
+				height: 100%;
+			}
 		}
 		.btn-close{
 			position: absolute;
