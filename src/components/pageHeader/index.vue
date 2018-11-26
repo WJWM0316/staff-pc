@@ -22,6 +22,9 @@ import Component from 'vue-class-component'
 import Cookies from 'js-cookie'
 
 @Component({
+	methods: {
+    ...mapActions(['logoutApi'])
+  },
   computed: {
     ...mapGetters([
       'userInfos'
