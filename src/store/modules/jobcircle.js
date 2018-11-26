@@ -10,7 +10,7 @@ import {
   GET_JOB_CIRCLE_DETAIL,
   UPDATE_JOB_CIRCLE_PICTURES_LIST,
   UPDATE_JOB_CIRCLE_FILES_LIST,
-  UPDATE_JOB_CIRCLE_URLS_LIST
+  UPDATE_JOB_CIRCLE_URLS_LIST,
   GET_JOB_CIRCLE_MEMBER_LIST,
   GET_JOB_CIRCLE_MEMBER_HIT_LIST
 } from '../mutation-types'
@@ -134,6 +134,7 @@ const mutations = {
   },
   [UPDATE_JOB_CIRCLE_URLS_LIST] (state, data) {
     state.jobcirclePostAffixUrls = data
+  },
   [GET_JOB_CIRCLE_MEMBER_LIST] (state, list) {
     state.jobCircleMemberLists = list
   },
