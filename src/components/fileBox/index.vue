@@ -6,7 +6,9 @@
           <img :src="fileData.fileInfo.extension | fileCover" alt="">
         </div>
         <div class="file-infos">
-          <p class="file-title">{{fileData.fileInfo.fileName}}</p>
+          <el-tooltip class="item" effect="dark" :content="fileData.fileInfo.fileName" placement="top">
+            <p class="file-title">{{fileData.fileInfo.fileName}}</p>
+          </el-tooltip>
           <p class="file-size">{{fileData.fileInfo.sizeM}}</p>
         </div>
         <div class="download-box">
@@ -28,7 +30,9 @@
           <img :src="fileData.fileInfo.extension | fileCover" alt="">
         </div>
         <div class="file-infos">
-          <p class="file-title">{{fileData.fileInfo.fileName}}</p>
+          <el-tooltip class="item" effect="dark" :content="fileData.fileInfo.fileName" placement="top">
+            <p class="file-title">{{fileData.fileInfo.fileName}}</p>
+          </el-tooltip>
           <p class="file-size">{{fileData.fileInfo.sizeM}}</p>
         </div>
         <img class="avatar" :src="fileData.releaseUser.avatarInfo.smallUrl" alt="">
@@ -46,7 +50,9 @@
           <img src="https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/postLink.png">
         </div>
         <div class="file-infos">
-          <p class="file-title">{{fileData.title}}</p>
+          <el-tooltip class="item" effect="dark" :content="fileData.title" placement="top">
+            <p class="file-title">{{fileData.title}}</p>
+          </el-tooltip>
         </div>
         <img class="avatar" :src="fileData.releaseUser.avatarInfo.smallUrl" alt="">
         <div class="user">
@@ -80,6 +86,7 @@
   })
   export default class ComponentFileBox extends Vue {
     download(fileLink) {
+      // require('downloadjs')(fileLink, fileLink, 'file')
       let event = new MouseEvent('click')
       let a = document.createElement('a')
       a.href = fileLink
@@ -117,17 +124,19 @@
       display: inline-block;
       margin-right: 8px;
       overflow: hidden;
+      float: left;
       img {
         width: 100%;
         height: 100%;
       }
     }
     .file-infos {
-      width: calc(100% - 62px - 70px);
+      width: calc(100% - 54px - 70px);
       height: 46px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      display: inline-block;
+      /*display: flex;*/
+      /*flex-direction: column;*/
+      /*justify-content: center;*/
       &.link {
         width: calc(100% - 62px);
       }
@@ -141,6 +150,7 @@
       font-weight:300;
       color:rgba(0,0,0,0.85);
       line-height: 1;
+      margin-top: 5px;
       &.link {
         line-height: 46px;
         margin: 0;

@@ -24,7 +24,7 @@
 			<div class="btn-click"><i class="icon font_family icon-play"></i></div>
 			<!-- <video :src="videoUpload.infos.url" v-if="videoUpload.infos.url"> your browser does not support the video tag </video> -->
 		</div>
-		<ul class="common-list">
+		<ul class="common-list" v-if="commonList.length">
 			<li
         v-for="(imageItem, imageIndex) in commonList"
         :key="imageIndex"
@@ -206,7 +206,6 @@ export default class ComponentCommentBox extends Vue {
     	formData.append(`img${index + 1}`, file)
     	i = i + 1
     })
-    // this.uploadAttachesApi(formData)
   }
   /**
    * @Author   小书包
@@ -218,7 +217,6 @@ export default class ComponentCommentBox extends Vue {
   	if(!this.imageUpload.imgLists.includes(file.uid)) {
   		this.imageUpload.imgLists.push(file.uid)
   		this.imageUpload.limit--
-      console.log(this.imageUpload.limit)
   	}
   }
   /**
@@ -261,7 +259,12 @@ export default class ComponentCommentBox extends Vue {
 	    dom.addEventListener('dragend', this.handleImageMoveDrapend, false)
   	})
   }
-
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-26
+   * @detail   图片开始拖拽
+   * @return   {[type]}     [description]
+   */
   handleImageMoveDragStart(e) {
   	const index = e.target.getAttribute('data-key')
   	this.imgEdit.start.data = this.commonList[index]
@@ -272,22 +275,49 @@ export default class ComponentCommentBox extends Vue {
     e.dataTransfer.effectAllowed = 'move'
   }
 
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-26
+   * @detail   detail
+   * @return   {[type]}     [description]
+   */
   handleImageMoveDragEnter(e) {
     e.target.classList.add('over')
+    // e.dataTransfer.setData('text/html', '123')
   }
 
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-26
+   * @detail   detail
+   * @return   {[type]}     [description]
+   */
   handleImageMoveDragOver(e) {
     if (e.preventDefault) {
       e.preventDefault();
     }
     e.dataTransfer.dropEffect = 'move'
+    // e.dataTransfer.setData('text/html', '123')
+    // console.log(111)
     return false
   }
 
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-26
+   * @detail   detail
+   * @return   {[type]}     [description]
+   */
   handleImageMoveDragLeave(e) {
     e.target.classList.remove('over')
   }   
 
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-26
+   * @detail   detail
+   * @return   {[type]}     [description]
+   */
   handleImageMoveDrop(e) {
   	const index = e.target.getAttribute('data-key')
     if (e.stopPropagation) {
@@ -300,6 +330,12 @@ export default class ComponentCommentBox extends Vue {
     return false
   }
 
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-26
+   * @detail   detail
+   * @return   {[type]}     [description]
+   */
   handleImageMoveDrapend(e) {
   	Array.from(this.domLists).map(dom => {
   		dom.classList.remove('over')
@@ -428,6 +464,16 @@ export default class ComponentCommentBox extends Vue {
             message: `${res.data.msg}~`,
             type: 'success'
           })
+          // 清空之前编辑的内容
+          this.form = {
+            community_id: null,
+            content: '',
+            visible: false,
+            pictures: '',
+            videos: '',
+            files: '',
+            urls: ''
+          }
   			})
   			.catch(err => {
   				this.$message.error(`${err.msg}~`)
@@ -456,7 +502,7 @@ export default class ComponentCommentBox extends Vue {
     // 如果有上传图片的话
     if(this.commonList.length) {
       let pictures  = this.commonList.map(field => field.id)
-      this.form.pictures = pictures.join(',')
+      formData.pictures = pictures
     }
     formData.community_id = this.currentJobCircleId
     return formData
@@ -507,7 +553,7 @@ export default class ComponentCommentBox extends Vue {
 		font-size:14px;
 		font-weight:400;
 		color:rgba(102,102,102,1);
-		width: 300px;
+		width: 230px;
 		text-align: right;
 		.auth-setting {
 			display: inline-block;
@@ -696,7 +742,8 @@ export default class ComponentCommentBox extends Vue {
 		}
     .draging{
       border: 1px red dotted;
-      background: white !important;
+      /*cursor: crosshair;*/
+      /*background: white !important;*/
     }
 		.btn-close{
 			position: absolute;
