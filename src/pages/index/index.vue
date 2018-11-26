@@ -49,6 +49,7 @@
  		</div>
  	</div>
  	<div class="col-daptive">
+ 		<comment-box></comment-box>
  		<div class="content-header">
  			<ul class="common-tab-box">
  				<li :class="{'tab-active': tabIndex === 'Pictures'}" @click="tabClick('Pictures')">相册</li>
@@ -148,8 +149,8 @@
 	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
  			<button class="attention-button" v-if="!jobcircleDetail.isAttention && !jobcircleDetail.isOwner " @click="todoAction('focus')"> + 关注 </button>
  			<button class="attentioned-button" v-if="jobcircleDetail.isAttention && !jobcircleDetail.isOwner " @click="todoAction('unfocus')"> 已关注 </button>
- 			<button class="button-untop" v-if="!jobcircleDetail.isTop && !jobcircleDetail.isOwner " @click="todoAction('top')"> 置顶 </button>
- 			<button class="button-top" v-if="jobcircleDetail.isTop && !jobcircleDetail.isOwner " @click="todoAction('untop')"> 取消置顶 </button>
+ 			<button class="button-untop" v-if="!jobcircleDetail.isTop && !jobcircleDetail.isOwner && jobcircleDetail.isAttention " @click="todoAction('top')"> 置顶 </button>
+ 			<button class="button-top" v-if="jobcircleDetail.isTop && !jobcircleDetail.isOwner && jobcircleDetail.isAttention " @click="todoAction('untop')"> 取消置顶 </button>
  			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner ">
  				<i class="icon font_family icon-shezhi"></i> 工作圈设置
  			</button>
@@ -166,13 +167,16 @@ import fileBox from 'COMPONENTS/fileBox'
 import picOrVideo from 'COMPONENTS/picOrVideo'
 import adSearch from 'COMPONENTS/adSearch'
 import loadMore from 'COMPONENTS/loadMore'
+import commentBox from 'COMPONENTS/commentBox'
+
 @Component({
 	components: {
 		preview,
 		fileBox,
 		picOrVideo,
 		loadMore,
-		adSearch
+		adSearch,
+		commentBox
 	},
 	methods: {
 		...mapActions([
