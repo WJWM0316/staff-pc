@@ -25,9 +25,12 @@
 			<!-- <video :src="videoUpload.infos.url" v-if="videoUpload.infos.url"> your browser does not support the video tag </video> -->
 		</div>
 		<ul class="common-list">
-			<li v-for="(imageItem, imageIndex) in commonList" :key="imageIndex" :data-key="imageIndex" draggable="true">
-				{{imageItem}}
-				<!-- <span class="btn-close" @click="handleRemoveUploadImage(imageIndex)"><i class="icon font_family icon-icon_errorsvg"></i></span> -->
+			<li
+        v-for="(imageItem, imageIndex) in commonList"
+        :key="imageIndex"
+        :data-key="imageIndex"
+        draggable="true" :style="`background-image: url(${imageItem.smallUrl}); background-size: cover; background-repeat: no-repeat; background-position: center center;`">
+				<span class="btn-close" @click="handleRemoveUploadImage(imageIndex)"><i class="icon font_family icon-icon_errorsvg"></i></span>
 				<!-- <img :src="imageItem.smallUrl" alt=""> -->
 				<!-- <el-progress type="circle" :percentage="imageItem.percent" :stroke-width="2" :width="46"></el-progress> -->
 			</li>
@@ -113,7 +116,7 @@ export default class ComponentCommentBox extends Vue {
 		start: {index: null, data: null},
 		end: {index: null, data: null}
 	}
-	commonList = ['a', 'b', 'c']
+	commonList = []
 	domLists = null
 	dragEl = null
 	// 图片上传
