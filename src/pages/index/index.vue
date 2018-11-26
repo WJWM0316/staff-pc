@@ -190,6 +190,7 @@ import commentBox from 'COMPONENTS/commentBox'
 			'getJobcirclePostaffixOfUrlsApi',
 			'getJobcircleDetailApi',
 			'focusJobCircleApi',
+			'unFocusJobCircleApi',
 			'unTopJobCircleApi',
 			'topJobCircleApi',
       'undataJobcirclePostaffixOfPictures',
@@ -413,7 +414,7 @@ export default class pageIndex extends Vue {
   					})
   			break
   		case 'unfocus':
-  			this.unTopJobCircleApi({id: this.currentJobCircleId, globalLoading: true})
+  			this.unFocusJobCircleApi({id: this.currentJobCircleId, globalLoading: true})
   					.then((res) => {
   						this.$message({
 			          message: `${res.data.msg}~`,
