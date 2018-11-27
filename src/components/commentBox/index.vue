@@ -166,7 +166,7 @@ export default class ComponentCommentBox extends Vue {
   	show: false,
   	action: upload_api,
     limit: 1,
-    accept: '.rar',
+    accept: '',
     file: {},
     params: {
       token: getAccessToken(),

@@ -2,11 +2,12 @@
  <header id="header">
  		<div class="logo-box">
   		<router-link :to="{name: 'index'}">
-  			<!-- <img src="~IMAGES/logo.png" alt=""> -->
+  			<img src="~IMAGES/logo.png" alt="">
   		</router-link>
   	</div>
   	<el-dropdown @command="command">
 		  <span class="el-dropdown-link">
+		  	<img :src="userInfos.avatarInfo.middleUrl" alt="" v-if="userInfos.avatarInfo">
 		    欢迎登录，{{userInfos.realname}}<i class="el-icon-caret-bottom"></i>
 		  </span>
 		  <el-dropdown-menu slot="dropdown">
@@ -88,6 +89,17 @@ export default class ComponentHeader extends Vue {
 		color: white;
 		.el-icon-caret-bottom {
 			margin-left: 5px;
+		}
+	}
+	.el-dropdown-link {
+		img {
+			width: 34px;
+			height: 34px;
+			background: rgba(0,0,0,.1);
+			border-radius: 50%;
+			display: inline-block;
+			vertical-align: middle;
+			cursor: pointer;
 		}
 	}
 }
