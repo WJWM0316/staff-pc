@@ -2,6 +2,7 @@
 	<section class="comment-box">
 		<div class="simple-text">
 			<textarea v-model="form.content" placeholder="说说你的想法…" class="note-content" ref="note-content"></textarea>
+      <div class="limit-box"><font :style="`color: ${form.content.length <= 1000 ? '#BCBCBC' : '#FA6A30'}`">{{form.content.length}}</font>/1000</div>
 		</div>
 		<div class="compress-infos" v-if="compressUpload.show">
 			<div class="img-box"></div>
@@ -16,8 +17,8 @@
 			</div>
 		</div>
 		<div class="input-link-box" v-if="inputLink.show">
-			<input type="text" placeholder="输入或粘贴链接地址" v-model="form.urls">
-			<button @click="switchLinkBox">确定</button>
+			<input type="text" placeholder="输入或粘贴链接地址" v-model="inputLink.value">
+			<button @click="confirmEmail">确定</button>
 		</div>
 		<div class="video-infos" v-if="videoUpload.show">
 			<span class="btn-close"><i class="icon font_family icon-icon_errorsvg"></i></span>
@@ -453,8 +454,20 @@ export default class ComponentCommentBox extends Vue {
   switchLinkBox() {
   	this.inputLink.show = !this.inputLink.show
   }
-  showLinkBox() {
-  	this.inputLink.show = true
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-27
+   * @detail   确定选中邮箱
+   * @return   {[type]}   [description]
+   */
+  confirmEmail() {
+    const checkUrlReg = /^((ht|f)tps?):\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/
+    if(checkUrlReg.test(this.inputLink.value)) {
+      this.form.urls = this.inputLink.value
+      this.inputLink.show = !this.inputLink.show
+    } else {
+      this.$message.error('不是合法的链接~')
+    }
   }
   /**
    * @Author   小书包
@@ -472,6 +485,7 @@ export default class ComponentCommentBox extends Vue {
             type: 'success'
           })
           // 清空之前编辑的内容
+          this.inputLink.value = ''
           this.form = {
             community_id: null,
             content: '',
@@ -545,8 +559,8 @@ export default class ComponentCommentBox extends Vue {
 
   mounted() {
     const dom = this.$refs['note-content']
-    dom.addEventListener('propertychange', () => { this.autoHeight(dom)})
-    dom.addEventListener('input', () => { this.autoHeight(dom)})
+    dom.addEventListener('propertychange', () => { this.autoHeight(dom) })
+    dom.addEventListener('input', () => { this.autoHeight(dom) })
   }
 }
 </script>
@@ -557,19 +571,30 @@ export default class ComponentCommentBox extends Vue {
 	padding: 16px;
 	box-sizing: border-box;
   margin-bottom: 16px;
+  .simple-text{
+    overflow: hidden;
+    position: relative;
+    .limit-box {
+      position: absolute;
+      bottom: 10px;
+      right: 8px;
+      font-weight: 300;
+      font-size: 14px;
+      color: #BCBCBC;
+    }
+  }
 	.note-content {
 		width:100%;
 		height: 80px;
 		background:rgba(255,255,255,1);
 		border-radius:4px;
 		border:1px solid #EBEEF5;
-		box-sizing: border-box;
 		outline: unset;
 		overflow: hidden;
 		line-height: 1.4;
     resize: none;
     box-sizing: border-box;
-    padding: 5px 8px;
+    padding: 5px 8px 34px 8px;
 	}
 	textarea::-webkit-input-placeholder{
     color: #BCBCBC;
