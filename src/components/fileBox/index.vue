@@ -205,7 +205,7 @@
         }
       }
     }
-    .file-infos {
+    .file-infos.link {
       width: 406px;
     }
     .avatar {
