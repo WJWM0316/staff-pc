@@ -243,6 +243,8 @@ export default class pageSearch extends Vue {
     this.getListData()
   }
   created () {
+    let {keyword} = this.$route.query
+    this.keyWord = keyword
     this.init()
   }
 }
