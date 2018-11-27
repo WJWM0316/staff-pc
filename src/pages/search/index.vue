@@ -5,7 +5,7 @@
         <span class="back"  @click="$router.back(-1)"><i class="icon font_family icon-fanhui"></i>返回</span>
         <span class="input-box">
           <input type="text" v-model="keyWord" placeholder="搜索文件名称或关键词">
-          <div class="search-button" @click.stop="keyWordSearch"><i class="icon font_family el-icon-search"></i>搜索</div>
+          <div class="search-button" @click.stop="keyWordSearch"><i class="el-icon-search"></i>搜索</div>
         </span>
         <el-popover
           placement="bottom-end"
@@ -298,6 +298,9 @@ export default class pageSearch extends Vue {
             align-items: center;
             font-size: 14px;
             cursor: pointer;
+            i {
+              margin-right: 3px;
+            }
           }
         }
         .adSearch {
