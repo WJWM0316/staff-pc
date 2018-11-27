@@ -94,7 +94,18 @@ const mutations = {
     state.attentionsJobcircle.list = list
   },
   [GET_ALL_VISIBLE_JOB_CIRCLE] (state, list) {
-    list.map((field, index) => field.active = false)
+    if(!state.attentionsJobcircle.list.length) {
+      list.map((field, index) => {
+        if(index === 0) {
+          field.active = true
+          state.currentJobCircleId = field.id
+        } else {
+          field.active = false
+        }
+      })
+    } else {
+      list.map((field, index) => field.active = false)
+    }
     state.allVisibleJobcircle.list = list
   },
   [UPDATE_JOB_CIRCLE_CHECKED_STATUS] (state, options) {

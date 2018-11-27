@@ -89,7 +89,7 @@
         <!-- 非圈内成员修改工作圈 end -->
 			  <el-form-item>
 			    <el-button type="primary" @click="preSubmit" class="form-submit-btn">保存</el-button>
-			    <el-button @click="reset" class="form-reset-btn">取消</el-button>
+			    <el-button @click="$router.back(-1)" class="form-reset-btn">取消</el-button>
 			  </el-form-item>
 			</el-form>
  		</main>
@@ -309,6 +309,7 @@ export default class PageJobCircleUpdate extends Vue {
             message: `${res.data.msg}~`,
             type: 'success'
           })
+          this.$router.back(-1)
         })
         .catch(err => {
           this.$message.error(`${err.msg}~`)

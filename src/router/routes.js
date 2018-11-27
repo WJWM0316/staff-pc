@@ -30,5 +30,12 @@ export const routes = [
     name: 'test',
     title: '首页',
     component: () => import(/* webpackChunkName: "test" */ '@/pages/test/index.vue'),
-  }
+  },
+  {
+    path: '*',
+    // 默认进入控制台
+    redirect: {
+      name: 'index'
+    }
+  },
 ]

@@ -49,7 +49,7 @@
  		</div>
  	</div>
  	<div class="col-daptive">
- 		<comment-box v-if="jobcircleDetail.isMember"></comment-box>
+ 		<comment-box v-if="jobcircleDetail.isOwner || jobcircleDetail.isMember"></comment-box>
  		<div class="content-header">
  			<ul class="common-tab-box">
  				<li :class="{'tab-active': tabIndex === 'Pictures'}" @click="tabClick('Pictures')">相册</li>
@@ -147,10 +147,14 @@
 	 			<div class="gray" v-if="jobcircleDetail.memberInfo.length > 2"><i></i><i></i><i></i></div>
 	 		</div>
 	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
- 			<button class="attention-button" v-if="!jobcircleDetail.isAttention && !jobcircleDetail.isOwner" @click="todoAction('focus')"> + 关注 </button>
- 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention && !jobcircleDetail.isOwner" @click="todoAction('unfocus')"> 已关注 </button>
- 			<button class="button-untop" v-if="!jobcircleDetail.isTop && !jobcircleDetail.isOwner && jobcircleDetail.isAttention" @click="todoAction('top')"> 置顶 </button>
- 			<button class="button-top" v-if="jobcircleDetail.isTop && !jobcircleDetail.isOwner && jobcircleDetail.isAttention" @click="todoAction('untop')"> 取消置顶 </button>
+	 		<template v-if="!jobcircleDetail.isOwner && !jobcircleDetail.isMember">
+	 			<button class="attention-button" v-if="!jobcircleDetail.isAttention" @click="todoAction('focus')"> + 关注 </button>
+	 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention" @click="todoAction('unfocus')"> 已关注 </button>
+			</template>
+			<template v-if="!jobcircleDetail.isOwner && jobcircleDetail.isAttention">
+	 			<button class="button-untop" v-if="!jobcircleDetail.isTop" @click="todoAction('top')"> 置顶 </button>
+	 			<button class="button-top" v-if="jobcircleDetail.isTop" @click="todoAction('untop')"> 取消置顶 </button>
+ 			</template>
  			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner">
  				<i class="icon font_family icon-shezhi"></i> 工作圈设置
  			</button>
@@ -460,13 +464,13 @@ export default class pageIndex extends Vue {
   	this.getAttentionsJobcircleApi()
 				.then(() => {
 					this.attentionsJobcircle.list.map(field => {
+						this.getAllVisibleJobcircleApi()
 						if(field.active) {
 							this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
 							this.getJobcircleDetail({id: this.currentJobCircleId})
 						}
 					})
 				})
-		this.getAllVisibleJobcircleApi()
   }
 	created() {
     // 重置操作
