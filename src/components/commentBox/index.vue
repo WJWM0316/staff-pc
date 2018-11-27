@@ -137,7 +137,7 @@ export default class ComponentCommentBox extends Vue {
   imageUpload = {
   	action: upload_api,
     limit: 20,
-    accept: '.png, .jpg',
+    accept: 'image/*',
     imgLists: [],
     params: {
       token: getAccessToken(),
@@ -461,7 +461,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   confirmEmail() {
-    const checkUrlReg = /^((ht|f)tps?):\/\/([\w\-]+(\.[\w\-]+)*\/)*[\w\-]+(\.[\w\-]+)*\/?(\?([\w\-\.,@?^=%&:\/~\+#]*)+)?/
+    const checkUrlReg = /^((https?|ftp|news):\/\/)?([a-z]([a-z0-9\-]*[\.。])+([a-z]{2}|aero|arpa|biz|com|coop|edu|gov|info|int|jobs|mil|museum|name|nato|net|org|pro|travel)|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))(\/[a-z0-9_\-\.~]+)*(\/([a-z0-9_\-\.]*)(\?[a-z0-9+_\-\.%=&]*)?)?(#[a-z][a-z0-9_]*)?$/ // 链接网址验证
     if(checkUrlReg.test(this.inputLink.value)) {
       this.form.urls = this.inputLink.value
       this.inputLink.show = !this.inputLink.show
