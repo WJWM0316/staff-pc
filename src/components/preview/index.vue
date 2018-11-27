@@ -1,9 +1,9 @@
 <template>
   <div class="priview" ref="priview" @mousemove="mousemoveFun" @click="toggle" :class="cursorClass">
-    <div class="closeBtn" @click.stop="closePreview">
-      <i class="icon font_family icon-btn_close"></i>
-    </div>
     <div class="wrap">
+      <div class="closeBtn" @click.stop="closePreview">
+        <i class="icon font_family icon-btn_close"></i>
+      </div>
       <div class="swiper-container listBox">
         <div class="swiper-wrapper">
           <div class="swiper-slide imgBox swiper-no-swiping" v-for="(item, index) in pickList" :key="index">
@@ -346,21 +346,7 @@ export default class ComponentPreview extends Vue {
   &.lastOne {
     cursor: url('https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/arrow_up.png'), pointer;
   }
-  .closeBtn {
-    width: 50px;
-    height: 50px;
-    position: absolute;
-    top: 5%;
-    right: 5%;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .icon {
-      font-size: 24px;
-      color: #fff;
-    }
-  }
+  
   .wrap {
     width: 1040px;
     height: 616px;
@@ -368,7 +354,21 @@ export default class ComponentPreview extends Vue {
     top: 50%;
     left: 50%;
     margin: -308px 0 0 -507px;
-    overflow: hidden;
+    .closeBtn {
+      width: 50px;
+      height: 50px;
+      position: absolute;
+      top: -50px;
+      right: -50px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      .icon {
+        font-size: 24px;
+        color: #fff;
+      }
+    }
     .listBox {
       width: 934px;
       height: 100%;

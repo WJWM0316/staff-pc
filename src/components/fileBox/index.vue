@@ -139,6 +139,8 @@
       /*justify-content: center;*/
       &.link {
         width: calc(100% - 62px);
+        display: flex;
+        align-items: center;
       }
     }
     .file-title {
@@ -152,8 +154,14 @@
       line-height: 1;
       margin-top: 5px;
       &.link {
-        line-height: 46px;
         margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        white-space: normal;
+        line-height: 1.4;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
       }
     }
     .file-size {

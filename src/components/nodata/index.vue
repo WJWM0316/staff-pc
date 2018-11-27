@@ -21,7 +21,12 @@ import Component from 'vue-class-component'
 export default class ComponentNodata extends Vue {}
 </script>
 <style lang="scss" scoped>
-	.pic {
+.nodata {
+  text-align: center;
+  padding-bottom: 10px;
+  color: #BCC1CC;
+  .pic {
     width: 120px;
   }
+}	
 </style>

@@ -254,15 +254,7 @@ export default class pageIndex extends Vue {
   }
   toSearch () {
   	if (this.keyWord === '') return
-    let type = null
-    if (this.tabIndex === 'Pictures') {
-      type = '3'
-    } else if (this.tabIndex === 'Files') {
-      type = '2'
-    } else {
-      type = '4'
-    }
-  	this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=${type}`)
+  	this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
   }
   /**
    * @Author   小书包
@@ -477,6 +469,10 @@ export default class pageIndex extends Vue {
 		this.getAllVisibleJobcircleApi()
   }
 	created() {
+    // 重置操作
+    this.undataJobcirclePostaffixOfPictures([])
+    this.undataJobcirclePostaffixOfFiles([])
+    this.undataJobcirclePostaffixOfUrls([])
 		this.init()
 	}
 }
