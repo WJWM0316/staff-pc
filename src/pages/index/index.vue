@@ -275,10 +275,7 @@ export default class pageIndex extends Vue {
 	 */
 	getActiveJobCircleInfos(params) {
 		this.updateJobCircleItemCheckedStatus(params)
-    // 重置操作
-    this.undataJobcirclePostaffixOfPictures([])
-    this.undataJobcirclePostaffixOfFiles([])
-    this.undataJobcirclePostaffixOfUrls([])
+    this.reset()
     this.picsStatus = {
       noData: false,
       loading: false,
@@ -472,11 +469,14 @@ export default class pageIndex extends Vue {
 					})
 				})
   }
-	created() {
+  reset () {
     // 重置操作
     this.undataJobcirclePostaffixOfPictures([])
     this.undataJobcirclePostaffixOfFiles([])
     this.undataJobcirclePostaffixOfUrls([])
+  }
+	created() {
+    this.reset()
 		this.init()
 	}
 }

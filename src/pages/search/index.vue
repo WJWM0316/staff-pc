@@ -148,12 +148,22 @@ export default class pageSearch extends Vue {
     this.getListData(params)
   }
   search (params) {
+    this.list = {
+      picture: [],
+      file: [],
+      urls: []
+    }
     this.getListData(params)
   }
   keyWordSearch () {
     if (this.keyWord === '') return
     let data = this.$route.query
     data.keyword = this.keyWord
+    this.list = {
+      picture: [],
+      file: [],
+      urls: []
+    }
     this.getListData(data)
   }
   openPreview (index) {
