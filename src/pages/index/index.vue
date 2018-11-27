@@ -460,8 +460,8 @@ export default class pageIndex extends Vue {
   init() {
   	this.getAttentionsJobcircleApi()
 				.then(() => {
+					this.getAllVisibleJobcircleApi()
 					this.attentionsJobcircle.list.map(field => {
-						this.getAllVisibleJobcircleApi()
 						if(field.active) {
 							this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
 							this.getJobcircleDetail({id: this.currentJobCircleId})
