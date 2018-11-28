@@ -193,6 +193,9 @@
     .icon-box, .file-infos, .avatar, .user {
       float: left;
     }
+    .file-infos {
+      width: 406px;
+    }
     .btnBox {
       float: right;
       color: #666666;
@@ -204,9 +207,6 @@
           vertical-align: -1px;
         }
       }
-    }
-    .file-infos.link {
-      width: 406px;
     }
     .avatar {
       width: 32px;
