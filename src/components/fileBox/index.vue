@@ -50,8 +50,8 @@
           <img src="https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/postLink.png">
         </div>
         <div class="file-infos link">
-          <el-tooltip class="item" effect="dark" :content="fileData.title" placement="top">
-            <p class="file-title link">{{fileData.title}}</p>
+          <el-tooltip class="item" effect="dark" :content="fileData.title ? fileData.title : '链接'" placement="top">
+            <p class="file-title link">{{fileData.title ? fileData.title : '链接'}}</p>
           </el-tooltip>
         </div>
         <img class="avatar" :src="fileData.releaseUser.avatarInfo.smallUrl" alt="">

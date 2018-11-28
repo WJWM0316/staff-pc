@@ -36,7 +36,7 @@ import {
 
 const state = {
   attentionsJobcircle: {
-    active: true,
+    active: false,
     name: '我关注的工作圈',
     list: []
   },
@@ -87,6 +87,7 @@ const mutations = {
       if(index === 0) {
         field.active = true
         state.currentJobCircleId = field.id
+        state.attentionsJobcircle.active = true
       } else {
         field.active = false
       }
@@ -99,6 +100,7 @@ const mutations = {
         if(index === 0) {
           field.active = true
           state.currentJobCircleId = field.id
+          state.allVisibleJobcircle.active = true
         } else {
           field.active = false
         }

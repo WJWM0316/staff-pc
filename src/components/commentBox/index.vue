@@ -5,7 +5,9 @@
       <div class="limit-box"><font :style="`color: ${form.content.length <= 1000 ? '#BCBCBC' : '#FA6A30'}`">{{form.content.length}}</font>/1000</div>
 		</div>
 		<div class="compress-infos" v-if="compressUpload.show">
-			<div class="img-box"></div>
+			<div class="img-box">
+        <img :src="compressUpload.file.name | fileCover" alt="">   
+      </div>
 			<div class="file-infos">
 				<p class="file-name">{{compressUpload.file.name}}</p>
 				<div class="gray-line">
@@ -13,7 +15,7 @@
 				</div>
 			</div>
 			<div class="action-box">
-				<i class="icon font_family icon-icon_errorsvg" @click="removeCompress"></i>
+				<i class="icon font_family icon-icon_errorsvg" @click="handleRemoveCompress"></i>
 			</div>
 		</div>
 		<div class="input-link-box" v-if="inputLink.show">
@@ -21,8 +23,9 @@
 			<button @click="confirmEmail">确定</button>
 		</div>
 		<div class="video-infos" v-if="videoUpload.show">
-			<span class="btn-close"><i class="icon font_family icon-icon_errorsvg"></i></span>
-			<div class="btn-click"><i class="icon font_family icon-play"></i></div>
+			<span class="btn-close" @click="handleVideoRemove"><i class="icon font_family icon-icon_errorsvg"></i></span>
+			<div class="btn-click" v-if="videoUpload.progress === 100"><i class="icon font_family icon-play"></i></div>
+      <el-progress type="circle" :percentage="videoUpload.progress" :stroke-width="2" :width="46" v-if="videoUpload.progress < 100"></el-progress>
 			<!-- <video :src="videoUpload.infos.url" v-if="videoUpload.infos.url"> your browser does not support the video tag </video> -->
 		</div>
 		<ul class="common-list" v-if="commonList.length">
@@ -30,11 +33,11 @@
         v-for="(imageItem, imageIndex) in commonList"
         :key="imageIndex"
         :data-key="imageIndex"
-        v-if="imageItem.smallUrl"
-        draggable="true" :style="`background-image: url(${imageItem.smallUrl}); background-size: cover; background-repeat: no-repeat; background-position: center center;`">
+        :style="`background-image: url(${imageItem.smallUrl}); background-size: cover; background-repeat: no-repeat; background-position: center center;`"
+        draggable="true">
 				<span class="btn-close" @click="handleRemoveUploadImage(imageIndex)"><i class="icon font_family icon-icon_errorsvg"></i></span>
-				<!-- <img :src="imageItem.smallUrl" alt="" v-if="imageItem.smallUrl"> -->
-				<!-- <el-progress type="circle" :percentage="imageItem.percent" :stroke-width="2" :width="46"></el-progress> -->
+        <!-- <img :src="imageItem.smallUrl" alt="" v-if="imageItem.smallUrl"> -->
+				<el-progress type="circle" :percentage="imageItem.progress" :stroke-width="2" :width="46" v-if="imageItem.progress !== 100"></el-progress>
 			</li>
 		</ul>
 		<div class="comment-controlls-box">
@@ -42,6 +45,7 @@
 				<li>
 					<el-upload
 					  :action="imageUpload.action"
+            ref="image"
 					  :accept="imageUpload.accept"
 					  :data="imageUpload.params"
 					  :show-file-list="false"
@@ -50,6 +54,7 @@
 					  :on-success="handleImageSuccess"
 					  :on-change="handleImageChange"
 					  :on-exceed="handleImageExceed"
+            :before-upload="beforeImageUpload"
 					  multiple>
 					  <i class="icon font_family icon-btn_photo"></i>图片
 					</el-upload>
@@ -57,11 +62,13 @@
 				<li>
 					<el-upload
 					  :action="videoUpload.action"
+            ref="video"
 					  :accept="videoUpload.accept"
 					  :data="videoUpload.params"
 					  :show-file-list="false"
 					  :on-progress="handleVideoProgress"
 					  :on-success="handleVideoSuccess"
+            :before-upload="beforeVideoUpload"
 					  :on-change="handleVideoChange">
 					  <i class="icon font_family icon-btn_video"></i>视频
 					</el-upload>
@@ -69,11 +76,13 @@
 				<li>
 					<el-upload
 					  :action="compressUpload.action"
+            ref="file"
 					  :accept="compressUpload.accept"
 					  :data="compressUpload.params"
 					  :show-file-list="false"
 					  :on-progress="handleCompressProgress"
 					  :on-success="handleCompressSuccess"
+            :before-upload="beforeCompressUpload"
 					  :on-change="handleCompressChange">
 					  <i class="icon font_family icon-btn_doc"></i>文件
 					</el-upload>
@@ -119,13 +128,16 @@ import { upload_api } from '@/store/api/index.js'
     },
     'imageUpload.limit': {
       handler(num) {
-        console.log(num)
+        if(num === 20) {
+          this.currentUploadType = null
+        }
       },
       immediate: true
     }
   }
 })
 export default class ComponentCommentBox extends Vue {
+  currentUploadType = null
 	imgEdit = {
 		start: {index: null, data: null},
 		end: {index: null, data: null}
@@ -139,6 +151,7 @@ export default class ComponentCommentBox extends Vue {
     limit: 20,
     accept: 'image/*',
     imgLists: [],
+    loadingList: [],
     params: {
       token: getAccessToken(),
       attach_type: 'img',
@@ -150,7 +163,7 @@ export default class ComponentCommentBox extends Vue {
   	show: false,
   	action: upload_api,
     limit: 1,
-    accept: '.mp4,.ogg,.flv,.avi,.wmv,.rmvb',
+    accept: '.mp4,.ogg,.flv,.avi,.wmv,.rmvb, .mov',
     file: {},
     params: {
       token: getAccessToken(),
@@ -167,7 +180,7 @@ export default class ComponentCommentBox extends Vue {
   	show: false,
   	action: upload_api,
     limit: 1,
-    accept: '',
+    accept: '.doc, .docx, .rar, .zip, .cab, .arj, .lzh, .ace, .tar, .exe, .app, .apk',
     file: {},
     params: {
       token: getAccessToken(),
@@ -220,11 +233,26 @@ export default class ComponentCommentBox extends Vue {
    * @detail   获取选中的图片
    * @return   {[type]}        [description]
    */
-  handleImageChange(file) {
-  	if(!this.imageUpload.imgLists.includes(file.uid)) {
-  		this.imageUpload.imgLists.push(file.uid)
-  		this.imageUpload.limit--
-  	}
+  handleImageChange(file) {}
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-28
+   * @detail   图片上传之前做判断
+   * @return   {[type]}   [description]
+   */
+  beforeImageUpload(file) {
+    file.progress = 0
+    if(this.currentUploadType && this.currentUploadType !== 'image') {
+      this.$message.error('您已上传了其他类型的文件~')
+      return false
+    } else {
+      if(!this.imageUpload.imgLists.includes(file.uid)) {
+        this.imageUpload.imgLists.push(file.uid)
+        this.imageUpload.limit--
+        this.commonList.push(file)
+      }
+      this.currentUploadType = 'image'
+    }
   }
   /**
    * @Author   小书包
@@ -233,7 +261,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}        [description]
    */
   handleImageProgress(event) {
-  	// this.commonList[this.commonList.length - 1].percent = event.percent
+    this.commonList[this.commonList.length - 1].progress = event.percent
   }
   /**
    * @Author   小书包
@@ -242,7 +270,10 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}        [description]
    */
   handleImageSuccess(res) {
-  	this.commonList.push(res.data[0])
+    const infos = {...res.data[0], progress: 100}
+    this.commonList.map((field, index, commonList) => {
+      if(field.name === res.data[0].fileName) commonList.splice(index, 1, infos)
+    })
   }
   /**
    * @Author   小书包
@@ -253,8 +284,16 @@ export default class ComponentCommentBox extends Vue {
   handleRemoveUploadImage(index) {
   	this.commonList.splice(index, 1)
     this.imageUpload.limit++
+    if(this.imageUpload.progress < 100) {
+      this.$refs.image.abort()
+    }
   }
-
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-28
+   * @detail   图片重新排序
+   * @return   {[type]}   [description]
+   */
   handleImageRange() {
   	this.domLists = document.querySelectorAll('.common-list li')
   	this.dragEl = null
@@ -328,6 +367,7 @@ export default class ComponentCommentBox extends Vue {
    */
   handleImageMoveDrop(e) {
   	const index = e.target.getAttribute('data-key')
+    const commonList = [...this.commonList]
     if (e.stopPropagation) {
       e.stopPropagation()
     }
@@ -369,18 +409,15 @@ export default class ComponentCommentBox extends Vue {
    * @detail   获取选中的视频
    * @return   {[type]}   [description]
    */
-  handleVideoChange(file) {
-  	this.videoUpload.file = file.raw
-  	this.videoUpload.show = true
-  }
+  handleVideoChange(file) {}
   /**
    * @Author   小书包
    * @DateTime 2018-11-23
    * @detail   视频上传进度
    * @return   {[type]}        [description]
    */
-  handleVideoProgress(event, file, fileList) {
-  	this.videoUpload.progress = event.percent
+  handleVideoProgress(event) {
+  	this.videoUpload.progress = parseInt(event.percent)
   }
    /**
    * @Author   小书包
@@ -391,7 +428,38 @@ export default class ComponentCommentBox extends Vue {
   handleVideoSuccess(res) {
   	this.videoUpload.infos = res.data[0]
     this.form.videos = res.data[0].id
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-28
+   * @detail   图片上传之前做判断
+   * @return   {[type]}   [description]
+   */
+  beforeVideoUpload() {
+    if(this.currentUploadType && this.currentUploadType !== 'video') {
+      this.$message.error('您已上传了其他类型的文件~')
+      return false
+    } else {
+      this.currentUploadType = 'video'
+      this.videoUpload.show = true
+    }
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-28
+   * @detail   移除视频
+   * @return   {[type]}   [description]
+   */
+  handleVideoRemove() {
+    this.videoUpload.infos = {}
     this.form.videos = ''
+    this.videoUpload.file = {}
+    this.videoUpload.file = {}
+    this.videoUpload.show = false
+    this.currentUploadType = null
+    if(this.videoUpload.progress < 100) {
+      this.$refs.video.abort()
+    }
   }
    /**
    * @Author   小书包
@@ -411,10 +479,7 @@ export default class ComponentCommentBox extends Vue {
    * @detail   获取选中的文件
    * @return   {[type]}   [description]
    */
-  handleCompressChange(file) {
-  	this.compressUpload.file = file.raw
-  	this.compressUpload.show = true
-  }
+  handleCompressChange(file) {}
   /**
    * @Author   小书包
    * @DateTime 2018-11-23
@@ -435,14 +500,47 @@ export default class ComponentCommentBox extends Vue {
   }
   /**
    * @Author   小书包
+   * @DateTime 2018-11-28
+   * @detail   图片上传之前做判断
+   * @return   {[type]}   [description]
+   */
+  beforeCompressUpload(file) {
+    const compress = ['.rar', '.zip', '.cab', '.arj', '.lzh', '.ace', '.tar']
+    if(compress.includes(this.getFileExt(file.name))) {
+      this.compressUpload.params.attach_type = 'compress'
+    }
+    if(this.currentUploadType && this.currentUploadType !== 'compress') {
+      this.$message.error('您已上传了其他类型的文件~')
+      return false
+    } else {
+      this.compressUpload.file = file
+      this.compressUpload.show = true
+      this.currentUploadType = 'compress'
+    }
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-28
+   * @detail   获取文件后缀
+   * @return   {[type]}        [description]
+   */
+  getFileExt(file) {
+    return `.${file.split('.')[file.split('.').length - 1]}`
+  }
+  /**
+   * @Author   小书包
    * @DateTime 2018-11-23
    * @detail   移除上传的文件
    * @return   {[type]}   [description]
    */
-  removeCompress() {
+  handleRemoveCompress() {
   	this.compressUpload.show = false
   	this.compressUpload.file = {}
     this.form.files = ''
+    this.currentUploadType = null
+    if(this.videoUpload.progress < 100) {
+      this.$refs.file.abort()
+    }
   }
 
   /**
@@ -478,27 +576,40 @@ export default class ComponentCommentBox extends Vue {
   submit() {
   	const params = this.transformData(this.form)
   	if(!params.content) return
+    params.visible = params.visible === true ? 1 : 0
   	this.postJobCircleNoteApi(params)
   			.then((res) => {
   				this.$message({
             message: `${res.data.msg}~`,
             type: 'success'
           })
-          // 清空之前编辑的内容
-          this.inputLink.value = ''
-          this.form = {
-            community_id: null,
-            content: '',
-            visible: false,
-            pictures: '',
-            videos: '',
-            files: '',
-            urls: ''
-          }
+          this.resetForm()
   			})
   			.catch(err => {
   				this.$message.error(`${err.msg}~`)
   			})
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-28
+   * @detail   重置表单信息
+   * @return   {[type]}   [description]
+   */
+  resetForm() {
+    // 清空之前编辑的内容
+    this.inputLink.value = ''
+    this.compressUpload.file = {}
+    this.compressUpload.show = false
+    this.commonList = []
+    this.form = {
+      community_id: null,
+      content: '',
+      visible: false,
+      pictures: '',
+      videos: '',
+      files: '',
+      urls: ''
+    }
   }
   /**
    * @Author   小书包
@@ -684,11 +795,16 @@ export default class ComponentCommentBox extends Vue {
 		.img-box {
 			width:46px;
 			height:46px;
-			background:rgba(255,114,58,1);
 			border-radius:4px;
 			display: inline-block;
 			vertical-align: middle;
 			margin-right: 8px;
+      position: relative;
+      overflow: hidden;
+      img{
+        width: 100%;
+        height: 100%;
+      }
 		}
 		.action-box {
 			width:54px;
@@ -783,6 +899,13 @@ export default class ComponentCommentBox extends Vue {
 		border-radius:4px;
 		position: relative;
 		margin-top: 24px;
+    .el-progress--circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+    }
 		.btn-close{
 			position: absolute;
 			top: -8px;
@@ -817,12 +940,26 @@ export default class ComponentCommentBox extends Vue {
 			display: inline-block;
 			margin-right: 24px;
       margin-bottom: 24px;
+/*      &:nth-last-child(0) {
+        margin-bottom: 0 !important;
+      }
+      &:nth-last-child(2) {
+        margin-bottom: 0 !important;
+      }
+      &:nth-last-child(3) {
+        margin-bottom: 0 !important;
+      }
+      &:nth-last-child(4) {
+        margin-bottom: 0 !important;
+      }
+      &:nth-last-child(5) {
+        margin-bottom: 0 !important;
+      }*/
 			img {
 				width: 100%;
 				height: 100%;
 			}
       &:nth-child(5n) {
-        background: red;
         margin-right: 0px;
       }
 		}
@@ -844,5 +981,9 @@ export default class ComponentCommentBox extends Vue {
 			transform: translate(-50%, -50%);
 		}
 	}
+  .el-upload--picture-card:hover, .el-upload:focus {
+    border-color: unset;
+    color: #666666
+  }
 }
 </style>
