@@ -11,3 +11,6 @@ export const getGroupListsApi = params => request('/group', 'get', params)
 
 // 提交获取上传基本信息
 export const postAttachesConfigApi = params => request('/attaches/config', 'post', params)
+
+// 下载附件
+export const downloadApi = params => request(`/attaches/download/${params.id}`, 'get')

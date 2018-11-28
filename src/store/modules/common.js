@@ -10,7 +10,8 @@ import {
   uploadApi,
   getMemberListsApi,
   getGroupListsApi,
-  postAttachesConfigApi
+  postAttachesConfigApi,
+  downloadApi
 } from 'API/common'
 
 const state = {
@@ -154,6 +155,21 @@ const actions = {
         return Promise.reject(error.data || {})
       })
   },
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   下载附件
+   */
+  downloadApi (store, params) {
+    return downloadApi(params)
+      .then(res => {
+        store.commit(GET_JOB_CIRCLE_MEMBER_HIT_LIST, res.data.data)
+        return res
+      })
+      .catch(error => {
+        return Promise.reject(error.data || {})
+      })
+  }
 }
 
 export default {
