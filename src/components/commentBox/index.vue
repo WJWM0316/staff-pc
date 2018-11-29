@@ -33,12 +33,30 @@
         v-for="(imageItem, imageIndex) in commonList"
         :key="imageIndex"
         :data-key="imageIndex"
+        class="draggable"
         :style="`background-image: url(${imageItem.smallUrl}); background-size: cover; background-repeat: no-repeat; background-position: center center;`"
         draggable="true">
 				<span class="btn-close" @click="handleRemoveUploadImage(imageIndex)"><i class="icon font_family icon-icon_errorsvg"></i></span>
         <!-- <img :src="imageItem.smallUrl" alt="" v-if="imageItem.smallUrl"> -->
 				<el-progress type="circle" :percentage="imageItem.progress" :stroke-width="2" :width="46" v-if="imageItem.progress !== 100"></el-progress>
 			</li>
+      <li class="upload-li" v-if="commonList.length < 20">
+        <el-upload
+            :action="imageUpload.action"
+            ref="image"
+            :accept="imageUpload.accept"
+            :data="imageUpload.params"
+            :show-file-list="false"
+            :limit="imageUpload.limit"
+            :on-progress="handleImageProgress"
+            :on-success="handleImageSuccess"
+            :on-change="handleImageChange"
+            :on-exceed="handleImageExceed"
+            :before-upload="beforeImageUpload"
+            multiple>
+            <i class="el-icon-plus"></i>
+          </el-upload>
+      </li>
 		</ul>
 		<div class="comment-controlls-box">
 			<ul class="controlls-list">
@@ -295,7 +313,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   handleImageRange() {
-  	this.domLists = document.querySelectorAll('.common-list li')
+  	this.domLists = document.querySelectorAll('.common-list .draggable')
   	this.dragEl = null
   	Array.from(this.domLists).map(dom => {
   		dom.addEventListener('dragstart', this.handleImageMoveDragStart,false)
@@ -963,6 +981,31 @@ export default class ComponentCommentBox extends Vue {
         margin-right: 0px;
       }
 		}
+    .upload-li {
+      position: relative;
+      box-sizing: border-box;
+      border: dotted 1px #DCDCDC;
+      background: white;
+      > div {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+      .el-upload {
+        width: 100%;
+        height: 100%;
+      }
+      .el-icon-plus {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #DCDCDC;
+        font-size: 24px;
+      }
+    }
     .draging{
       border: 1px red dotted;
       /*cursor: crosshair;*/
