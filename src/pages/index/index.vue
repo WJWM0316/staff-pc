@@ -200,7 +200,8 @@ import { lsCache } from '@/store/cacheService'
 			'topJobCircleApi',
       'undataJobcirclePostaffixOfPictures',
       'undataJobcirclePostaffixOfFiles',
-      'undataJobcirclePostaffixOfUrls'
+      'undataJobcirclePostaffixOfUrls',
+      'setActiveTab'
 		])
 	},
 	computed: {
@@ -212,19 +213,20 @@ import { lsCache } from '@/store/cacheService'
       'jobcirclePostAffixFiles',
       'jobcirclePostAffixUrls',
       'currentJobCircleId',
-      'jobcircleDetail'
+      'jobcircleDetail',
+      'currentActivetab'
     ])
   },
-  // watch: {
-  //   'currentJobCircleId': {
-  //     handler(currentJobCircleId) {
-  //     	if(currentJobCircleId) {
-  //     		this.$router.push({query: {id: currentJobCircleId, tab: 1}})
-  //     	}
-  //     },
-  //     immediate: true
-  //   }
-  // }
+  watch: {
+    'currentJobCircleId': {
+      handler(currentJobCircleId) {
+      	if(currentJobCircleId) {
+      		this.$router.push({query: {id: this.currentJobCircleId, tab: this.currentActivetab}})
+      	}
+      },
+      immediate: true
+    }
+  }
 })
 export default class pageIndex extends Vue {
 	editContent = null
@@ -268,6 +270,10 @@ export default class pageIndex extends Vue {
   }
   toSearch () {
   	if (this.keyWord === '') return
+  	if(!this.editContent) {
+  		this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
+  		return
+  	}
   	this.$confirm('是否保存当前的数据?', '提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消'
@@ -466,6 +472,7 @@ export default class pageIndex extends Vue {
   		case 'setting':
   			if(!this.editContent) {
   				this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
+  				return
   			}
   			this.$confirm('是否保存当前的数据?', '提示', {
           confirmButtonText: '确定',
@@ -490,9 +497,9 @@ export default class pageIndex extends Vue {
   	this.getAttentionsJobcircleApi()
 				.then(() => {
 					this.getAllVisibleJobcircleApi().then(() => {
+						this.setActiveTab(this.$route.query)
             this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
             this.getJobcircleDetail({id: this.currentJobCircleId})
-            // this.$router.push({query: {id: this.currentJobCircleId, tab: this.attentionsJobcircle.active ? 'attentionsJobcircle' : 'allVisibleJobcircle'}})
           })
 				})
   }

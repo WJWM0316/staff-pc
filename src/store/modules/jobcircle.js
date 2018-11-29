@@ -51,6 +51,7 @@ const state = {
   jobcirclePostAffixFiles: [],
   jobcirclePostAffixUrls: [],
   currentJobCircleId: null,
+  currentActivetab: null,
   jobcircleDetail: {
     avatarId: null,
     content: null,
@@ -84,31 +85,31 @@ const state = {
 
 const mutations = {
   [GET_ATTENTIONS_JOB_CIRCLE] (state, list) {
-    list.map((field, index) => {
-      if(index === 0) {
-        field.active = true
-        state.currentJobCircleId = field.id
-        state.attentionsJobcircle.active = true
-      } else {
-        field.active = false
-      }
-    })
+    // list.map((field, index) => {
+    //   if(index === 0) {
+    //     field.active = true
+    //     state.currentJobCircleId = field.id
+    //     state.attentionsJobcircle.active = true
+    //   } else {
+    //     field.active = false
+    //   }
+    // })
     state.attentionsJobcircle.list = list
   },
   [GET_ALL_VISIBLE_JOB_CIRCLE] (state, list) {
-    if(!state.attentionsJobcircle.list.length) {
-      list.map((field, index) => {
-        if(index === 0) {
-          field.active = true
-          state.currentJobCircleId = field.id
-          state.allVisibleJobcircle.active = true
-        } else {
-          field.active = false
-        }
-      })
-    } else {
-      list.map((field, index) => field.active = false)
-    }
+    // if(!state.attentionsJobcircle.list.length) {
+    //   list.map((field, index) => {
+    //     if(index === 0) {
+    //       field.active = true
+    //       state.currentJobCircleId = field.id
+    //       state.allVisibleJobcircle.active = true
+    //     } else {
+    //       field.active = false
+    //     }
+    //   })
+    // } else {
+    //   list.map((field, index) => field.active = false)
+    // }
     state.allVisibleJobcircle.list = list
   },
   [UPDATE_JOB_CIRCLE_CHECKED_STATUS] (state, options) {
@@ -156,7 +157,48 @@ const mutations = {
     state.jobCircleMemberHitLists = list
   },
   [SET_ACTIVE_TAB] (state, options) {
-    console.log(options)
+    // 页面已经初始化完成
+    if(options.id) {
+      state[options.tab].active = true
+      state[options.tab].list.map(field => {
+        if(field.id === Number(options.id)) {
+          field.active = true
+          state.currentJobCircleId = field.id
+          state.currentActivetab = 'attentionsJobcircle'
+        } else {
+          field.active = false
+        }
+      })
+    }
+    // 页面首次初始化
+    if(!options.id) {
+      // 有关注列表， 默认展示关注列表的第一个
+      if(state.attentionsJobcircle.list.length) {
+        state.attentionsJobcircle.active = true
+        state.attentionsJobcircle.list.map((field, index) => {
+          if(index === 0) {
+            field.active = true
+            state.currentJobCircleId = field.id
+            state.currentActivetab = 'attentionsJobcircle'
+          } else {
+            field.active = false
+          }
+        })
+      }
+      // 没有关注列表
+      if(!state.attentionsJobcircle.list.length) {
+        state.allVisibleJobcircle.active = true
+        state.allVisibleJobcircle.list.map((field, index) => {
+          if(index === 0) {
+            field.active = true
+            state.currentJobCircleId = field.id
+            state.currentActivetab = 'allVisibleJobcircle'
+          } else {
+            field.active = false
+          }
+        })
+      }
+    }
   }
 }
 
@@ -170,7 +212,8 @@ const getters = {
   currentJobCircleId: state => state.currentJobCircleId,
   jobcircleDetail: state => state.jobcircleDetail,
   jobCircleMemberLists: state => state.jobCircleMemberLists,
-  jobCircleMemberHitLists: state => state.jobCircleMemberHitLists
+  jobCircleMemberHitLists: state => state.jobCircleMemberHitLists,
+  currentActivetab: state => state.currentActivetab
 }
 
 const actions = {
