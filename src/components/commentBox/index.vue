@@ -18,6 +18,17 @@
 				<i class="icon font_family icon-icon_errorsvg" @click="handleRemoveCompress"></i>
 			</div>
 		</div>
+    <div class="link-infos" v-if="form.urls">
+      <div class="img-box">
+        <img src="https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/postLink.png" alt="">   
+      </div>
+      <div class="file-infos">
+        <p class="file-name">{{form.urls}}</p>
+      </div>
+      <div class="action-box">
+        <i class="icon font_family icon-icon_errorsvg" @click="handleRemoveLink"></i>
+      </div>
+    </div>
 		<div class="input-link-box" v-if="inputLink.show">
 			<input type="text" placeholder="输入或粘贴链接地址" v-model="inputLink.value">
 			<button @click="confirmEmail">确定</button>
@@ -576,6 +587,18 @@ export default class ComponentCommentBox extends Vue {
   switchLinkBox() {
   	this.inputLink.show = !this.inputLink.show
   }
+
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-29
+   * @detail   移除链接
+   * @return   {[type]}   [description]
+   */
+  handleRemoveLink() {
+    this.form.urls = ''
+    this.inputLink.show = false
+    this.inputLink.value = ''
+  }
   /**
    * @Author   小书包
    * @DateTime 2018-11-27
@@ -601,6 +624,10 @@ export default class ComponentCommentBox extends Vue {
   	const params = this.transformData(this.form)
   	if(!params.content) return
     params.visible = params.visible === true ? 1 : 0
+    if(!params.content.trim()) {
+      this.$message.error('发布内容不能为空~')
+      return
+    }
   	this.postJobCircleNoteApi(params)
   			.then((res) => {
   				this.$message({
@@ -872,6 +899,71 @@ export default class ComponentCommentBox extends Vue {
 			width: 50%;
 		}
 	}
+  .link-infos {
+    height:62px;
+    background:rgba(245,247,250,1);
+    border-radius:4px;
+    margin-top: 16px;
+    display: flex;
+    padding: 8px;
+    box-sizing: border-box;
+    .img-box {
+      width:46px;
+      height:46px;
+      border-radius:4px;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+      position: relative;
+      overflow: hidden;
+      img{
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .action-box {
+      width:54px;
+      height:46px;
+      border-radius:4px;
+      display: inline-block;
+      vertical-align: middle;
+      text-align: center;
+      line-height: 46px;
+      color: #BCBCBC;
+    }
+    .file-infos{
+      height: 46px;
+      width: calc(100% - 56px - 52px);
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .file-name {
+      font-size:14px;
+      font-weight:300;
+      color:rgba(0,0,0,0.85);
+      line-height: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .gray-line {
+      height:4px;
+      background:rgba(237,237,237,1);
+      border-radius:8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .active-line {
+      height:4px;
+      background:#FFE266;
+      border-radius:8px;
+      position: relative;
+      overflow: hidden;
+      position: absolute;
+      left: 0;
+      width: 50%;
+    }
+  }
 	.input-link-box{
 		height:62px;
 		background:rgba(245,247,250,1);
