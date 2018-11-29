@@ -32,7 +32,7 @@
     </div>
     <div class="content">
       <div class="type" v-if="list.picture.length > 0 && (curType === '相册' || curType === '全部')">
-        <div class="title">图片与视频<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle('相册')">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
+        <div class="title">图片与视频<span class="more" v-show="curType === '全部'" @click.stop="toggle('相册')">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
         <div class="inner pic" :class="{'more' : this.typeIndex !== 0}">
           <div class="picBox" v-for="(item, index) in list.picture" :key="index">
             <picOrVideo :fileData="item" @click.native="openPreview(index)"></picOrVideo>
@@ -43,7 +43,7 @@
         </div>
       </div>
       <div class="type" v-if="list.file.length > 0 && (curType === '文件' || curType === '全部')">
-        <div class="title">文件<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle('文件')">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
+        <div class="title">文件<span class="more" v-show="curType === '全部'" @click.stop="toggle('文件')">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
         <div class="inner file">
           <div class="fileBox"  v-for="(item, index) in list.file" :key="index">
             <fileBox :fileData="item" type="2"></fileBox>
@@ -54,7 +54,7 @@
         </div>
       </div>
       <div class="type" v-if="list.urls.length > 0 && (curType === '链接' || curType === '全部')">
-        <div class="title">链接<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle('链接')">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
+        <div class="title">链接<span class="more" v-show="curType === '全部'" @click.stop="toggle('链接')">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
         <div class="inner file">
           <div class="fileBox" v-for="(item, index) in list.urls" :key="index">
             <fileBox :fileData="item" type="2"></fileBox>
@@ -130,6 +130,12 @@ export default class pageSearch extends Vue {
     page: 1
   }
   toggle (type) {
+    if (this.curType === type) return
+    this.list = {
+      picture: [],
+      file: [],
+      urls: []
+    }
     let params = this.$route.query
     this.curType = type
     params.type = type
