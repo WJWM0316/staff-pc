@@ -55,6 +55,9 @@ export default class ComponentAdSearch extends Vue {
     this.$emit('closePopover')
   }
   search () {
+    if (this.keyWord === '' && this.keyTime === '' && this.checkList.length === 0) {
+      this.checkList = [2,3,4]
+    }
     let parmas = `id=${this.id}&keyword=${this.keyWord}&month=${this.keyTime}&type=${this.checkList}`
     this.$router.replace(`/search?${parmas}`)
     this.$emit('search', {id: this.id, keyword: this.keyWord, month: this.keyTime, type: this.checkList})
