@@ -129,16 +129,33 @@ export default class pageSearch extends Vue {
     loading: false,
     page: 1
   }
-  toggle (type) {
-    if (this.curType === type) return
+  reset () {
     this.list = {
       picture: [],
       file: [],
       urls: []
     }
+    this.picsStatus = {
+      noData: false,
+      loading: false,
+      page: 1
+    }
+    this.filesStatus = {
+      noData: false,
+      loading: false,
+      page: 1
+    }
+    this.linksStatus = {
+      noData: false,
+      loading: false,
+      page: 1
+    }
+  }
+  toggle (type) {
+    if (this.curType === type) return
+    this.reset()
     let params = this.$route.query
     this.curType = type
-    params.type = type
     this.typeIndex = this.typeList.indexOf(type)
     switch (type) {
       case '全部':
@@ -172,15 +189,11 @@ export default class pageSearch extends Vue {
         params.type = [4]
         break
     }
-    this.typeList
+    params.page = 1
     this.getListData(params)
   }
-  search (params) {
-    this.list = {
-      picture: [],
-      file: [],
-      urls: []
-    }
+  search () {
+    this.reset()
   }
   keyWordSearch () {
     if (this.keyWord === '') return
@@ -243,18 +256,18 @@ export default class pageSearch extends Vue {
   }
   loadMore () {
     let data = this.$route.query
-    switch (this.typeIndex) {
-      case 1:
+    switch (this.curType) {
+      case '相册':
         this.picsStatus.page++
         this.picsStatus.loading = true
         data.page = this.picsStatus.page
         break
-      case 2:
+      case '文件':
         this.filesStatus.page++
         this.filesStatus.loading = true
         data.page = this.filesStatus.page
         break
-      case 3:
+      case '链接':
         this.linksStatus.page++
         this.linksStatus.loading = true
         data.page = this.linksStatus.page
