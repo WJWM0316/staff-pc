@@ -134,6 +134,7 @@ import { getAccessToken } from '@/store/cacheService'
 import { upload_api } from '@/store/api/index.js'
 import { docExt } from 'UTILS/doc.js'
 import { compressExtS } from 'UTILS/compress.js'
+import { lsCache } from '@/store/cacheService'
 
 @Component({
 	name: 'comment-box',
@@ -163,7 +164,7 @@ import { compressExtS } from 'UTILS/compress.js'
     // },
     'form.content': {
       handler(content) {
-        // console.log(content)
+        this.$emit('input', content)
       },
       immediate: true
     }
@@ -649,6 +650,7 @@ export default class ComponentCommentBox extends Vue {
             type: 'success'
           })
           this.resetForm()
+          lsCache.delete('editContent')
   			})
   			.catch(err => {
   				this.$message.error(`${err.msg}~`)
@@ -737,6 +739,7 @@ export default class ComponentCommentBox extends Vue {
       dom.removeAttribute('style')
       this.autoHeight(dom)
     })
+    if(lsCache.get('editContent')) this.form.content = lsCache.get('editContent')
   }
 }
 </script>

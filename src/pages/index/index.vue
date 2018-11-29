@@ -49,7 +49,7 @@
  		</div>
  	</div>
  	<div class="col-daptive">
- 		<comment-box v-if="jobcircleDetail.isOwner || jobcircleDetail.isMember"></comment-box>
+ 		<comment-box v-if="jobcircleDetail.isOwner || jobcircleDetail.isMember" @input="bindInput"></comment-box>
  		<div class="content-header">
  			<ul class="common-tab-box">
  				<li :class="{'tab-active': tabIndex === 'Pictures'}" @click="tabClick('Pictures')">相册</li>
@@ -172,6 +172,7 @@ import picOrVideo from 'COMPONENTS/picOrVideo'
 import adSearch from 'COMPONENTS/adSearch'
 import loadMore from 'COMPONENTS/loadMore'
 import commentBox from 'COMPONENTS/commentBox'
+import { lsCache } from '@/store/cacheService'
 
 @Component({
 	components: {
@@ -226,6 +227,7 @@ import commentBox from 'COMPONENTS/commentBox'
   // }
 })
 export default class pageIndex extends Vue {
+	editContent = null
 	tabIndex = 'Pictures'
 	keyWord = '' // 关键词
 	visible = false // 显示高级搜索框
@@ -266,7 +268,15 @@ export default class pageIndex extends Vue {
   }
   toSearch () {
   	if (this.keyWord === '') return
-  	this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
+  	this.$confirm('是否保存当前的数据?', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消'
+    }).then(() => {
+    	lsCache.set('editContent', this.editContent, {exp: 1000 * 60 * 60 * 24 * 7})
+      this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
+    }).catch(() => {
+    	this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
+    })
   }
   /**
    * @Author   小书包
@@ -377,7 +387,6 @@ export default class pageIndex extends Vue {
 				case 'Files':
 					this.filesStatus.loading = false
 					this.filesStatus.noData = noData
-					console.log(this.filesStatus)
 					break
 				default:
 					this.linksStatus.loading = false
@@ -455,7 +464,18 @@ export default class pageIndex extends Vue {
   					})
   			break
   		case 'setting':
-  			this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
+  			if(!this.editContent) {
+  				this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
+  			}
+  			this.$confirm('是否保存当前的数据?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }).then(() => {
+        	lsCache.set('editContent', this.editContent, {exp: 1000 * 60 * 60 * 24 * 7})
+          this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
+        }).catch(() => {
+        	this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
+        })
   			break
   		default:
   			break
@@ -481,6 +501,14 @@ export default class pageIndex extends Vue {
     this.undataJobcirclePostaffixOfPictures([])
     this.undataJobcirclePostaffixOfFiles([])
     this.undataJobcirclePostaffixOfUrls([])
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   绑定编辑器的输入
+   */
+  bindInput(val) {
+  	this.editContent = val
   }
 	created() {
     this.reset()

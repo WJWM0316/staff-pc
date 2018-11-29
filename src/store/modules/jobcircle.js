@@ -12,7 +12,8 @@ import {
   UPDATE_JOB_CIRCLE_FILES_LIST,
   UPDATE_JOB_CIRCLE_URLS_LIST,
   GET_JOB_CIRCLE_MEMBER_LIST,
-  GET_JOB_CIRCLE_MEMBER_HIT_LIST
+  GET_JOB_CIRCLE_MEMBER_HIT_LIST,
+  SET_ACTIVE_TAB
 } from '../mutation-types'
 
 import defaultJobCirclePicture from 'IMAGES/img_normal_head.png'
@@ -153,6 +154,9 @@ const mutations = {
   },
   [GET_JOB_CIRCLE_MEMBER_HIT_LIST] (state, list) {
     state.jobCircleMemberHitLists = list
+  },
+  [SET_ACTIVE_TAB] (state, options) {
+    console.log(options)
   }
 }
 
@@ -449,6 +453,9 @@ const actions = {
       .catch(error => {
         return Promise.reject(error.data || {})
       })
+  },
+  setActiveTab(store, options) {
+    store.commit(SET_ACTIVE_TAB, options)
   }
 }
 

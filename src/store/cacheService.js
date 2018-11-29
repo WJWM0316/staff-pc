@@ -2,10 +2,10 @@
  * 管理本地存储
  */
 
-import Cache from 'web-storage-cache';
+import Cache from 'web-storage-cache'
 
-const lsCache = new Cache;
-const ssCache = new Cache({ storage: 'sessionStorage' });
+export const lsCache = new Cache
+const ssCache = new Cache({ storage: 'sessionStorage' })
 
 // 所有存储键
 const KEYS = {
@@ -37,7 +37,7 @@ const namespace = 'zike';
 // 为存储键增加命名空间
 for (const i in KEYS) {
   if (KEYS.hasOwnProperty(i)) {
-    KEYS[i] = `${namespace}:${KEYS[i]}`.toUpperCase();
+    KEYS[i] = `${namespace}:${KEYS[i]}`.toUpperCase()
   }
 }
 /* eslint-disable */
@@ -61,8 +61,8 @@ class CommonStorage {
 
   save(value) {
     // 判断是否设置过期选项了
-    const options = this.exp ? { exp: this.exp } : null;
-    this.storage.set(this.key, value, options);
+    const options = this.exp ? { exp: this.exp } : null
+    this.storage.set(this.key, value, options)
   }
 
   load() {
