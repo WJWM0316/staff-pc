@@ -9,8 +9,13 @@
           <div class="swiper-slide imgBox swiper-no-swiping" v-for="(item, index) in pickList" :key="index">
             <template v-if="item.fileInfo">
               <template v-if="item.type === '图片'" >
-                <img :data-src="item.fileInfo.url" class="imgShow swiper-lazy" :class="item.fileInfo.width > item.fileInfo.height ? 'horizontal' : 'vertical'">
-                <div class="swiper-lazy-preloader"></div>
+                <template v-if="index > 0">
+                  <img :data-src="item.fileInfo.url" class="imgShow swiper-lazy" :class="item.fileInfo.width > item.fileInfo.height ? 'horizontal' : 'vertical'">
+                  <div class="swiper-lazy-preloader"></div>
+                </template>
+                <template v-else>
+                  <img :src="item.fileInfo.url" class="imgShow" :class="item.fileInfo.width > item.fileInfo.height ? 'horizontal' : 'vertical'">
+                </template>
               </template>
               <template v-else>
                 <div class="videoPost" v-if="curVideoIndex !== index" @click.stop="playVideo(index)">
