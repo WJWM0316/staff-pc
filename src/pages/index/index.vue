@@ -220,7 +220,7 @@ import commentBox from 'COMPONENTS/commentBox'
       	if(currentJobCircleId) {
       		this.$router.push({query: {id: currentJobCircleId}})
       		this.getJobcircleDetail({id: currentJobCircleId})
-      		this.getLists({id: currentJobCircleId, params: {page: 1, count: 35}})
+      		// this.getLists({id: currentJobCircleId, params: {page: 1, count: 35}})
       	}
       },
       immediate: true
@@ -470,7 +470,9 @@ export default class pageIndex extends Vue {
   init() {
   	this.getAttentionsJobcircleApi()
 				.then(() => {
-					this.getAllVisibleJobcircleApi()
+					this.getAllVisibleJobcircleApi().then(() => {
+            this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
+          })
 				})
   }
   reset () {
