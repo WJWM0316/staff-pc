@@ -2,7 +2,7 @@
 	<section class="comment-box">
 		<div class="simple-text" ref="simple-text">
 			<textarea v-model="form.content" placeholder="说说你的想法…" class="note-content" ref="note-content" maxlength="1500"></textarea>
-      <div class="limit-box" v-if="!domScroll"><font :style="`color: ${form.content.length <= 1000 ? '#BCBCBC' : '#FA6A30'}`">{{form.content.length}}</font>/1000</div>
+      <div class="limit-box"><font :style="`color: ${form.content.length <= 1000 ? '#BCBCBC' : '#FA6A30'}`">{{form.content.length}}</font>/1000</div>
 		</div>
 		<div class="compress-infos" v-if="compressUpload.show">
 			<div class="img-box">
@@ -162,12 +162,18 @@ import { upload_api } from '@/store/api/index.js'
         }
       },
       immediate: true
+    },
+    'form.content': {
+      handler(content) {
+        // console.log(content)
+      },
+      immediate: true
     }
   }
 })
 export default class ComponentCommentBox extends Vue {
   currentUploadType = null
-  domScroll = false
+  canResetHeight = true
 	imgEdit = {
 		start: {index: null, data: null},
 		end: {index: null, data: null}
@@ -707,12 +713,10 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   autoHeight(dom) {
-    let box = this.$refs['simple-text']
-    let scrollHeight = dom.scrollHeight
     let lineHeight = parseInt(this.getDomStyle(dom, 'line-height'))
     let domHeight = parseInt(this.getDomStyle(dom, 'height'))
+    let scrollHeight = dom.scrollHeight
     let rowNum = parseInt(domHeight / lineHeight)
-    // let paddingBottom = parseInt(this.getDomStyle(box, 'padding-bottom'))
     if(rowNum <= 20) {
       if(domHeight < scrollHeight) dom.style.height = scrollHeight + 'px'
     }
@@ -721,7 +725,10 @@ export default class ComponentCommentBox extends Vue {
   mounted() {
     const dom = this.$refs['note-content']
     dom.addEventListener('propertychange', () => { this.autoHeight(dom) })
-    dom.addEventListener('input', () => { this.autoHeight(dom) })
+    dom.addEventListener('keyup', () => {
+      dom.removeAttribute('style')
+      this.autoHeight(dom)
+    })
   }
 }
 </script>
