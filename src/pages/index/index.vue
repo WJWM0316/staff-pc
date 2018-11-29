@@ -218,7 +218,7 @@ import commentBox from 'COMPONENTS/commentBox'
     'currentJobCircleId': {
       handler(currentJobCircleId) {
       	if(currentJobCircleId) {
-      		this.$router.push({query: {id: currentJobCircleId}})
+      		this.$router.push({query: {id: currentJobCircleId, tab: 1}})
       		this.getJobcircleDetail({id: currentJobCircleId})
       		// this.getLists({id: currentJobCircleId, params: {page: 1, count: 35}})
       	}
