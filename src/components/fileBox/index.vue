@@ -37,8 +37,8 @@
         </div>
         <img class="avatar" :src="fileData.releaseUser.avatarInfo.smallUrl" alt="">
         <div class="user">
-          <div class="name">{{fileData.releaseUser.realname}}</div>
-          <div class="date">{{fileData.releaseUser.updatedAt}}</div>
+          <div class="name ellipsisOne">{{fileData.releaseUser.realname}}</div>
+          <div class="date ellipsisOne">{{fileData.releaseUser.updatedAt}}</div>
         </div>
         <div class="btnBox">
           <span class="btn" @click.stop="download(fileData.fileInfo.url)"><i class="icon font_family icon-xiazai"></i>下载</span>
@@ -56,8 +56,8 @@
         </div>
         <img class="avatar" :src="fileData.releaseUser.avatarInfo.smallUrl" alt="">
         <div class="user">
-          <div class="name">{{fileData.releaseUser.realname}}</div>
-          <div class="date">{{fileData.releaseUser.updatedAt}}</div>
+          <div class="name ellipsisOne">{{fileData.releaseUser.realname}}</div>
+          <div class="date ellipsisOne">{{fileData.releaseUser.updatedAt}}</div>
         </div>
       </div>
     </template>

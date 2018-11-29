@@ -25,3 +25,15 @@ $color-primary-btn-select: #FFF9D9;
   opacity: 0;
   left: 100%;
 }
+.ellipsisOne {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+}
+.ellipsisTwo {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+

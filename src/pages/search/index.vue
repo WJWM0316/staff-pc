@@ -303,6 +303,7 @@ export default class pageSearch extends Vue {
         .back {
           font-size: 14px;
           color: #666666;
+          cursor: pointer;
           .icon {
             font-size: 12px;
             margin-right: 5px;
@@ -415,6 +416,8 @@ export default class pageSearch extends Vue {
         .inner {
           overflow: hidden;
           padding: 0 25px;
+          width: 100%;
+          box-sizing: border-box;
           &.pic {
             padding: 0 21px;
           }
