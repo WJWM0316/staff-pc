@@ -214,18 +214,16 @@ import commentBox from 'COMPONENTS/commentBox'
       'jobcircleDetail'
     ])
   },
-  watch: {
-    'currentJobCircleId': {
-      handler(currentJobCircleId) {
-      	if(currentJobCircleId) {
-      		this.$router.push({query: {id: currentJobCircleId, tab: 1}})
-      		this.getJobcircleDetail({id: currentJobCircleId})
-      		// this.getLists({id: currentJobCircleId, params: {page: 1, count: 35}})
-      	}
-      },
-      immediate: true
-    }
-  }
+  // watch: {
+  //   'currentJobCircleId': {
+  //     handler(currentJobCircleId) {
+  //     	if(currentJobCircleId) {
+  //     		this.$router.push({query: {id: currentJobCircleId, tab: 1}})
+  //     	}
+  //     },
+  //     immediate: true
+  //   }
+  // }
 })
 export default class pageIndex extends Vue {
 	tabIndex = 'Pictures'
@@ -284,6 +282,7 @@ export default class pageIndex extends Vue {
 	 * @detail   获取页面选的的工作圈信息
 	 */
 	getActiveJobCircleInfos(params) {
+		// this.$router.push({query: {id: this.currentJobCircleId, tab: params.show}})
 		this.updateJobCircleItemCheckedStatus(params)
     this.reset()
     this.picsStatus = {
@@ -472,6 +471,8 @@ export default class pageIndex extends Vue {
 				.then(() => {
 					this.getAllVisibleJobcircleApi().then(() => {
             this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
+            this.getJobcircleDetail({id: this.currentJobCircleId})
+            // this.$router.push({query: {id: this.currentJobCircleId, tab: this.attentionsJobcircle.active ? 'attentionsJobcircle' : 'allVisibleJobcircle'}})
           })
 				})
   }

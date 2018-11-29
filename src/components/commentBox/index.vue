@@ -58,7 +58,6 @@
             :accept="imageUpload.accept"
             :data="imageUpload.params"
             :show-file-list="false"
-            :limit="imageUpload.limit"
             :on-progress="handleImageProgress"
             :on-success="handleImageSuccess"
             :on-change="handleImageChange"
@@ -78,7 +77,6 @@
 					  :accept="imageUpload.accept"
 					  :data="imageUpload.params"
 					  :show-file-list="false"
-					  :limit="imageUpload.limit"
 					  :on-progress="handleImageProgress"
 					  :on-success="handleImageSuccess"
 					  :on-change="handleImageChange"
@@ -134,6 +132,8 @@ import Vue from 'vue'
 import Component from 'vue-class-component'
 import { getAccessToken } from '@/store/cacheService'
 import { upload_api } from '@/store/api/index.js'
+import { docExt } from 'UTILS/doc.js'
+import { compressExtS } from 'UTILS/compress.js'
 
 @Component({
 	name: 'comment-box',
@@ -155,14 +155,12 @@ import { upload_api } from '@/store/api/index.js'
       },
       immediate: true
     },
-    'imageUpload.limit': {
-      handler(num) {
-        if(num === 20) {
-          this.currentUploadType = null
-        }
-      },
-      immediate: true
-    },
+    // 'imageUpload.limit': {
+    //   handler(num) {
+    //     console.log(num)
+    //   },
+    //   immediate: true
+    // },
     'form.content': {
       handler(content) {
         // console.log(content)
@@ -216,7 +214,7 @@ export default class ComponentCommentBox extends Vue {
   	show: false,
   	action: upload_api,
     limit: 1,
-    accept: '.doc, .docx, .rar, .zip, .cab, .arj, .lzh, .ace, .tar, .exe, .app, .apk',
+    accept: '.pdf,.doc,.docx,.dot,.rtf,.docm,.dotm,.xls,.xlsx,.xlsb,.xlsm,.xla,.xltm,.ods,.xlt,.xml.,.xltx,.ppt,.pptx.,potx,.pot,.obp,.ppsx,.pps,.pptm,.potm,.ppsm,.txt',
     file: {},
     params: {
       token: getAccessToken(),
@@ -246,7 +244,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}            [description]
    */
   handleImageExceed(files, fileList) {
-    console.log(files, fileList)
+    console.log('超出啦')
   }
   /**
    * @Author   小书包
@@ -277,11 +275,12 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   beforeImageUpload(file) {
-    const isLt5M = file.size / 1024 / 1024 < 5
-    if(isLt5M) {
-      this.$message.error('上传的图片大小是5MB~')
-      return false
-    }
+    // const isLt5M = file.size / 1024 / 1024 < 5
+    // if(isLt5M) {
+    //   this.$message.error('上传的图片大小是5MB~')
+    //   return false
+    // }
+    if(this.commonList.length >= 20) return
     file.progress = 0
     if(this.currentUploadType && this.currentUploadType !== 'image') {
       this.$message.error('您已上传了其他类型的文件~')
@@ -294,6 +293,7 @@ export default class ComponentCommentBox extends Vue {
       }
       this.currentUploadType = 'image'
     }
+    console.log(this.imageUpload.limit)
   }
   /**
    * @Author   小书包
@@ -546,9 +546,13 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   beforeCompressUpload(file) {
-    const compress = ['.rar', '.zip', '.cab', '.arj', '.lzh', '.ace', '.tar']
+    const compress = compressExtS
+    const doc = docExt
     if(compress.includes(this.getFileExt(file.name))) {
       this.compressUpload.params.attach_type = 'compress'
+    }
+    if(doc.includes(this.getFileExt(file.name))) {
+      this.compressUpload.params.attach_type = 'doc'
     }
     if(this.currentUploadType && this.currentUploadType !== 'compress') {
       this.$message.error('您已上传了其他类型的文件~')
@@ -591,7 +595,11 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   switchLinkBox() {
-  	this.inputLink.show = !this.inputLink.show
+    if(this.currentUploadType && this.currentUploadType !== 'link') {
+      this.$message.error('您已上传了其他类型的文件~')
+    } else {
+      this.inputLink.show = !this.inputLink.show
+    }
   }
 
   /**
