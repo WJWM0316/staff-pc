@@ -27,12 +27,12 @@
         </el-popover>
       </div>
       <div class="search-type">
-        <span class="fileType" v-for="(item, index) in typeList" :key="index" :class="{'cur': typeIndex === index}" @click.stop="toggle(index)">{{item}}</span>
+        <span class="fileType" v-for="(item, index) in typeList" :key="index" :class="{'cur': typeIndex === index}" @click.stop="toggle(item)">{{item}}</span>
       </div>
     </div>
     <div class="content">
-      <div class="type" v-if="list.picture.length > 0 && (typeIndex === 1 || typeIndex === 0)">
-        <div class="title">图片与视频<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle(1)">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
+      <div class="type" v-if="list.picture.length > 0 && (curType === '相册' || curType === '全部')">
+        <div class="title">图片与视频<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle('相册')">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
         <div class="inner pic" :class="{'more' : this.typeIndex !== 0}">
           <div class="picBox" v-for="(item, index) in list.picture" :key="index">
             <picOrVideo :fileData="item" @click.native="openPreview(index)"></picOrVideo>
@@ -42,8 +42,8 @@
           <loadMore @loadMore="loadMore" :status="picsStatus" :list="list.picture"></loadMore>
         </div>
       </div>
-      <div class="type" v-if="list.file.length > 0 && (typeIndex === 2 || typeIndex === 0)">
-        <div class="title">文件<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle(2)">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
+      <div class="type" v-if="list.file.length > 0 && (curType === '文件' || curType === '全部')">
+        <div class="title">文件<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle('文件')">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
         <div class="inner file">
           <div class="fileBox"  v-for="(item, index) in list.file" :key="index">
             <fileBox :fileData="item" type="2"></fileBox>
@@ -53,8 +53,8 @@
           <loadMore @loadMore="loadMore" :status="filesStatus" :list="list.file"></loadMore>
         </div>
       </div>
-      <div class="type" v-if="list.urls.length > 0 && (typeIndex === 3 || typeIndex === 0)">
-        <div class="title">链接<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle(3)">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
+      <div class="type" v-if="list.urls.length > 0 && (curType === '链接' || curType === '全部')">
+        <div class="title">链接<span class="more" v-show="this.typeIndex === 0" @click.stop="toggle('链接')">查看更多<i class="icon font_family icon-gengduo"></i></span></div>
         <div class="inner file">
           <div class="fileBox" v-for="(item, index) in list.urls" :key="index">
             <fileBox :fileData="item" type="2"></fileBox>
@@ -107,6 +107,7 @@ export default class pageSearch extends Vue {
   curOpenIndex = null // 预览的索引
   visible = false // 显示高级搜索框
   typeIndex = 0 // 选择的搜索类型
+  curType = null // 当前的type类型
   typeList = ['全部', '相册', '文件', '链接']
   list = {
     picture: [],
@@ -128,23 +129,44 @@ export default class pageSearch extends Vue {
     loading: false,
     page: 1
   }
-  toggle (index) {
-    this.typeIndex = index
+  toggle (type) {
     let params = this.$route.query
-    switch (this.typeIndex) {
-      case 0:
-        params.type = [2,3,4]
+    this.curType = type
+    params.type = type
+    this.typeIndex = this.typeList.indexOf(type)
+    switch (type) {
+      case '全部':
+        let array = []
+        this.typeList.forEach((item, index) => {
+          if (index > 0) {
+            let typeNum = null
+            switch (item) {
+              case '相册':
+                typeNum = 3
+                break
+              case '文件':
+                typeNum = 2
+                break
+              case '链接':
+                typeNum = 4
+                break
+            }
+            array.push(typeNum)
+          }
+        })
+        params.type = array
         break
-      case 1:
+      case '相册':
         params.type = [3]
         break
-      case 2:
+      case '文件':
         params.type = [2]
         break
-      case 3:
+      case '链接':
         params.type = [4]
         break
     }
+    this.typeList
     this.getListData(params)
   }
   search (params) {
@@ -187,22 +209,22 @@ export default class pageSearch extends Vue {
       data.count = 20
     }
     getJobcirclePostaffixApi(data).then(res => {
-      switch (this.typeIndex) {
-        case 1:
+      switch (this.curType) {
+        case '相册':
           this.list.picture = this.list.picture.concat(res.data.data.picture)
           this.picsStatus.loading = false
           if (res.data.data.picture.length === 0) {
             this.picsStatus.noData = true
           }
           break
-        case 2:
+        case '文件':
           this.list.file = this.list.file.concat(res.data.data.file)
           this.filesStatus.loading = false
           if (res.data.data.file.length === 0) {
             this.filesStatus.noData = true
           }
           break
-        case 3:
+        case '链接':
           this.list.urls = this.list.urls.concat(res.data.data.urls)
           this.linksStatus.loading = false
           if (res.data.data.urls.length === 0) {
@@ -236,19 +258,28 @@ export default class pageSearch extends Vue {
     this.getListData(data)
   }
   init () {
-    switch (this.$route.query.type) {
-      case '3':
-        this.typeIndex = 1
-        break
-      case '2':
-        this.typeIndex = 2
-        break
-      case '4':
-        this.typeIndex = 3
-        break
-      default:
-        this.typeIndex = 0
-        break
+    this.typeIndex = 0
+    if (this.$route.query.type === '3') {
+      this.typeList = ['相册']
+      this.curType = '相册'
+    } else if (this.$route.query.type === '2') {
+      this.typeList = ['文件']
+      this.curType = '文件'
+    } else if (this.$route.query.type === '4') {
+      this.typeList = ['链接']
+      this.curType = '链接'
+    } else if (this.$route.query.type === '2,3' || this.$route.query.type === '3,2' ) {
+      this.typeList = ['全部', '相册', '文件']
+      this.curType = '全部'
+    } else if (this.$route.query.type === '2,4' || this.$route.query.type === '4,2' ) {
+      this.typeList = ['全部', '文件', '链接']
+      this.curType = '全部'
+    } else if (this.$route.query.type === '3,4' || this.$route.query.type === '3,4' ) {
+      this.typeList = ['全部', '相册', '链接']
+      this.curType = '全部'
+    } else {
+      this.typeList = ['全部', '相册', '文件', '链接']
+      this.curType = '全部'
     }
     this.getListData()
   }

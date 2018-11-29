@@ -194,7 +194,7 @@
       float: left;
     }
     .file-infos {
-      width: 406px;
+      width: 406px !important;
     }
     .btnBox {
       float: right;
