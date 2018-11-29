@@ -175,7 +175,6 @@ export default class pageSearch extends Vue {
       file: [],
       urls: []
     }
-    this.getListData(params)
   }
   keyWordSearch () {
     if (this.keyWord === '') return
@@ -274,7 +273,7 @@ export default class pageSearch extends Vue {
     } else if (this.$route.query.type === '2,4' || this.$route.query.type === '4,2' ) {
       this.typeList = ['全部', '文件', '链接']
       this.curType = '全部'
-    } else if (this.$route.query.type === '3,4' || this.$route.query.type === '3,4' ) {
+    } else if (this.$route.query.type === '3,4' || this.$route.query.type === '4,3' ) {
       this.typeList = ['全部', '相册', '链接']
       this.curType = '全部'
     } else {

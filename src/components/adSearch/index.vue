@@ -56,7 +56,7 @@ export default class ComponentAdSearch extends Vue {
   }
   search () {
     let parmas = `id=${this.id}&keyword=${this.keyWord}&month=${this.keyTime}&type=${this.checkList}`
-    this.$router.push(`/search?${parmas}`)
+    this.$router.replace(`/search?${parmas}`)
     this.$emit('search', {id: this.id, keyword: this.keyWord, month: this.keyTime, type: this.checkList})
     this.close()
   }
