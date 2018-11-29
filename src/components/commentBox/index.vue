@@ -1,8 +1,8 @@
 <template>
 	<section class="comment-box">
-		<div class="simple-text">
-			<textarea v-model="form.content" placeholder="说说你的想法…" class="note-content" ref="note-content"></textarea>
-      <div class="limit-box"><font :style="`color: ${form.content.length <= 1000 ? '#BCBCBC' : '#FA6A30'}`">{{form.content.length}}</font>/1000</div>
+		<div class="simple-text" ref="simple-text">
+			<textarea v-model="form.content" placeholder="说说你的想法…" class="note-content" ref="note-content" maxlength="1500"></textarea>
+      <div class="limit-box" v-if="!domScroll"><font :style="`color: ${form.content.length <= 1000 ? '#BCBCBC' : '#FA6A30'}`">{{form.content.length}}</font>/1000</div>
 		</div>
 		<div class="compress-infos" v-if="compressUpload.show">
 			<div class="img-box">
@@ -156,6 +156,7 @@ import { upload_api } from '@/store/api/index.js'
 })
 export default class ComponentCommentBox extends Vue {
   currentUploadType = null
+  domScroll = false
 	imgEdit = {
 		start: {index: null, data: null},
 		end: {index: null, data: null}
@@ -259,6 +260,11 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   beforeImageUpload(file) {
+    const isLt5M = file.size / 1024 / 1024 < 5
+    if(isLt5M) {
+      this.$message.error('上传的图片大小是5MB~')
+      return false
+    }
     file.progress = 0
     if(this.currentUploadType && this.currentUploadType !== 'image') {
       this.$message.error('您已上传了其他类型的文件~')
@@ -279,7 +285,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}        [description]
    */
   handleImageProgress(event) {
-    this.commonList[this.commonList.length - 1].progress = event.percent
+    this.commonList[this.commonList.length - 1].progress = parseInt(event.percent)
   }
   /**
    * @Author   小书包
@@ -674,15 +680,14 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   autoHeight(dom) {
+    let box = this.$refs['simple-text']
     let scrollHeight = dom.scrollHeight
     let lineHeight = parseInt(this.getDomStyle(dom, 'line-height'))
     let domHeight = parseInt(this.getDomStyle(dom, 'height'))
     let rowNum = parseInt(domHeight / lineHeight)
+    // let paddingBottom = parseInt(this.getDomStyle(box, 'padding-bottom'))
     if(rowNum <= 20) {
       if(domHeight < scrollHeight) dom.style.height = scrollHeight + 'px'
-    } else {
-      domHeight = parseInt(this.getDomStyle(dom, 'height'))
-      dom.style = `height: ${domHeight}px; overflow-y: scroll;`
     }
   }
 
@@ -703,6 +708,10 @@ export default class ComponentCommentBox extends Vue {
   .simple-text{
     overflow: hidden;
     position: relative;
+    border-radius:4px;
+    border:1px solid #EBEEF5;
+    padding: 5px 5px 34px 5px;
+    box-sizing: border-box;
     .limit-box {
       position: absolute;
       bottom: 10px;
@@ -714,16 +723,15 @@ export default class ComponentCommentBox extends Vue {
   }
 	.note-content {
 		width:100%;
-		height: 80px;
-		background:rgba(255,255,255,1);
-		border-radius:4px;
-		border:1px solid #EBEEF5;
+		/*border-radius:4px;*/
+		/*border:1px solid #EBEEF5;*/
 		outline: unset;
+    border: unset;
 		overflow: hidden;
 		line-height: 1.4;
     resize: none;
     box-sizing: border-box;
-    padding: 5px 8px 34px 8px;
+    padding: 0;
 	}
 	textarea::-webkit-input-placeholder{
     color: #BCBCBC;
@@ -735,11 +743,11 @@ export default class ComponentCommentBox extends Vue {
     width: 5px;
   }
   .note-content::-webkit-scrollbar-track {
-    background-color:#EDEDED;
+    background-color:white;
     border-radius: 5px;
   }
   .note-content::-webkit-scrollbar-thumb {
-    background-color:#FFE266;
+    background-color:#BCBCBC;
     border-radius: 5px;
   }
 	.comment-controlls-box {
