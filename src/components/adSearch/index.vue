@@ -13,7 +13,7 @@
           class="monthInPut"
           type="month"
           value-format="yyyy-MM"
-          placeholder="选择月">
+          placeholder="点击选择时间">
         </el-date-picker>
       </div>
       <div class="item">
