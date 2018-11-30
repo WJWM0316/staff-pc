@@ -282,6 +282,7 @@ export default class pageIndex extends Vue {
       this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
     }).catch(() => {
     	this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
+    	lsCache.delete('editContent')
     })
   }
   /**
@@ -481,6 +482,7 @@ export default class pageIndex extends Vue {
         	lsCache.set('editContent', this.editContent, {exp: 1000 * 60 * 60 * 24 * 7})
           this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
         }).catch(() => {
+        	lsCache.delete('editContent')
         	this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
         })
   			break
