@@ -147,20 +147,25 @@
 	 			<div class="gray" v-if="jobcircleDetail.memberInfo.length > 2"><i></i><i></i><i></i></div>
 	 		</div>
 	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
+			
+			<template v-if="jobcircleDetail.isOwner || jobcircleDetail.isAttention || jobcircleDetail.isMember || jobcircleDetail.isTop">
+		 		<template v-if="!jobcircleDetail.isOwner && !jobcircleDetail.isMember">
+		 			<button class="attention-button" v-if="!jobcircleDetail.isAttention" @click="todoAction('focus')"> + 关注 </button>
+		 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention" @click="todoAction('unfocus')"> 已关注 </button>
+				</template>
 
-	 		<template v-if="!jobcircleDetail.isOwner && !jobcircleDetail.isMember">
-	 			<button class="attention-button" v-if="!jobcircleDetail.isAttention" @click="todoAction('focus')"> + 关注 </button>
-	 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention" @click="todoAction('unfocus')"> 已关注 </button>
-			</template>
+				<template v-if="!jobcircleDetail.isOwner || jobcircleDetail.isMember || jobcircleDetail.isAttention">
+		 			<button class="button-untop" v-if="!jobcircleDetail.isTop" @click="todoAction('top')"> 置顶 </button>
+		 			<button class="button-top" v-if="jobcircleDetail.isTop" @click="todoAction('untop')"> 取消置顶 </button>
+	 			</template>
 
-			<template v-if="!jobcircleDetail.isOwner || jobcircleDetail.isMember || jobcircleDetail.isAttention">
-	 			<button class="button-untop" v-if="!jobcircleDetail.isTop" @click="todoAction('top')"> 置顶 </button>
-	 			<button class="button-top" v-if="jobcircleDetail.isTop" @click="todoAction('untop')"> 取消置顶 </button>
+	 			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner">
+	 				<i class="icon font_family icon-shezhi"></i> 工作圈设置
+	 			</button>
  			</template>
-
- 			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner">
- 				<i class="icon font_family icon-shezhi"></i> 工作圈设置
- 			</button>
+ 			<template v-if="!jobcircleDetail.isOwner && !jobcircleDetail.isAttention && !jobcircleDetail.isMember && !jobcircleDetail.isTop">
+ 				<button class="button-untop" @click="todoAction('top')"> 置顶 </button>
+ 			</template>
  		</div>
  	</div>
  	<preview v-if="isPreview" :previewData="previewData" @closePreview="closePreview"></preview>
