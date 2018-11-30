@@ -148,12 +148,12 @@
 	 		</div>
 	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
 
-	 		<template v-if="!jobcircleDetail.isOwner && jobcircleDetail.isMember">
+	 		<template v-if="!jobcircleDetail.isOwner && !jobcircleDetail.isMember">
 	 			<button class="attention-button" v-if="!jobcircleDetail.isAttention" @click="todoAction('focus')"> + 关注 </button>
 	 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention" @click="todoAction('unfocus')"> 已关注 </button>
 			</template>
 
-			<template v-if="!jobcircleDetail.isOwner && jobcircleDetail.isMember && jobcircleDetail.isAttention">
+			<template v-if="!jobcircleDetail.isOwner || jobcircleDetail.isMember || jobcircleDetail.isAttention">
 	 			<button class="button-untop" v-if="!jobcircleDetail.isTop" @click="todoAction('top')"> 置顶 </button>
 	 			<button class="button-top" v-if="jobcircleDetail.isTop" @click="todoAction('untop')"> 取消置顶 </button>
  			</template>

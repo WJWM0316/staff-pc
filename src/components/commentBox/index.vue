@@ -37,7 +37,7 @@
 			<span class="btn-close" @click="handleVideoRemove"><i class="icon font_family icon-icon_errorsvg"></i></span>
 			<div class="btn-click" v-if="videoUpload.progress === 100"><i class="icon font_family icon-play"></i></div>
       <el-progress type="circle" :percentage="videoUpload.progress" :stroke-width="2" :width="46" v-if="videoUpload.progress < 100"></el-progress>
-			<!-- <video :src="videoUpload.infos.url" v-if="videoUpload.infos.url"> your browser does not support the video tag </video> -->
+			<video :src="videoUpload.infos.url" v-if="videoUpload.infos.url"> your browser does not support the video tag </video>
 		</div>
 		<ul class="common-list" v-if="commonList.length">
 			<li
@@ -48,7 +48,6 @@
         :style="`background-image: url(${imageItem.smallUrl}); background-size: cover; background-repeat: no-repeat; background-position: center center;`"
         draggable="true">
 				<span class="btn-close" @click="handleRemoveUploadImage(imageIndex)"><i class="icon font_family icon-icon_errorsvg"></i></span>
-        <!-- <img :src="imageItem.smallUrl" alt="" v-if="imageItem.smallUrl"> -->
 				<el-progress type="circle" :percentage="imageItem.progress" :stroke-width="2" :width="46" v-if="imageItem.progress !== 100"></el-progress>
 			</li>
       <li class="upload-li" v-if="commonList.length < 20">
@@ -84,8 +83,8 @@
 					  :on-exceed="handleImageExceed"
             :before-upload="beforeImageUpload"
 					  multiple>
-					  <span v-if="!imageUpload.disabled"><i class="icon font_family icon-btn_photo"></i>图片1</span>
-            <span @click="setOtherEnabled('imageUpload')" v-else><i class="icon font_family icon-btn_photo"></i>图片2</span>
+					  <span v-if="!imageUpload.disabled"><i class="icon font_family icon-btn_photo"></i>图片</span>
+            <span @click="setOtherEnabled('imageUpload')" v-else><i class="icon font_family icon-btn_photo"></i>图片</span>
 					</el-upload>
 				</li>
 				<li>
@@ -836,7 +835,6 @@ export default class ComponentCommentBox extends Vue {
    */
   setOtherDisabled(type) {
     ['imageUpload', 'compressUpload', 'videoUpload'].map(field => this[field].disabled = type === field ? false : true)
-    console.log(type)
   }
 
   /**
