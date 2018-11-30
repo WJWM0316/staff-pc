@@ -224,7 +224,7 @@ import { lsCache } from '@/store/cacheService'
     'currentJobCircleId': {
       handler(currentJobCircleId) {
       	if(currentJobCircleId) {
-      		this.$router.push({query: {id: this.currentJobCircleId, tab: this.currentActivetab}})
+      		// this.$router.push({query: {id: this.currentJobCircleId, tab: this.currentActivetab}})
       	}
       },
       immediate: true
@@ -302,7 +302,6 @@ export default class pageIndex extends Vue {
 	 * @detail   获取页面选的的工作圈信息
 	 */
 	getActiveJobCircleInfos(params) {
-		// this.$router.push({query: {id: this.currentJobCircleId, tab: params.show}})
 		this.updateJobCircleItemCheckedStatus(params)
     this.reset()
     this.picsStatus = {
@@ -324,6 +323,7 @@ export default class pageIndex extends Vue {
 			if(field.active) {
 				this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
 				this.getJobcircleDetail({id: this.currentJobCircleId})
+				this.$router.push({query: {id: this.currentJobCircleId, tab: params.show}})
 			}
 		})
 	}

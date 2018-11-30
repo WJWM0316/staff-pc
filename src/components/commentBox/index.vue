@@ -72,8 +72,9 @@
 			<ul class="controlls-list">
 				<li>
 					<el-upload
-					  :action="imageUpload.action"
             ref="image"
+            :disabled="imageUpload.disabled"
+					  :action="imageUpload.action"
 					  :accept="imageUpload.accept"
 					  :data="imageUpload.params"
 					  :show-file-list="false"
@@ -83,27 +84,32 @@
 					  :on-exceed="handleImageExceed"
             :before-upload="beforeImageUpload"
 					  multiple>
-					  <span slot="trigger"><i class="icon font_family icon-btn_photo"></i>图片</span>
+					  <span v-if="!imageUpload.disabled"><i class="icon font_family icon-btn_photo"></i>图片1</span>
+            <span @click="setOtherEnabled('imageUpload')" v-else><i class="icon font_family icon-btn_photo"></i>图片2</span>
 					</el-upload>
 				</li>
 				<li>
 					<el-upload
-					  :action="videoUpload.action"
             ref="video"
+            :disabled="videoUpload.disabled"
+					  :action="videoUpload.action"
 					  :accept="videoUpload.accept"
 					  :data="videoUpload.params"
 					  :show-file-list="false"
 					  :on-progress="handleVideoProgress"
 					  :on-success="handleVideoSuccess"
             :before-upload="beforeVideoUpload"
+            :on-error="handleVideoError"
 					  :on-change="handleVideoChange">
-					  <span slot="trigger"><i class="icon font_family icon-btn_video"></i>视频</span>
+					  <span v-if="!videoUpload.disabled"><i class="icon font_family icon-btn_video"></i>视频</span>
+            <span v-else @click="setOtherEnabled('videoUpload')"><i class="icon font_family icon-btn_video"></i>视频</span>
 					</el-upload>
 				</li>
 				<li>
 					<el-upload
-					  :action="compressUpload.action"
             ref="file"
+            :disabled="compressUpload.disabled"
+					  :action="compressUpload.action"
 					  :accept="compressUpload.accept"
 					  :data="compressUpload.params"
 					  :show-file-list="false"
@@ -111,7 +117,8 @@
 					  :on-success="handleCompressSuccess"
             :before-upload="beforeCompressUpload"
 					  :on-change="handleCompressChange">
-					  <span slot="trigger"><i class="icon font_family icon-btn_doc"></i>文件</span>
+					  <span v-if="!compressUpload.disabled"><i class="icon font_family icon-btn_doc"></i>文件</span>
+            <span v-else @click="setOtherEnabled('compressUpload')"><i class="icon font_family icon-btn_doc"></i>文件</span>
 					</el-upload>
 				</li>
 				<li @click="switchLinkBox"><i class="icon font_family icon-btn_link"></i>链接</li>
@@ -164,7 +171,9 @@ import { lsCache } from '@/store/cacheService'
     },
     'imageUpload.limit': {
       handler(num) {
-        if(!num) this.currentUploadType = null
+        if(num === 0) {
+          this.$message.error('一次发布最多只允许上传20张图片~')
+        }
       },
       immediate: true
     }
@@ -182,6 +191,7 @@ export default class ComponentCommentBox extends Vue {
 	dragEl = null
 	// 图片上传
   imageUpload = {
+    disabled: false,
   	action: upload_api,
     limit: 20,
     accept: 'image/*',
@@ -195,10 +205,11 @@ export default class ComponentCommentBox extends Vue {
 
   // 视频上传
   videoUpload = {
+    disabled: false,
   	show: false,
   	action: upload_api,
     limit: 1,
-    accept: '.mp4,.ogg,.flv,.avi,.wmv,.rmvb, .mov',
+    accept: '.avi,.rmvb,.rm,.mov,.mpg,.mpeg,.swf,.flv,.mp4,.3gp,.asf,.f4v,.webm,.wmv',
     file: {},
     params: {
       token: getAccessToken(),
@@ -212,10 +223,11 @@ export default class ComponentCommentBox extends Vue {
 
   // 文件上传
   compressUpload = {
+    disabled: false,
   	show: false,
   	action: upload_api,
     limit: 1,
-    accept: '.pdf,.doc,.docx,.dot,.rtf,.docm,.dotm,.xls,.xlsx,.xlsb,.xlsm,.xla,.xltm,.ods,.xlt,.xml.,.xltx,.ppt,.pptx.,potx,.pot,.obp,.ppsx,.pps,.pptm,.potm,.ppsm,.txt',
+    accept: [...docExt, ...compressExtS].join(','),
     file: {},
     params: {
       token: getAccessToken(),
@@ -283,13 +295,14 @@ export default class ComponentCommentBox extends Vue {
     // }
     if(this.commonList.length >= 20) return
     file.progress = 0
-    if(this.currentUploadType && this.currentUploadType !== 'image') {
+    if(this.currentUploadType && this.currentUploadType !== 'imageUpload') {
       this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
         this.uploadTypeChange()
         this.currentUploadType = null
+        this.setOtherDisabled('imageUpload')
       }).catch(() => {
         // nothing to do
       })
@@ -300,7 +313,8 @@ export default class ComponentCommentBox extends Vue {
         this.imageUpload.limit--
         this.commonList.push(file)
       }
-      this.currentUploadType = 'image'
+      this.currentUploadType = 'imageUpload'
+      this.setOtherDisabled('imageUpload')
     }
   }
   /**
@@ -468,6 +482,15 @@ export default class ComponentCommentBox extends Vue {
   handleVideoProgress(event) {
   	this.videoUpload.progress = parseInt(event.percent)
   }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-30
+   * @detail   视频上传失败
+   * @return   {[type]}   [description]
+   */
+  handleVideoError(res) {
+    console.log(res)
+  }
    /**
    * @Author   小书包
    * @DateTime 2018-11-23
@@ -475,6 +498,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}        [description]
    */
   handleVideoSuccess(res) {
+    console.log(res.data[0])
   	this.videoUpload.infos = res.data[0]
     this.form.videos = res.data[0].id
     this.$message({showClose: true, message: '视频上传成功', type: 'success'})
@@ -486,21 +510,22 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   beforeVideoUpload() {
-    console.log(this.currentUploadType)
-    if(this.currentUploadType && this.currentUploadType !== 'video') {
+    if(this.currentUploadType && this.currentUploadType !== 'videoUpload') {
       this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
         this.uploadTypeChange()
         this.currentUploadType = null
+        this.setOtherDisabled('videoUpload')
       }).catch(() => {
         // nothing to do
       })
       return false
     } else {
-      this.currentUploadType = 'video'
+      this.currentUploadType = 'videoUpload'
       this.videoUpload.show = true
+      this.setOtherDisabled('videoUpload')
     }
   }
   /**
@@ -516,6 +541,7 @@ export default class ComponentCommentBox extends Vue {
     this.videoUpload.file = {}
     this.videoUpload.show = false
     this.currentUploadType = null
+    this.setOtherEnabled()
     if(this.videoUpload.progress < 100) {
       this.$refs.video.abort()
     }
@@ -573,13 +599,14 @@ export default class ComponentCommentBox extends Vue {
     if(doc.includes(this.getFileExt(file.name))) {
       this.compressUpload.params.attach_type = 'doc'
     }
-    if(this.currentUploadType && this.currentUploadType !== 'compress') {
+    if(this.currentUploadType && this.currentUploadType !== 'compressUpload') {
       this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
         this.uploadTypeChange()
         this.currentUploadType = null
+        this.setOtherDisabled('compressUpload')
       }).catch(() => {
         // nothing to do
       })
@@ -587,7 +614,8 @@ export default class ComponentCommentBox extends Vue {
     } else {
       this.compressUpload.file = file
       this.compressUpload.show = true
-      this.currentUploadType = 'compress'
+      this.currentUploadType = 'compressUpload'
+      this.setOtherDisabled('compressUpload')
     }
   }
   /**
@@ -610,6 +638,7 @@ export default class ComponentCommentBox extends Vue {
   	this.compressUpload.file = {}
     this.form.files = ''
     this.currentUploadType = null
+    this.setOtherEnabled()
     if(this.videoUpload.progress < 100) {
       this.$refs.file.abort()
     }
@@ -649,6 +678,7 @@ export default class ComponentCommentBox extends Vue {
     this.form.urls = ''
     this.inputLink.show = false
     this.inputLink.value = ''
+    this.setOtherEnabled()
   }
   /**
    * @Author   小书包
@@ -776,10 +806,10 @@ export default class ComponentCommentBox extends Vue {
    */
   uploadTypeChange() {
     switch(this.currentUploadType) {
-      case 'image':
+      case 'imageUpload':
         this.commonList = []
         break
-      case 'compress':
+      case 'compressUpload':
         this.form.files = ''
         this.compressUpload.file = {}
         this.compressUpload.show = false
@@ -789,7 +819,7 @@ export default class ComponentCommentBox extends Vue {
         this.inputLink.value = ''
         this.inputLink.show = false
         break
-      case 'video':
+      case 'videoUpload':
         this.form.videos = ''
         this.videoUpload.file = {}
         this.videoUpload.show = false
@@ -798,6 +828,41 @@ export default class ComponentCommentBox extends Vue {
         break
     }
   }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-30
+   * @detail   清空之前的上传
+   * @return   {[type]}   [description]
+   */
+  setOtherDisabled(type) {
+    ['imageUpload', 'compressUpload', 'videoUpload'].map(field => this[field].disabled = type === field ? false : true)
+    console.log(type)
+  }
+
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-30
+   * @detail   清空之前的上传
+   * @return   {[type]}   [description]
+   */
+  setOtherEnabled(type = '') {
+    const currentUploadType = this.currentUploadType
+    if(currentUploadType !== type && type) {
+      this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(() => {
+        this.uploadTypeChange()
+        this.currentUploadType = type
+        this.setOtherDisabled(type)
+      }).catch(() => {
+        // nothing to do
+      })
+    } else {
+      ['imageUpload', 'compressUpload', 'videoUpload'].map(field => this[field].disabled = false)
+    }
+  }
+
   mounted() {
     const dom = this.$refs['note-content']
     dom.addEventListener('propertychange', () => { this.autoHeight(dom) })
