@@ -204,6 +204,7 @@ export default class ComponentCommentBox extends Vue {
 
   // 视频上传
   videoUpload = {
+    loading: false,
     disabled: false,
   	show: false,
   	action: upload_api,
@@ -222,6 +223,7 @@ export default class ComponentCommentBox extends Vue {
 
   // 文件上传
   compressUpload = {
+    loading: false,
     disabled: false,
   	show: false,
   	action: upload_api,
@@ -497,10 +499,10 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}        [description]
    */
   handleVideoSuccess(res) {
-    console.log(res.data[0])
   	this.videoUpload.infos = res.data[0]
     this.form.videos = res.data[0].id
     this.$message({showClose: true, message: '视频上传成功', type: 'success'})
+    this.videoUpload.loading = false
   }
   /**
    * @Author   小书包
@@ -509,6 +511,14 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   beforeVideoUpload() {
+    if(this.videoUpload.loading) {
+      this.$message.error('视频正在上传，请勿重复提交~')
+      return false
+    }
+    if(this.form.videos) {
+      this.$message.error('视频只能上传一个，请删除后重试~')
+      return false
+    }
     if(this.currentUploadType && this.currentUploadType !== 'videoUpload') {
       this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
         confirmButtonText: '确定',
@@ -524,6 +534,7 @@ export default class ComponentCommentBox extends Vue {
     } else {
       this.currentUploadType = 'videoUpload'
       this.videoUpload.show = true
+      this.videoUpload.loading = true
       this.setOtherDisabled('videoUpload')
     }
   }
@@ -582,6 +593,7 @@ export default class ComponentCommentBox extends Vue {
   handleCompressSuccess(res) {
     this.form.files = res.data[0].id
     this.$message({showClose: true, message: '文件上传成功', type: 'success'})
+    this.compressUpload.loading = false
   }
   /**
    * @Author   小书包
@@ -590,6 +602,14 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   beforeCompressUpload(file) {
+    if(this.compressUpload.loading) {
+      this.$message.error('文件正在上传，请勿重复提交~')
+      return false
+    }
+    if(this.form.files) {
+      this.$message.error('文件只能上传一个，请删除后重试~')
+      return false
+    }
     const compress = compressExtS
     const doc = docExt
     if(compress.includes(this.getFileExt(file.name))) {
@@ -615,6 +635,7 @@ export default class ComponentCommentBox extends Vue {
       this.compressUpload.show = true
       this.currentUploadType = 'compressUpload'
       this.setOtherDisabled('compressUpload')
+      this.compressUpload.loading = true
     }
   }
   /**
@@ -650,6 +671,10 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   switchLinkBox() {
+    if(this.form.urls) {
+      this.$message.error('文件只能上传一个，请删除后重试~')
+      return false
+    }
     if(this.currentUploadType && this.currentUploadType !== 'link') {
       this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
         confirmButtonText: '确定',
@@ -677,6 +702,7 @@ export default class ComponentCommentBox extends Vue {
     this.form.urls = ''
     this.inputLink.show = false
     this.inputLink.value = ''
+    this.currentUploadType = null
     this.setOtherEnabled()
   }
   /**
