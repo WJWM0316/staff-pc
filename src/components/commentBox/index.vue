@@ -163,6 +163,12 @@ import { lsCache } from '@/store/cacheService'
       },
       immediate: true
     },
+    'currentUploadType': {
+      handler(currentUploadType) {
+        console.log(currentUploadType)
+      },
+      immediate: true
+    },
     'form.content': {
       handler(content) {
         this.$emit('input', content)
@@ -181,7 +187,6 @@ import { lsCache } from '@/store/cacheService'
 })
 export default class ComponentCommentBox extends Vue {
   currentUploadType = null
-  canResetHeight = true
 	imgEdit = {
 		start: {index: null, data: null},
 		end: {index: null, data: null}
@@ -753,6 +758,7 @@ export default class ComponentCommentBox extends Vue {
             type: 'success'
           })
           this.resetForm()
+          window.location.reload()
           lsCache.delete('editContent')
   			})
   			.catch(err => {
@@ -884,21 +890,24 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   setOtherEnabled(type = '') {
-    const currentUploadType = this.currentUploadType
-    if(currentUploadType !== type && type) {
-      this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消'
-      }).then(() => {
-        this.uploadTypeChange()
-        this.currentUploadType = type
-        this.setOtherDisabled(type)
-      }).catch(() => {
-        // nothing to do
-      })
-    } else {
-      ['imageUpload', 'compressUpload', 'videoUpload'].map(field => this[field].disabled = false)
-    }
+    // const currentUploadType = this.currentUploadType
+    // if(currentUploadType !== type && type) {
+    //   this.uploadTypeChange()
+    //   this.currentUploadType = type
+    //   this.setOtherDisabled(type)
+    //   // this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
+    //   //   confirmButtonText: '确定',
+    //   //   cancelButtonText: '取消'
+    //   // }).then(() => {
+    //   //   this.uploadTypeChange()
+    //   //   this.currentUploadType = type
+    //   //   this.setOtherDisabled(type)
+    //   // }).catch(() => {
+    //   //   // nothing to do
+    //   // })
+    // } else {
+    //   ['imageUpload', 'compressUpload', 'videoUpload'].map(field => this[field].disabled = false)
+    // }
     if(type === 'imageUpload') {
       this.$message.error('一次发布最多只允许上传20张图片~')
     }
