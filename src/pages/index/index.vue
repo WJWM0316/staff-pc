@@ -147,14 +147,17 @@
 	 			<div class="gray" v-if="jobcircleDetail.memberInfo.length > 2"><i></i><i></i><i></i></div>
 	 		</div>
 	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
-	 		<template v-if="!jobcircleDetail.isOwner && !jobcircleDetail.isMember">
+
+	 		<template v-if="!jobcircleDetail.isOwner && jobcircleDetail.isMember">
 	 			<button class="attention-button" v-if="!jobcircleDetail.isAttention" @click="todoAction('focus')"> + 关注 </button>
 	 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention" @click="todoAction('unfocus')"> 已关注 </button>
 			</template>
-			<template v-if="!jobcircleDetail.isOwner && jobcircleDetail.isAttention && jobcircleDetail.isMember">
+
+			<template v-if="!jobcircleDetail.isOwner && jobcircleDetail.isMember && jobcircleDetail.isAttention">
 	 			<button class="button-untop" v-if="!jobcircleDetail.isTop" @click="todoAction('top')"> 置顶 </button>
 	 			<button class="button-top" v-if="jobcircleDetail.isTop" @click="todoAction('untop')"> 取消置顶 </button>
  			</template>
+
  			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner">
  				<i class="icon font_family icon-shezhi"></i> 工作圈设置
  			</button>
@@ -275,8 +278,8 @@ export default class pageIndex extends Vue {
   		return
   	}
   	this.$confirm('是否保存当前的数据?', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消'
+      confirmButtonText: '保留',
+      cancelButtonText: '算了'
     }).then(() => {
     	lsCache.set('editContent', this.editContent, {exp: 1000 * 60 * 60 * 24 * 7})
       this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
@@ -476,8 +479,8 @@ export default class pageIndex extends Vue {
   				return
   			}
   			this.$confirm('是否保存当前的数据?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消'
+          confirmButtonText: '保留',
+          cancelButtonText: '算了'
         }).then(() => {
         	lsCache.set('editContent', this.editContent, {exp: 1000 * 60 * 60 * 24 * 7})
           this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})

@@ -83,7 +83,7 @@
 					  :on-exceed="handleImageExceed"
             :before-upload="beforeImageUpload"
 					  multiple>
-					  <i class="icon font_family icon-btn_photo"></i>图片
+					  <span slot="trigger"><i class="icon font_family icon-btn_photo"></i>图片</span>
 					</el-upload>
 				</li>
 				<li>
@@ -97,7 +97,7 @@
 					  :on-success="handleVideoSuccess"
             :before-upload="beforeVideoUpload"
 					  :on-change="handleVideoChange">
-					  <i class="icon font_family icon-btn_video"></i>视频
+					  <span slot="trigger"><i class="icon font_family icon-btn_video"></i>视频</span>
 					</el-upload>
 				</li>
 				<li>
@@ -111,7 +111,7 @@
 					  :on-success="handleCompressSuccess"
             :before-upload="beforeCompressUpload"
 					  :on-change="handleCompressChange">
-					  <i class="icon font_family icon-btn_doc"></i>文件
+					  <span slot="trigger"><i class="icon font_family icon-btn_doc"></i>文件</span>
 					</el-upload>
 				</li>
 				<li @click="switchLinkBox"><i class="icon font_family icon-btn_link"></i>链接</li>
@@ -156,15 +156,15 @@ import { lsCache } from '@/store/cacheService'
       },
       immediate: true
     },
-    // 'imageUpload.limit': {
-    //   handler(num) {
-    //     console.log(num)
-    //   },
-    //   immediate: true
-    // },
     'form.content': {
       handler(content) {
         this.$emit('input', content)
+      },
+      immediate: true
+    },
+    'imageUpload.limit': {
+      handler(num) {
+        if(!num) this.currentUploadType = null
       },
       immediate: true
     }
@@ -244,8 +244,8 @@ export default class ComponentCommentBox extends Vue {
    * @detail   选择图片超过上传限制
    * @return   {[type]}            [description]
    */
-  handleImageExceed(files, fileList) {
-    console.log('超出啦')
+  handleImageExceed() {
+    this.$message.error('一次发布最多只允许上传20张图片~')
   }
   /**
    * @Author   小书包
@@ -284,7 +284,15 @@ export default class ComponentCommentBox extends Vue {
     if(this.commonList.length >= 20) return
     file.progress = 0
     if(this.currentUploadType && this.currentUploadType !== 'image') {
-      this.$message.error('您已上传了其他类型的文件~')
+      this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(() => {
+        this.uploadTypeChange()
+        this.currentUploadType = null
+      }).catch(() => {
+        // nothing to do
+      })
       return false
     } else {
       if(!this.imageUpload.imgLists.includes(file.uid)) {
@@ -294,7 +302,6 @@ export default class ComponentCommentBox extends Vue {
       }
       this.currentUploadType = 'image'
     }
-    console.log(this.imageUpload.limit)
   }
   /**
    * @Author   小书包
@@ -470,6 +477,7 @@ export default class ComponentCommentBox extends Vue {
   handleVideoSuccess(res) {
   	this.videoUpload.infos = res.data[0]
     this.form.videos = res.data[0].id
+    this.$message({showClose: true, message: '视频上传成功', type: 'success'})
   }
   /**
    * @Author   小书包
@@ -478,8 +486,17 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   beforeVideoUpload() {
+    console.log(this.currentUploadType)
     if(this.currentUploadType && this.currentUploadType !== 'video') {
-      this.$message.error('您已上传了其他类型的文件~')
+      this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(() => {
+        this.uploadTypeChange()
+        this.currentUploadType = null
+      }).catch(() => {
+        // nothing to do
+      })
       return false
     } else {
       this.currentUploadType = 'video'
@@ -539,6 +556,7 @@ export default class ComponentCommentBox extends Vue {
    */
   handleCompressSuccess(res) {
     this.form.files = res.data[0].id
+    this.$message({showClose: true, message: '文件上传成功', type: 'success'})
   }
   /**
    * @Author   小书包
@@ -556,7 +574,15 @@ export default class ComponentCommentBox extends Vue {
       this.compressUpload.params.attach_type = 'doc'
     }
     if(this.currentUploadType && this.currentUploadType !== 'compress') {
-      this.$message.error('您已上传了其他类型的文件~')
+      this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(() => {
+        this.uploadTypeChange()
+        this.currentUploadType = null
+      }).catch(() => {
+        // nothing to do
+      })
       return false
     } else {
       this.compressUpload.file = file
@@ -597,9 +623,19 @@ export default class ComponentCommentBox extends Vue {
    */
   switchLinkBox() {
     if(this.currentUploadType && this.currentUploadType !== 'link') {
-      this.$message.error('您已上传了其他类型的文件~')
+      this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消'
+      }).then(() => {
+        this.uploadTypeChange()
+        this.currentUploadType = null
+        this.inputLink.show = !this.inputLink.show
+      }).catch(() => {
+        // nothing to do
+      })
     } else {
       this.inputLink.show = !this.inputLink.show
+      this.currentUploadType = 'link'
     }
   }
 
@@ -732,6 +768,36 @@ export default class ComponentCommentBox extends Vue {
     }
   }
 
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-30
+   * @detail   上传方式改变
+   * @return   {[type]}   [description]
+   */
+  uploadTypeChange() {
+    switch(this.currentUploadType) {
+      case 'image':
+        this.commonList = []
+        break
+      case 'compress':
+        this.form.files = ''
+        this.compressUpload.file = {}
+        this.compressUpload.show = false
+        break
+      case 'link':
+        this.form.urls = ''
+        this.inputLink.value = ''
+        this.inputLink.show = false
+        break
+      case 'video':
+        this.form.videos = ''
+        this.videoUpload.file = {}
+        this.videoUpload.show = false
+        break
+      default:
+        break
+    }
+  }
   mounted() {
     const dom = this.$refs['note-content']
     dom.addEventListener('propertychange', () => { this.autoHeight(dom) })
@@ -811,6 +877,9 @@ export default class ComponentCommentBox extends Vue {
 			color: #666666;
 			cursor: pointer;
 		}
+    i{
+      font-weight: 500;
+    }
 	}
 	.submit-setting {
 		font-size:14px;
