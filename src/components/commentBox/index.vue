@@ -73,6 +73,7 @@
 					<el-upload
             ref="image"
             :disabled="imageUpload.disabled"
+            v-if="commonList.length < 20"
 					  :action="imageUpload.action"
 					  :accept="imageUpload.accept"
 					  :data="imageUpload.params"
@@ -83,9 +84,9 @@
 					  :on-exceed="handleImageExceed"
             :before-upload="beforeImageUpload"
 					  multiple>
-					  <span v-if="!imageUpload.disabled"><i class="icon font_family icon-btn_photo"></i>图片</span>
-            <span @click="setOtherEnabled('imageUpload')" v-else><i class="icon font_family icon-btn_photo"></i>图片</span>
+					  <span><i class="icon font_family icon-btn_photo"></i>图片</span>
 					</el-upload>
+          <span @click="setOtherEnabled('imageUpload')" v-else><i class="icon font_family icon-btn_photo"></i>图片</span>
 				</li>
 				<li>
 					<el-upload
@@ -883,6 +884,9 @@ export default class ComponentCommentBox extends Vue {
       })
     } else {
       ['imageUpload', 'compressUpload', 'videoUpload'].map(field => this[field].disabled = false)
+    }
+    if(type === 'imageUpload') {
+      this.$message.error('一次发布最多只允许上传20张图片~')
     }
   }
 
