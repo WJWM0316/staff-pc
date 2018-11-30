@@ -37,7 +37,7 @@
 			<span class="btn-close" @click="handleVideoRemove"><i class="icon font_family icon-icon_errorsvg"></i></span>
 			<div class="btn-click" v-if="videoUpload.progress === 100"><i class="icon font_family icon-play"></i></div>
       <el-progress type="circle" :percentage="videoUpload.progress" :stroke-width="2" :width="46" v-if="videoUpload.progress < 100"></el-progress>
-			<video :src="videoUpload.infos.url" v-if="videoUpload.infos.url"> your browser does not support the video tag </video>
+			<video :src="videoUpload.infos.url" v-if="form.videos"> your browser does not support the video tag </video>
 		</div>
 		<ul class="common-list" v-if="commonList.length">
 			<li
@@ -290,11 +290,11 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   beforeImageUpload(file) {
-    // const isLt5M = file.size / 1024 / 1024 < 5
-    // if(isLt5M) {
-    //   this.$message.error('上传的图片大小是5MB~')
-    //   return false
-    // }
+    const isLt5M = file.size / 1024 / 1024 > 5
+    if(isLt5M) {
+      this.$message.error('上传的图片大小是5MB~')
+      return false
+    }
     if(this.commonList.length >= 20) return
     file.progress = 0
     if(this.currentUploadType && this.currentUploadType !== 'imageUpload') {
@@ -511,7 +511,12 @@ export default class ComponentCommentBox extends Vue {
    * @detail   图片上传之前做判断
    * @return   {[type]}   [description]
    */
-  beforeVideoUpload() {
+  beforeVideoUpload(file) {
+    const isLt200M = file.size / 1024 / 1024 > 200
+    if(isLt200M) {
+      this.$message.error('上传的视频大小限制是200MB~')
+      return false
+    }
     if(this.videoUpload.loading) {
       this.$message.error('视频正在上传，请勿重复提交~')
       return false
@@ -555,6 +560,7 @@ export default class ComponentCommentBox extends Vue {
     this.setOtherEnabled()
     if(this.videoUpload.progress < 100) {
       this.$refs.video.abort()
+      this.videoUpload.loading = false
     }
   }
    /**
@@ -603,6 +609,11 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   beforeCompressUpload(file) {
+    const isLt200M = file.size / 1024 / 1024 > 200
+    if(isLt200M) {
+      this.$message.error('上传的文件大小限制是200MB~')
+      return false
+    }
     if(this.compressUpload.loading) {
       this.$message.error('文件正在上传，请勿重复提交~')
       return false
@@ -662,6 +673,7 @@ export default class ComponentCommentBox extends Vue {
     this.setOtherEnabled()
     if(this.videoUpload.progress < 100) {
       this.$refs.file.abort()
+      this.compressUpload.loading = false
     }
   }
 
@@ -759,6 +771,8 @@ export default class ComponentCommentBox extends Vue {
     this.compressUpload.file = {}
     this.compressUpload.show = false
     this.commonList = []
+    this.videoUpload.show = false
+    this.currentUploadType = null
     this.form = {
       community_id: null,
       content: '',
