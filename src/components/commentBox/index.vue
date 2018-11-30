@@ -671,10 +671,6 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   switchLinkBox() {
-    if(this.form.urls) {
-      this.$message.error('文件只能上传一个，请删除后重试~')
-      return false
-    }
     if(this.currentUploadType && this.currentUploadType !== 'link') {
       this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
         confirmButtonText: '确定',
@@ -689,6 +685,9 @@ export default class ComponentCommentBox extends Vue {
     } else {
       this.inputLink.show = !this.inputLink.show
       this.currentUploadType = 'link'
+      if(this.inputLink.value) {
+        this.form.urls = ''
+      }
     }
   }
 
