@@ -20,7 +20,7 @@
           <img src="https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/postLink.png">
         </div>
         <div class="file-infos link">
-          <p class="file-title link">{{fileData.title}}</p>
+          <p class="file-title link">{{fileData.title ? fileData.title : '链接'}}</p>
         </div>
       </div>
     </template>
