@@ -164,7 +164,7 @@
 	 			</button>
  			</template>
  			<template v-if="!jobcircleDetail.isOwner && !jobcircleDetail.isAttention && !jobcircleDetail.isMember && !jobcircleDetail.isTop">
- 				<button class="button-untop" @click="todoAction('top')"> 置顶 </button>
+ 				<button class="attention-button" @click="todoAction('focus')"> + 关注 </button>
  			</template>
  		</div>
  	</div>
@@ -434,6 +434,7 @@ export default class pageIndex extends Vue {
 			          type: 'success'
 			        })
   						this.getJobcircleDetail({id: this.currentJobCircleId})
+  						this.init()
   					})
   					.catch(error => {
   						this.$message.error(`${error.msg}~`)
@@ -447,6 +448,7 @@ export default class pageIndex extends Vue {
 			          type: 'success'
 			        })
   						this.getJobcircleDetail({id: this.currentJobCircleId})
+  						this.init()
   					})
   					.catch(error => {
   						this.$message.error(`${error.msg}~`)
@@ -460,6 +462,7 @@ export default class pageIndex extends Vue {
 			          type: 'success'
 			        })
   						this.getJobcircleDetail({id: this.currentJobCircleId})
+  						this.init()
   					})
   					.catch(error => {
   						this.$message.error(`${error.msg}~`)
@@ -473,6 +476,7 @@ export default class pageIndex extends Vue {
 			          type: 'success'
 			        })
   						this.getJobcircleDetail({id: this.currentJobCircleId})
+  						this.init()
   					})
   					.catch(error => {
   						this.$message.error(`${error.msg}~`)
