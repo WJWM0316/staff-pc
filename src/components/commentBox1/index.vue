@@ -249,7 +249,7 @@ export default class ComponentCommentBox extends Vue {
       this.formData.append('img1', file)
       this.formData.append('attach_type', 'img')
       if(this.commonList.length === 20) return
-      this.handleUploadImage(this.commonList.length)
+      this.handleUploadImage()
     })
   }
   /**
@@ -258,7 +258,7 @@ export default class ComponentCommentBox extends Vue {
    * @detail   上传选中的图片
    * @return   {[type]}         [description]
    */
-  handleUploadImage(index) {
+  handleUploadImage() {
     this.xhr = new XMLHttpRequest()
     this.xhr.open('post', upload_api, true)
     this.xhr.setRequestHeader('Authorization', getAccessToken())
@@ -277,7 +277,7 @@ export default class ComponentCommentBox extends Vue {
     this.xhr.onerror = (res) => {}
     // 上传进度
     this.xhr.upload.onprogress = (res) => {
-      this.commonList[index].uploadProgress = Math.round(res.loaded / res.total * 100) - 1
+      this.commonList[this.commonList.length - 1].uploadProgress = Math.round(res.loaded / res.total * 100) - 1
     }
     this.xhr.send(this.formData)
   }
