@@ -200,6 +200,7 @@ export default class ComponentCommentBox extends Vue {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
+        this.currentUploadType = 'Image'
         this.form.videos = ''
         this.removeBeforeUpload()
         document.querySelector('#image').click()
@@ -421,6 +422,7 @@ export default class ComponentCommentBox extends Vue {
           confirmButtonText: '确定',
           cancelButtonText: '取消'
         }).then(() => {
+          this.currentUploadType = 'Video'
           this.form.videos = ''
           this.removeBeforeUpload()
           document.querySelector('#video').click()
@@ -467,7 +469,7 @@ export default class ComponentCommentBox extends Vue {
       // 上传视频返回的数据
       const videoItem = JSON.parse(res.target.responseText).data[0]
       this.videoUpload.infos = videoItem
-      this.form.videos = videoItem.url
+      this.form.videos = videoItem.id
       this.$message({showClose: true, message: '视频上传成功', type: 'success'})
       this.videoUpload.uploadProgress = 100
     }
@@ -527,11 +529,12 @@ export default class ComponentCommentBox extends Vue {
 
       // 已经选择了其他的发布类型
       if(this.currentUploadType && this.currentUploadType !== 'Compress') {
-        this.$confirm('该操作会替换已上传的文件, 是否继续?', '确认提醒', {
+        this.$confirm('该操作会替换已上传的文件, 是否继续1?', '确认提醒', {
           confirmButtonText: '确定',
           cancelButtonText: '取消'
         }).then(() => {
           this.form.files = ''
+          this.currentUploadType = 'Compress'
           this.removeBeforeUpload()
           document.querySelector('#compress').click()
           document.querySelector('#compress').value = ''
@@ -713,7 +716,7 @@ export default class ComponentCommentBox extends Vue {
             type: 'success'
           })
           this.resetForm()
-          window.location.reload()
+          // window.location.reload()
           lsCache.delete('editContent')
   			})
   			.catch(err => {
