@@ -197,6 +197,7 @@ export default class ComponentCommentBox extends Vue {
         this.currentUploadType = 'Image'
         document.querySelector('#image').click()
         document.querySelector('#image').value = ''
+        if(this.xhr) this.handleAbortUpload()
       }).catch(() => {
         // nothing to do
       })
@@ -403,6 +404,7 @@ export default class ComponentCommentBox extends Vue {
         this.currentUploadType = 'Video'
         document.querySelector('#video').click()
         document.querySelector('#video').value = ''
+        if(this.xhr) this.handleAbortUpload()
       }).catch(() => {
         // nothing to do
       })
@@ -417,6 +419,7 @@ export default class ComponentCommentBox extends Vue {
           this.currentUploadType = 'Video'
           document.querySelector('#video').click()
           document.querySelector('#video').value = ''
+          if(this.xhr) this.handleAbortUpload()
         }).catch(() => {
           // nothing to do
         })
@@ -476,7 +479,8 @@ export default class ComponentCommentBox extends Vue {
    * @detail   取消上传文件
    * @return   {[type]}       [description]
    */
-  handleAbortVideo(res) {
+  handleAbortUpload(res) {
+    console.log(111111111111)
     this.xhr.abort()
   }
   /**
@@ -513,6 +517,7 @@ export default class ComponentCommentBox extends Vue {
         this.currentUploadType = 'Compress'
         document.querySelector('#compress').click()
         document.querySelector('#compress').value = ''
+        if(this.xhr) this.handleAbortUpload()
       }).catch(() => {
         // nothing to do
       })
@@ -529,6 +534,7 @@ export default class ComponentCommentBox extends Vue {
           this.currentUploadType = 'Compress'
           document.querySelector('#compress').click()
           document.querySelector('#compress').value = ''
+          if(this.xhr) this.handleAbortUpload()
         }).catch(() => {
           // nothing to do
         })
@@ -631,6 +637,7 @@ export default class ComponentCommentBox extends Vue {
         this.removeBeforeUpload()
         this.currentUploadType = 'Link'
         this.inputLink.show = !this.inputLink.show
+        if(this.xhr) this.handleAbortUpload()
       }).catch(() => {
         // nothing to do
       })
