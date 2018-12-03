@@ -224,6 +224,7 @@ export default class ComponentCommentBox extends Vue {
   handleChangeImage() {
     this.formData = new FormData()
     this.files = document.querySelector('#image').files
+    this.currentUploadType = 'Image'
     Array.from(this.files).map((file, index) => {
       let reader = new FileReader()
       let data = {name: file.name}
@@ -266,7 +267,6 @@ export default class ComponentCommentBox extends Vue {
     // 上传成功
     this.xhr.onload = (res) => {
       // 上传图片返回的数据
-      this.currentUploadType = 'Image'
       const imageItem = JSON.parse(res.target.responseText).data[0]
       this.commonList.map(field => {
         if(field.name === imageItem.fileName) field = Object.assign(field, imageItem)
@@ -441,6 +441,7 @@ export default class ComponentCommentBox extends Vue {
    */
   handleChangeVideo() {
     this.formData = new FormData()
+    this.currentUploadType = 'Video'
     this.files = document.querySelector('#video').files[0]
     this.formData.append('img1', this.files)
     this.formData.append('attach_type', 'video')
@@ -462,7 +463,6 @@ export default class ComponentCommentBox extends Vue {
     // 上传成功
     this.xhr.onload = (res) => {
       // 上传视频返回的数据
-      this.currentUploadType = 'Video'
       const videoItem = JSON.parse(res.target.responseText).data[0]
       this.videoUpload.infos = videoItem
       this.form.videos = videoItem.url
@@ -558,6 +558,7 @@ export default class ComponentCommentBox extends Vue {
     this.formData.append('attach_type', 'compress')
     this.compressUpload.file = this.files
     this.handleUploadCompress()
+    this.currentUploadType = 'Compress'
   }
   /**
    * @Author   小书包
@@ -575,7 +576,6 @@ export default class ComponentCommentBox extends Vue {
     // 上传成功
     this.xhr.onload = (res) => {
       // 上传视频返回的数据
-      this.currentUploadType = 'Compress'
       this.form.files = JSON.parse(res.target.responseText).data[0].id
       this.$message({showClose: true, message: '文件上传成功', type: 'success'})
       this.compressUpload.uploadProgress = 100
