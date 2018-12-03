@@ -33,7 +33,7 @@ import commentBox from 'COMPONENTS/commentBox1'
 export default class ComponentImageUploader extends Vue {
 	commonlist = []
 	formData = null
-	xhr = null
+	xhr = new XMLHttpRequest()
 	dom = null
 	handleChooseImage() {
 		this.dom = this.$refs['image']
@@ -62,34 +62,43 @@ export default class ComponentImageUploader extends Vue {
 			}
 			// 读取完成，无论成功失败
 			reader.onloadend = (res) => {}
-			this.formData.append('img1', file)
-			this.formData.append('attach_type', 'img')
-			this.handleUploadImage(index)
+			this.formData.append(`img${index + 1}`, file)
 		})
+		this.handleUploadImage()
 	}
-	handleUploadImage(index) {
-		this.xhr = new XMLHttpRequest()
+	handleUploadImage() {
+		this.formData.append('attach_type', 'img')
     this.xhr.open('post', upload_api, true)
     this.xhr.setRequestHeader('Authorization', getAccessToken())
-		this.xhr.setRequestHeader('Authorization-Sso', Cookies.get('Authorization-Sso'))
-		// 上传成功
-    this.xhr.onload = (res) => {
-			// 上传图片返回的数据
-			const imageItem = JSON.parse(res.target.responseText).data[0]
-			this.commonlist.map(field => {
-				if(field.name === imageItem.fileName) field = Object.assign(field, imageItem)
-			})
-			this.commonlist[index].uploadProgress = 100
-    }
-    // 上传失败
-    this.xhr.onerror = (res) => {
-    	console.log(res)
-    }
-    // 上传进度
-    this.xhr.upload.onprogress = (res) => {
-    	this.commonlist[index].uploadProgress = Math.round(res.loaded / res.total * 100) - 1
-    }
+		this.xhr.setRequestHeader('Authorization-Sso', Cookies.get('Authorization-Sso'));
+    this.xhr.onload = this.handleImageComplete
+    this.xhr.onerror = this.handleImageFailed
+    this.xhr.upload.onprogress = this.handleImageProgress
     this.xhr.send(this.formData)
+	}
+	handleImageProgress(res) {
+		this.commonlist.map(field => field.uploadProgress = Math.round(res.loaded / res.total * 100) - 1)
+	}
+	handleImageComplete(res) {
+		// 进度条设置到100
+		this.commonlist.map(field => field.uploadProgress = 100)
+		// 上传图片返回的数据
+		const imageList = JSON.parse(res.target.responseText).data
+		// 本地的图片名字
+		const nameList = this.commonlist.map(field => field.name)
+		// 过滤掉已删除的图片
+		let uploadList = imageList.filter(field => nameList.includes(field.fileName))
+		uploadList.map((field, index) => {
+			field.base64Src = this.commonlist[index].base64Src
+			field.uploadProgress = 100
+		})
+		this.commonlist = uploadList
+	}
+	handleImageFailed(res) {
+		console.log(res)
+	}
+	handleImageCancle(res) {
+		this.xhr.abort()
 	}
 }
 </script>

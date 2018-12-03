@@ -179,7 +179,7 @@ import fileBox from 'COMPONENTS/fileBox'
 import picOrVideo from 'COMPONENTS/picOrVideo'
 import adSearch from 'COMPONENTS/adSearch'
 import loadMore from 'COMPONENTS/loadMore'
-import commentBox from 'COMPONENTS/commentBox'
+import commentBox from 'COMPONENTS/commentBox1'
 import { lsCache } from '@/store/cacheService'
 
 @Component({
