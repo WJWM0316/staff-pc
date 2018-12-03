@@ -151,6 +151,8 @@ export default class ComponentCommentBox extends Vue {
 	dragEl = null
   formData = null
   xhr = null
+  xhrList = []
+  formDataList = []
 
 	// 图片上传
   imageUpload = {
@@ -226,12 +228,12 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   handleChangeImage() {
-    this.formData = new FormData()
     this.files = document.querySelector('#image').files
     this.currentUploadType = 'Image'
     Array.from(this.files).map((file, index) => {
       let reader = new FileReader()
-      let data = {name: file.name}
+      let data = {name: file.name, uploadProgress: 0, base64Src: ''}
+      let formData = new FormData()
       reader.readAsDataURL(file)
       // 开始
       reader.onloadstart = (res) => {}
@@ -244,17 +246,17 @@ export default class ComponentCommentBox extends Vue {
       // 成功读取
       reader.onload = (res) => {
         data.base64Src = res.target.result
-        data.uploadProgress = 0
         if(this.commonList.length === this.imageUpload.limit) return
         this.commonList.push(data)
         this.handleImageRange()
       }
       // 读取完成，无论成功失败
       reader.onloadend = (res) => {}
-      this.formData.append('img1', file)
-      this.formData.append('attach_type', 'img')
+      formData.append('img1', file)
+      formData.append('attach_type', 'img')
+      this.xhrList.push(new XMLHttpRequest())
       if(this.commonList.length === this.imageUpload.limit) return
-      this.handleUploadImage()
+      this.handleUploadImage(index, formData)
     })
   }
   /**
@@ -263,36 +265,38 @@ export default class ComponentCommentBox extends Vue {
    * @detail   上传选中的图片
    * @return   {[type]}         [description]
    */
-  handleUploadImage() {
-    this.xhr = new XMLHttpRequest()
-    this.xhr.open('post', upload_api, true)
-    this.xhr.setRequestHeader('Authorization', getAccessToken())
-    this.xhr.setRequestHeader('Authorization-Sso', Cookies.get('Authorization-Sso'))
+  handleUploadImage(index, formData) {
+    this.xhrList[index].open('post', upload_api, true)
+    this.xhrList[index].setRequestHeader('Authorization', getAccessToken())
+    this.xhrList[index].setRequestHeader('Authorization-Sso', Cookies.get('Authorization-Sso'))
     // 上传成功
-    this.xhr.onload = (res) => {
+    this.xhrList[index].onload = (res) => {
       // 上传图片返回的数据
       const imageItem = JSON.parse(res.target.responseText).data[0]
       this.commonList.map(field => {
         if(field.name === imageItem.fileName) field = Object.assign(field, imageItem)
       })
-      this.commonList.map(field => field.uploadProgress = 100)
+      this.commonList[index].uploadProgress = 100
     }
     // 上传失败
-    this.xhr.onerror = (res) => {}
+    this.xhrList[index].onerror = (res) => {}
     // 上传进度
-    this.xhr.upload.onprogress = (res) => {
-      this.commonList[this.commonList.length - 1].uploadProgress = Math.round(res.loaded / res.total * 100) - 1
+    this.xhrList[index].upload.onprogress = (res) => {
+      const uploadProgress = Math.round(res.loaded / res.total * 100)
+      this.commonList[index].uploadProgress = uploadProgress < 50 ? uploadProgress : uploadProgress - 1
     }
-    this.xhr.send(this.formData)
+    this.xhrList[index].send(formData)
   }
   /**
    * @Author   小书包
    * @DateTime 2018-11-23
-   * @detail   图片上传进度
+   * @detail   取消某一张图片上传
    * @return   {[type]}        [description]
    */
   handleRemoveUploadImage(index) {
+    this.xhrList[index].abort()
     this.commonList.splice(index, 1)
+    this.xhrList.splice(index, 1)
   }
   /**
    * @Author   小书包
@@ -479,7 +483,8 @@ export default class ComponentCommentBox extends Vue {
     this.xhr.onerror = (res) => {}
     // 上传进度
     this.xhr.upload.onprogress = (res) => {
-      this.videoUpload.uploadProgress = Math.round(res.loaded / res.total * 100) - 1
+      const uploadProgress = Math.round(res.loaded / res.total * 100)
+      this.videoUpload.uploadProgress = uploadProgress < 50 ? uploadProgress : uploadProgress - 1
     }
     this.xhr.send(this.formData)
   }
@@ -589,8 +594,8 @@ export default class ComponentCommentBox extends Vue {
     this.xhr.onerror = (res) => {}
     // 上传进度
     this.xhr.upload.onprogress = (res) => {
-      this.compressUpload.uploadProgress = Math.round(res.loaded / res.total * 100) - 1
-      console.log(this.compressUpload.uploadProgress)
+      const uploadProgress = Math.round(res.loaded / res.total * 100)
+      this.compressUpload.uploadProgress = uploadProgress < 50 ? uploadProgress : uploadProgress - 1
     }
     this.xhr.send(this.formData)
   }
