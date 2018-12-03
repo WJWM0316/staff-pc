@@ -1,6 +1,6 @@
 <template>
   <div class="picOrVideoWap">
-    <img v-if="fileData.type === '图片'" :src="fileData.fileInfo.smallUrl" class="imgShow">
+    <img v-if="fileData.type === '图片'" :src="fileData.fileInfo.url" class="imgShow">
     <div v-else class="videoMask">
       <img class="video" :src="fileData.fileInfo.coverImg.url" v-if="">
       <div class="btn">

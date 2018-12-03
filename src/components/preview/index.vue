@@ -344,7 +344,7 @@ export default class ComponentPreview extends Vue {
   left: 0;
   background: rgba(0, 0, 0, 0.9);
   cursor: pointer;
-  z-index: 30;
+  z-index: 10000;
   &.nextOne {
     cursor: url('https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/arrow_down.png'), pointer;
   }
