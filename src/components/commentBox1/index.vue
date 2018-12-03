@@ -195,6 +195,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   handleChooseImage() {
+    this.inputLink.show = false
     if(this.currentUploadType && this.currentUploadType !== 'Image') {
       this.$confirm('该操作会替换已上传的文件, 是否继续?', '确认提醒', {
         confirmButtonText: '确定',
@@ -403,6 +404,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   handleChooseVideo() {
+    this.inputLink.show = false
     if(this.form.videos) {
       this.$confirm('该操作会替换已上传的视频, 是否继续?', '确认提醒', {
         confirmButtonText: '确定',
@@ -510,7 +512,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   handleChooseCompress() {
-
+    this.inputLink.show = false
     // 已经上传了文件
     if(this.form.files) {
       this.$confirm('该操作会替换已上传的文件, 是否继续?', '确认提醒', {
