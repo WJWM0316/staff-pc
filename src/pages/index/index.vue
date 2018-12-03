@@ -49,7 +49,7 @@
  		</div>
  	</div>
  	<div class="col-daptive">
- 		<comment-box v-if="jobcircleDetail.isOwner || jobcircleDetail.isMember"></comment-box>
+ 		<comment-box v-if="jobcircleDetail.isOwner || jobcircleDetail.isMember" @input="bindInput"></comment-box>
  		<div class="content-header">
  			<ul class="common-tab-box">
  				<li :class="{'tab-active': tabIndex === 'Pictures'}" @click="tabClick('Pictures')">相册</li>
@@ -147,17 +147,25 @@
 	 			<div class="gray" v-if="jobcircleDetail.memberInfo.length > 2"><i></i><i></i><i></i></div>
 	 		</div>
 	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
-	 		<template v-if="!jobcircleDetail.isOwner && !jobcircleDetail.isMember">
-	 			<button class="attention-button" v-if="!jobcircleDetail.isAttention" @click="todoAction('focus')"> + 关注 </button>
-	 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention" @click="todoAction('unfocus')"> 已关注 </button>
-			</template>
-			<template v-if="!jobcircleDetail.isOwner && jobcircleDetail.isAttention && jobcircleDetail.isMember">
-	 			<button class="button-untop" v-if="!jobcircleDetail.isTop" @click="todoAction('top')"> 置顶 </button>
-	 			<button class="button-top" v-if="jobcircleDetail.isTop" @click="todoAction('untop')"> 取消置顶 </button>
+			
+			<template v-if="jobcircleDetail.isOwner || jobcircleDetail.isAttention || jobcircleDetail.isMember || jobcircleDetail.isTop">
+		 		<template v-if="!jobcircleDetail.isOwner && !jobcircleDetail.isMember">
+		 			<button class="attention-button" v-if="!jobcircleDetail.isAttention" @click="todoAction('focus')"> + 关注 </button>
+		 			<button class="attentioned-button" v-if="jobcircleDetail.isAttention" @click="todoAction('unfocus')"> 已关注 </button>
+				</template>
+
+				<template v-if="!jobcircleDetail.isOwner || jobcircleDetail.isMember || jobcircleDetail.isAttention">
+		 			<button class="button-untop" v-if="!jobcircleDetail.isTop" @click="todoAction('top')"> 置顶 </button>
+		 			<button class="button-top" v-if="jobcircleDetail.isTop" @click="todoAction('untop')"> 取消置顶 </button>
+	 			</template>
+
+	 			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner">
+	 				<i class="icon font_family icon-shezhi"></i> 工作圈设置
+	 			</button>
  			</template>
- 			<button class="job-circle-setting"  @click="todoAction('setting')" v-if="jobcircleDetail.isOwner">
- 				<i class="icon font_family icon-shezhi"></i> 工作圈设置
- 			</button>
+ 			<template v-if="!jobcircleDetail.isOwner && !jobcircleDetail.isAttention && !jobcircleDetail.isMember && !jobcircleDetail.isTop">
+ 				<button class="attention-button" @click="todoAction('focus')"> + 关注 </button>
+ 			</template>
  		</div>
  	</div>
  	<preview v-if="isPreview" :previewData="previewData" @closePreview="closePreview"></preview>
@@ -171,7 +179,8 @@ import fileBox from 'COMPONENTS/fileBox'
 import picOrVideo from 'COMPONENTS/picOrVideo'
 import adSearch from 'COMPONENTS/adSearch'
 import loadMore from 'COMPONENTS/loadMore'
-import commentBox from 'COMPONENTS/commentBox'
+import commentBox from 'COMPONENTS/commentBox1'
+import { lsCache } from '@/store/cacheService'
 
 @Component({
 	components: {
@@ -199,7 +208,8 @@ import commentBox from 'COMPONENTS/commentBox'
 			'topJobCircleApi',
       'undataJobcirclePostaffixOfPictures',
       'undataJobcirclePostaffixOfFiles',
-      'undataJobcirclePostaffixOfUrls'
+      'undataJobcirclePostaffixOfUrls',
+      'setActiveTab'
 		])
 	},
 	computed: {
@@ -211,16 +221,16 @@ import commentBox from 'COMPONENTS/commentBox'
       'jobcirclePostAffixFiles',
       'jobcirclePostAffixUrls',
       'currentJobCircleId',
-      'jobcircleDetail'
+      'jobcircleDetail',
+      'currentActivetab'
     ])
   },
   watch: {
     'currentJobCircleId': {
       handler(currentJobCircleId) {
       	if(currentJobCircleId) {
-      		this.$router.push({query: {id: currentJobCircleId, tab: 1}})
-      		this.getJobcircleDetail({id: currentJobCircleId})
-      		// this.getLists({id: currentJobCircleId, params: {page: 1, count: 35}})
+      		this.isNewJobCircle = true
+      		// this.$router.push({query: {id: this.currentJobCircleId, tab: this.currentActivetab}})
       	}
       },
       immediate: true
@@ -228,6 +238,7 @@ import commentBox from 'COMPONENTS/commentBox'
   }
 })
 export default class pageIndex extends Vue {
+	editContent = null
 	tabIndex = 'Pictures'
 	keyWord = '' // 关键词
 	visible = false // 显示高级搜索框
@@ -268,7 +279,20 @@ export default class pageIndex extends Vue {
   }
   toSearch () {
   	if (this.keyWord === '') return
-  	this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
+  	if(!this.editContent) {
+  		this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
+  		return
+  	}
+  	this.$confirm('是否保存当前的数据?', '提示', {
+      confirmButtonText: '保留',
+      cancelButtonText: '算了'
+    }).then(() => {
+    	lsCache.set('editContent', this.editContent, {exp: 1000 * 60 * 60 * 24 * 7})
+      this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
+    }).catch(() => {
+    	this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
+    	lsCache.delete('editContent')
+    })
   }
   /**
    * @Author   小书包
@@ -305,6 +329,7 @@ export default class pageIndex extends Vue {
 			if(field.active) {
 				this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
 				this.getJobcircleDetail({id: this.currentJobCircleId})
+				this.$router.push({query: {id: this.currentJobCircleId, tab: params.show}})
 			}
 		})
 	}
@@ -378,7 +403,6 @@ export default class pageIndex extends Vue {
 				case 'Files':
 					this.filesStatus.loading = false
 					this.filesStatus.noData = noData
-					console.log(this.filesStatus)
 					break
 				default:
 					this.linksStatus.loading = false
@@ -411,6 +435,7 @@ export default class pageIndex extends Vue {
 			          type: 'success'
 			        })
   						this.getJobcircleDetail({id: this.currentJobCircleId})
+  						this.init()
   					})
   					.catch(error => {
   						this.$message.error(`${error.msg}~`)
@@ -424,6 +449,7 @@ export default class pageIndex extends Vue {
 			          type: 'success'
 			        })
   						this.getJobcircleDetail({id: this.currentJobCircleId})
+  						this.init()
   					})
   					.catch(error => {
   						this.$message.error(`${error.msg}~`)
@@ -437,6 +463,7 @@ export default class pageIndex extends Vue {
 			          type: 'success'
 			        })
   						this.getJobcircleDetail({id: this.currentJobCircleId})
+  						this.init()
   					})
   					.catch(error => {
   						this.$message.error(`${error.msg}~`)
@@ -450,13 +477,27 @@ export default class pageIndex extends Vue {
 			          type: 'success'
 			        })
   						this.getJobcircleDetail({id: this.currentJobCircleId})
+  						this.init()
   					})
   					.catch(error => {
   						this.$message.error(`${error.msg}~`)
   					})
   			break
   		case 'setting':
-  			this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
+  			if(!this.editContent) {
+  				this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
+  				return
+  			}
+  			this.$confirm('是否保存当前的数据?', '提示', {
+          confirmButtonText: '保留',
+          cancelButtonText: '算了'
+        }).then(() => {
+        	lsCache.set('editContent', this.editContent, {exp: 1000 * 60 * 60 * 24 * 7})
+          this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
+        }).catch(() => {
+        	lsCache.delete('editContent')
+        	this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
+        })
   			break
   		default:
   			break
@@ -471,7 +512,9 @@ export default class pageIndex extends Vue {
   	this.getAttentionsJobcircleApi()
 				.then(() => {
 					this.getAllVisibleJobcircleApi().then(() => {
+						this.setActiveTab(this.$route.query)
             this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
+            this.getJobcircleDetail({id: this.currentJobCircleId})
           })
 				})
   }
@@ -480,6 +523,14 @@ export default class pageIndex extends Vue {
     this.undataJobcirclePostaffixOfPictures([])
     this.undataJobcirclePostaffixOfFiles([])
     this.undataJobcirclePostaffixOfUrls([])
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-11-22
+   * @detail   绑定编辑器的输入
+   */
+  bindInput(val) {
+  	this.editContent = val
   }
 	created() {
     this.reset()

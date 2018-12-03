@@ -1,0 +1,1 @@
+export const docExt = ['.pdf', '.doc', '.docx', '.dot', '.rtf', '.docm', '.dotm', '.xls', '.xlsx', '.xlsb', '.xlsm', '.xla', '.xltm', '.ods', '.xlt', '.xml', '.xltx', '.ppt', '.pptx', '.potx', '.pot', '.obp', '.ppsx', '.pps', '.pptm', '.potm', '.ppsm', '.txt']

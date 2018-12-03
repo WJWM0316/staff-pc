@@ -1,0 +1,1 @@
+export const compressExtS = ['.rar', '.zip', '.cab', '.arj', '.lzh', '.ace', '.tar']

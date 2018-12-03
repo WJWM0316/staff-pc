@@ -1,5 +1,5 @@
 <template>
-	<section class="comment-box">
+	<section class="comment-box" style="width: 580px;">
 		<div class="simple-text" ref="simple-text">
 			<textarea v-model="form.content" placeholder="说说你的想法…" class="note-content" ref="note-content" maxlength="1500"></textarea>
       <div class="limit-box"><font :style="`color: ${form.content.length <= 1000 ? '#BCBCBC' : '#FA6A30'}`">{{form.content.length}}</font>/1000</div>
@@ -11,7 +11,7 @@
 			<div class="file-infos">
 				<p class="file-name">{{compressUpload.file.name}}</p>
 				<div class="gray-line">
-					<div class="active-line" :style="`width: ${compressUpload.progress}%`"></div>
+					<div class="active-line" :style="`width: ${compressUpload.uploadProgress}%`"></div>
 				</div>
 			</div>
 			<div class="action-box">
@@ -35,9 +35,9 @@
 		</div>
 		<div class="video-infos" v-if="videoUpload.show">
 			<span class="btn-close" @click="handleVideoRemove"><i class="icon font_family icon-icon_errorsvg"></i></span>
-			<div class="btn-click" v-if="videoUpload.progress === 100"><i class="icon font_family icon-play"></i></div>
-      <el-progress type="circle" :percentage="videoUpload.progress" :stroke-width="2" :width="46" v-if="videoUpload.progress < 100"></el-progress>
-			<video :src="videoUpload.infos.url" v-if="form.videos"> your browser does not support the video tag </video>
+			<div class="btn-click" v-if="form.videos"><i class="icon font_family icon-play"></i></div>
+      <el-progress type="circle" :percentage="videoUpload.uploadProgress" :stroke-width="2" :width="46" v-if="videoUpload.uploadProgress < 100"></el-progress>
+			<video :src="form.videos" v-if="form.videos"> your browser does not support the video tag </video>
 		</div>
 		<ul class="common-list" v-if="commonList.length">
 			<li
@@ -45,83 +45,42 @@
         :key="imageIndex"
         :data-key="imageIndex"
         class="draggable"
-        :style="`background-image: url(${imageItem.smallUrl}); background-size: cover; background-repeat: no-repeat; background-position: center center;`"
+        :style="`background-image: url(${imageItem.base64Src}); background-size: cover; background-repeat: no-repeat; background-position: center center;`"
         draggable="true">
 				<span class="btn-close" @click="handleRemoveUploadImage(imageIndex)"><i class="icon font_family icon-icon_errorsvg"></i></span>
-				<el-progress type="circle" :percentage="imageItem.progress" :stroke-width="2" :width="46" v-if="imageItem.progress !== 100"></el-progress>
+				<el-progress type="circle" :percentage="imageItem.uploadProgress" :stroke-width="2" :width="46" v-if="imageItem.uploadProgress !== 100"></el-progress>
 			</li>
-      <li class="upload-li" v-if="commonList.length < 20">
-        <el-upload
-            :action="imageUpload.action"
-            ref="image"
-            :accept="imageUpload.accept"
-            :data="imageUpload.params"
-            :show-file-list="false"
-            :on-progress="handleImageProgress"
-            :on-success="handleImageSuccess"
-            :on-change="handleImageChange"
-            :on-exceed="handleImageExceed"
-            :before-upload="beforeImageUpload"
-            multiple>
-            <i class="el-icon-plus"></i>
-          </el-upload>
+      <li class="upload-li" v-if="commonList.length < 20" @click="handleChooseImage">
+        <i class="el-icon-plus"></i>
+        <input type="file" multiple="multiple" @change="handleChangeImage" style="display: none;" id="image" name="image" accept="image/*" />
       </li>
 		</ul>
 		<div class="comment-controlls-box">
 			<ul class="controlls-list">
-				<li>
-					<el-upload
-            ref="image"
-            :disabled="imageUpload.disabled"
-            v-if="commonList.length < 20"
-					  :action="imageUpload.action"
-					  :accept="imageUpload.accept"
-					  :data="imageUpload.params"
-					  :show-file-list="false"
-					  :on-progress="handleImageProgress"
-					  :on-success="handleImageSuccess"
-					  :on-change="handleImageChange"
-					  :on-exceed="handleImageExceed"
-            :before-upload="beforeImageUpload"
-					  multiple>
-					  <span><i class="icon font_family icon-btn_photo"></i>图片</span>
-					</el-upload>
-          <span @click="setOtherEnabled('imageUpload')" v-else><i class="icon font_family icon-btn_photo"></i>图片</span>
+        <!-- 上传图片 start -->
+				<li @click="handleChooseImage">
+					<i class="icon font_family icon-btn_photo"></i>图片
+          <input type="file" multiple="multiple" @change="handleChangeImage" style="display: none;" id="image" name="image" :accept="imageUpload.accept" />
 				</li>
-				<li>
-					<el-upload
-            ref="video"
-            :disabled="videoUpload.disabled"
-					  :action="videoUpload.action"
-					  :accept="videoUpload.accept"
-					  :data="videoUpload.params"
-					  :show-file-list="false"
-					  :on-progress="handleVideoProgress"
-					  :on-success="handleVideoSuccess"
-            :before-upload="beforeVideoUpload"
-            :on-error="handleVideoError"
-					  :on-change="handleVideoChange">
-					  <span v-if="!videoUpload.disabled"><i class="icon font_family icon-btn_video"></i>视频</span>
-            <span v-else @click="setOtherEnabled('videoUpload')"><i class="icon font_family icon-btn_video"></i>视频</span>
-					</el-upload>
-				</li>
-				<li>
-					<el-upload
-            ref="file"
-            :disabled="compressUpload.disabled"
-					  :action="compressUpload.action"
-					  :accept="compressUpload.accept"
-					  :data="compressUpload.params"
-					  :show-file-list="false"
-					  :on-progress="handleCompressProgress"
-					  :on-success="handleCompressSuccess"
-            :before-upload="beforeCompressUpload"
-					  :on-change="handleCompressChange">
-					  <span v-if="!compressUpload.disabled"><i class="icon font_family icon-btn_doc"></i>文件</span>
-            <span v-else @click="setOtherEnabled('compressUpload')"><i class="icon font_family icon-btn_doc"></i>文件</span>
-					</el-upload>
-				</li>
-				<li @click="switchLinkBox"><i class="icon font_family icon-btn_link"></i>链接</li>
+        <!-- 上传图片 end -->
+
+        <!-- 上传视频 start -->
+        <li @click="handleChooseVideo">
+          <i class="icon font_family icon-btn_video"></i>视频
+          <input type="file" @change="handleChangeVideo" style="display: none;" id="video" name="video" :accept="videoUpload.accept" />
+        </li>
+        <!-- 上传视频 start -->
+
+        <!-- 上传文件 start -->
+        <li @click="handleChooseCompress">
+          <i class="icon font_family icon-btn_doc"></i>文件
+          <input type="file" @change="handleChangeCompress" style="display: none;" id="compress" name="compress" :accept="compressUpload.accept" />
+        </li>
+        <!-- 上传文件 start -->
+
+        <!-- 上传链接 start -->
+        <li @click="handleInputLink"><i class="icon font_family icon-btn_link"></i>链接</li>
+        <!-- 上传链接 start -->
 			</ul>
 			<div class="submit-setting">
 				<span class="auth-setting" @click="checked">
@@ -142,6 +101,7 @@ import { upload_api } from '@/store/api/index.js'
 import { docExt } from 'UTILS/doc.js'
 import { compressExtS } from 'UTILS/compress.js'
 import { lsCache } from '@/store/cacheService'
+import Cookies from 'js-cookie'
 
 @Component({
 	name: 'comment-box',
@@ -151,35 +111,27 @@ import { lsCache } from '@/store/cacheService'
 			'postJobCircleNoteApi'
 		])
 	},
+  props: {
+    isNewJobCircle: {
+      type: Boolean,
+      default: false
+    }
+  },
   computed: {
     ...mapGetters([
-      'currentJobCircleId',
+      'currentJobCircleId'
     ])
   },
   watch: {
-    'commonList': {
-      handler(commonList) {
-        if(commonList.length) setTimeout(() => {this.handleImageRange()})
-      },
-      immediate: true
-    },
-    'currentUploadType': {
-      handler(currentUploadType) {
-        console.log(currentUploadType)
+    '$route': {
+      handler() {
+        this.removeBeforeUpload()
       },
       immediate: true
     },
     'form.content': {
       handler(content) {
         this.$emit('input', content)
-      },
-      immediate: true
-    },
-    'imageUpload.limit': {
-      handler(num) {
-        if(num === 0) {
-          this.$message.error('一次发布最多只允许上传20张图片~')
-        }
       },
       immediate: true
     }
@@ -191,56 +143,33 @@ export default class ComponentCommentBox extends Vue {
 		start: {index: null, data: null},
 		end: {index: null, data: null}
 	}
+
 	commonList = []
 	domLists = null
 	dragEl = null
+  formData = null
+  xhr = null
+
 	// 图片上传
   imageUpload = {
-    disabled: false,
-  	action: upload_api,
     limit: 20,
-    accept: 'image/*',
-    imgLists: [],
-    loadingList: [],
-    params: {
-      token: getAccessToken(),
-      attach_type: 'img',
-    }
+    accept: 'image/*'
   }
 
   // 视频上传
   videoUpload = {
-    loading: false,
-    disabled: false,
   	show: false,
-  	action: upload_api,
-    limit: 1,
     accept: '.avi,.rmvb,.rm,.mov,.mpg,.mpeg,.swf,.flv,.mp4,.3gp,.asf,.f4v,.webm,.wmv',
     file: {},
-    params: {
-      token: getAccessToken(),
-      attach_type: 'video',
-    },
-    progress: 0,
-    infos: {
-    	url: ''
-    }
+    uploadProgress: 0
   }
 
   // 文件上传
   compressUpload = {
-    loading: false,
-    disabled: false,
   	show: false,
-  	action: upload_api,
-    limit: 1,
     accept: [...docExt, ...compressExtS].join(','),
     file: {},
-    params: {
-      token: getAccessToken(),
-      attach_type: 'compress',
-    },
-    progress: 0
+    uploadProgress: 0
   }
 
   inputLink = {
@@ -259,91 +188,98 @@ export default class ComponentCommentBox extends Vue {
   }
   /**
    * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   选择图片超过上传限制
-   * @return   {[type]}            [description]
-   */
-  handleImageExceed() {
-    this.$message.error('一次发布最多只允许上传20张图片~')
-  }
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   多图上传
+   * @DateTime 2018-12-03
+   * @detail  点击选择图片
    * @return   {[type]}   [description]
    */
-  multipleImageUpload() {
-    const formData = new FormData()
-    let i = 0
-    formData.append('attach_type', 'img')
-    this.imageUpload.imgLists.forEach((file, index) => {
-    	formData.append(`img${index + 1}`, file)
-    	i = i + 1
-    })
-  }
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   获取选中的图片
-   * @return   {[type]}        [description]
-   */
-  handleImageChange(file) {}
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-28
-   * @detail   图片上传之前做判断
-   * @return   {[type]}   [description]
-   */
-  beforeImageUpload(file) {
-    const isLt5M = file.size / 1024 / 1024 > 5
-    if(isLt5M) {
-      this.$message.error('上传的图片大小是5MB~')
-      return false
-    }
-    if(this.commonList.length >= 20) return
-    file.progress = 0
-    if(this.currentUploadType && this.currentUploadType !== 'imageUpload') {
-      this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
+  handleChooseImage() {
+    if(this.currentUploadType && this.currentUploadType !== 'Image') {
+      this.$confirm('该操作会替换已上传的文件, 是否继续?', '确认提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
-        this.uploadTypeChange()
-        this.currentUploadType = null
-        this.setOtherDisabled('imageUpload')
+        this.form.videos = ''
+        this.removeBeforeUpload()
+        document.querySelector('#image').click()
+        document.querySelector('#image').value = ''
+        if(this.xhr) this.handleAbortUpload()
       }).catch(() => {
         // nothing to do
       })
-      return false
     } else {
-      if(!this.imageUpload.imgLists.includes(file.uid)) {
-        this.imageUpload.imgLists.push(file.uid)
-        this.imageUpload.limit--
-        this.commonList.push(file)
+      if(this.commonList.length === 20) {
+        this.$message.error('一次发布最多只允许上传20张图片~')
+        return
       }
-      this.currentUploadType = 'imageUpload'
-      this.setOtherDisabled('imageUpload')
+      document.querySelector('#image').click()
+      document.querySelector('#image').value = ''
     }
   }
   /**
    * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   图片上传进度
-   * @return   {[type]}        [description]
+   * @DateTime 2018-12-03
+   * @detail   处理选中的图片
+   * @return   {[type]}   [description]
    */
-  handleImageProgress(event) {
-    this.commonList[this.commonList.length - 1].progress = parseInt(event.percent)
+  handleChangeImage() {
+    this.formData = new FormData()
+    this.files = document.querySelector('#image').files
+    this.currentUploadType = 'Image'
+    Array.from(this.files).map((file, index) => {
+      let reader = new FileReader()
+      let data = {name: file.name}
+      reader.readAsDataURL(file)
+      // 开始
+      reader.onloadstart = (res) => {}
+      // 正在读取
+      reader.onprogress = (res) => {}
+      // 中断
+      reader.onabort = (res) => {}
+      // 出错
+      reader.onerror = (res) => {}
+      // 成功读取
+      reader.onload = (res) => {
+        data.base64Src = res.target.result
+        data.uploadProgress = 0
+        if(this.commonList.length === 20) return
+        this.commonList.push(data)
+        this.handleImageRange()
+      }
+      // 读取完成，无论成功失败
+      reader.onloadend = (res) => {}
+      this.formData.append('img1', file)
+      this.formData.append('attach_type', 'img')
+      if(this.commonList.length === 20) return
+      this.handleUploadImage()
+    })
   }
   /**
    * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   图片上传进度
-   * @return   {[type]}        [description]
+   * @DateTime 2018-12-03
+   * @detail   上传选中的图片
+   * @return   {[type]}         [description]
    */
-  handleImageSuccess(res) {
-    const infos = {...res.data[0], progress: 100}
-    this.commonList.map((field, index, commonList) => {
-      if(field.name === res.data[0].fileName) commonList.splice(index, 1, infos)
-    })
+  handleUploadImage() {
+    this.xhr = new XMLHttpRequest()
+    this.xhr.open('post', upload_api, true)
+    this.xhr.setRequestHeader('Authorization', getAccessToken())
+    this.xhr.setRequestHeader('Authorization-Sso', Cookies.get('Authorization-Sso'))
+    // 上传成功
+    this.xhr.onload = (res) => {
+      // 上传图片返回的数据
+      const imageItem = JSON.parse(res.target.responseText).data[0]
+      this.commonList.map(field => {
+        if(field.name === imageItem.fileName) field = Object.assign(field, imageItem)
+      })
+      this.commonList.map(field => field.uploadProgress = 100)
+    }
+    // 上传失败
+    this.xhr.onerror = (res) => {}
+    // 上传进度
+    this.xhr.upload.onprogress = (res) => {
+      this.commonList[this.commonList.length - 1].uploadProgress = Math.round(res.loaded / res.total * 100) - 1
+    }
+    this.xhr.send(this.formData)
   }
   /**
    * @Author   小书包
@@ -352,11 +288,7 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}        [description]
    */
   handleRemoveUploadImage(index) {
-  	this.commonList.splice(index, 1)
-    this.imageUpload.limit++
-    if(this.imageUpload.progress < 100) {
-      this.$refs.image.abort()
-    }
+    this.commonList.splice(index, 1)
   }
   /**
    * @Author   小书包
@@ -365,16 +297,16 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   handleImageRange() {
-  	this.domLists = document.querySelectorAll('.common-list .draggable')
-  	this.dragEl = null
-  	Array.from(this.domLists).map(dom => {
-  		dom.addEventListener('dragstart', this.handleImageMoveDragStart,false)
-	    dom.addEventListener('dragenter', this.handleImageMoveDragEnter, false)
-	    dom.addEventListener('dragover', this.handleImageMoveDragOver, false)
-	    dom.addEventListener('dragleave', this.handleImageMoveDragLeave, false)
-	    dom.addEventListener('drop', this.handleImageMoveDrop, false)
-	    dom.addEventListener('dragend', this.handleImageMoveDrapend, false)
-  	})
+    this.domLists = document.querySelectorAll('.common-list .draggable')
+    this.dragEl = null
+    Array.from(this.domLists).map(dom => {
+      dom.addEventListener('dragstart', this.handleImageMoveDragStart,false)
+      dom.addEventListener('dragenter', this.handleImageMoveDragEnter, false)
+      dom.addEventListener('dragover', this.handleImageMoveDragOver, false)
+      dom.addEventListener('dragleave', this.handleImageMoveDragLeave, false)
+      dom.addEventListener('drop', this.handleImageMoveDrop, false)
+      dom.addEventListener('dragend', this.handleImageMoveDrapend, false)
+    })
   }
   /**
    * @Author   小书包
@@ -383,9 +315,9 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}     [description]
    */
   handleImageMoveDragStart(e) {
-  	const index = e.target.getAttribute('data-key')
-  	this.imgEdit.start.data = this.commonList[index]
-  	this.imgEdit.start.index = index
+    const index = e.target.getAttribute('data-key')
+    this.imgEdit.start.data = this.commonList[index]
+    this.imgEdit.start.index = index
     e.target.style.opacity = '0.5'
     e.target.classList.add('draging')
     this.dragEl = e.target
@@ -436,14 +368,14 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}     [description]
    */
   handleImageMoveDrop(e) {
-  	const index = e.target.getAttribute('data-key')
+    const index = e.target.getAttribute('data-key')
     const commonList = [...this.commonList]
     if (e.stopPropagation) {
       e.stopPropagation()
     }
     if (this.dragEl != e.target) {
-    	this.commonList.splice(this.imgEdit.start.index, 1, this.commonList[index])
-    	this.commonList.splice(index, 1, this.imgEdit.start.data)
+      this.commonList.splice(this.imgEdit.start.index, 1, this.commonList[index])
+      this.commonList.splice(index, 1, this.imgEdit.start.data)
     }
     return false
   }
@@ -455,205 +387,216 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}     [description]
    */
   handleImageMoveDrapend(e) {
-  	Array.from(this.domLists).map(dom => {
-  		dom.classList.remove('over')
+    Array.from(this.domLists).map(dom => {
+      dom.classList.remove('over')
       dom.style.opacity = '1'
       dom.classList.remove('draging')
-  	})
+    })
   }
   /**
    * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   视频上传
+   * @DateTime 2018-12-03
+   * @detail  点击选择视频
    * @return   {[type]}   [description]
    */
-  handleVideoUpload() {
-  	const formData = new FormData()
-    formData.append('attach_type', 'video')
-    formData.append('img1', this.videoUpload.file)
-  	this.uploadAttachesApi(formData)
-  }
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   获取选中的视频
-   * @return   {[type]}   [description]
-   */
-  handleVideoChange(file) {}
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   视频上传进度
-   * @return   {[type]}        [description]
-   */
-  handleVideoProgress(event) {
-  	this.videoUpload.progress = parseInt(event.percent)
-  }
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-30
-   * @detail   视频上传失败
-   * @return   {[type]}   [description]
-   */
-  handleVideoError(res) {
-    console.log(res)
-  }
-   /**
-   * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   视频上传成功
-   * @return   {[type]}        [description]
-   */
-  handleVideoSuccess(res) {
-  	this.videoUpload.infos = res.data[0]
-    this.form.videos = res.data[0].id
-    this.$message({showClose: true, message: '视频上传成功', type: 'success'})
-    this.videoUpload.loading = false
-  }
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-28
-   * @detail   图片上传之前做判断
-   * @return   {[type]}   [description]
-   */
-  beforeVideoUpload(file) {
-    const isLt200M = file.size / 1024 / 1024 > 200
-    if(isLt200M) {
-      this.$message.error('上传的视频大小限制是200MB~')
-      return false
-    }
-    if(this.videoUpload.loading) {
-      this.$message.error('视频正在上传，请勿重复提交~')
-      return false
-    }
+  handleChooseVideo() {
     if(this.form.videos) {
-      this.$message.error('视频只能上传一个，请删除后重试~')
-      return false
-    }
-    if(this.currentUploadType && this.currentUploadType !== 'videoUpload') {
-      this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
+      this.$confirm('该操作会替换已上传的视频, 是否继续?', '确认提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
-        this.uploadTypeChange()
-        this.currentUploadType = null
-        this.setOtherDisabled('videoUpload')
+        this.form.videos = ''
+        this.removeBeforeUpload()
+        document.querySelector('#video').click()
+        document.querySelector('#video').value = ''
+        if(this.xhr) this.handleAbortUpload()
       }).catch(() => {
         // nothing to do
       })
-      return false
     } else {
-      this.currentUploadType = 'videoUpload'
-      this.videoUpload.show = true
-      this.videoUpload.loading = true
-      this.setOtherDisabled('videoUpload')
+      if(this.currentUploadType && this.currentUploadType !== 'Video') {
+        this.$confirm('该操作会替换已上传的文件, 是否继续?', '确认提醒', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }).then(() => {
+          this.form.videos = ''
+          this.removeBeforeUpload()
+          document.querySelector('#video').click()
+          document.querySelector('#video').value = ''
+          if(this.xhr) this.handleAbortUpload()
+        }).catch(() => {
+          // nothing to do
+        })
+      } else {
+        document.querySelector('#video').click()
+        document.querySelector('#video').value = ''
+      }
     }
   }
   /**
    * @Author   小书包
+   * @DateTime 2018-12-03
+   * @detail   处理选中的视频
+   * @return   {[type]}   [description]
+   */
+  handleChangeVideo() {
+    this.formData = new FormData()
+    this.currentUploadType = 'Video'
+    this.files = document.querySelector('#video').files[0]
+    this.formData.append('img1', this.files)
+    this.formData.append('attach_type', 'video')
+    this.handleUploadVideo()
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-12-03
+   * @detail   上传选中的视频
+   * @return   {[type]}         [description]
+   */
+  handleUploadVideo(index) {
+    this.videoUpload.show = true
+    this.videoUpload.uploadProgress = 0
+    this.xhr = new XMLHttpRequest()
+    this.xhr.open('post', upload_api, true)
+    this.xhr.setRequestHeader('Authorization', getAccessToken())
+    this.xhr.setRequestHeader('Authorization-Sso', Cookies.get('Authorization-Sso'))
+    // 上传成功
+    this.xhr.onload = (res) => {
+      // 上传视频返回的数据
+      const videoItem = JSON.parse(res.target.responseText).data[0]
+      this.videoUpload.infos = videoItem
+      this.form.videos = videoItem.url
+      this.$message({showClose: true, message: '视频上传成功', type: 'success'})
+      this.videoUpload.uploadProgress = 100
+    }
+    // 上传失败
+    this.xhr.onerror = (res) => {}
+    // 上传进度
+    this.xhr.upload.onprogress = (res) => {
+      this.videoUpload.uploadProgress = Math.round(res.loaded / res.total * 100) - 1
+    }
+    this.xhr.send(this.formData)
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-12-03
+   * @detail   取消上传文件
+   * @return   {[type]}       [description]
+   */
+  handleAbortUpload(res) {
+    this.xhr.abort()
+  }
+  /**
+   * @Author   小书包
    * @DateTime 2018-11-28
-   * @detail   移除视频
+   * @detail   移除上传的视频
    * @return   {[type]}   [description]
    */
   handleVideoRemove() {
-    this.videoUpload.infos = {}
     this.form.videos = ''
-    this.videoUpload.file = {}
     this.videoUpload.file = {}
     this.videoUpload.show = false
     this.currentUploadType = null
-    this.setOtherEnabled()
-    if(this.videoUpload.progress < 100) {
-      this.$refs.video.abort()
-      this.videoUpload.loading = false
+    if(this.videoUpload.uploadProgress < 100) {
+      this.xhr.abort()
     }
   }
-   /**
+  /**
    * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   文件上传
+   * @DateTime 2018-12-03
+   * @detail  点击选择图片
    * @return   {[type]}   [description]
    */
-  handleCompressUpload() {
-  	const formData = new FormData()
-    formData.append('attach_type', 'compress')
-    formData.append('img1', this.compressUpload.file)
-  	this.uploadAttachesApi(formData)
-  }
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   获取选中的文件
-   * @return   {[type]}   [description]
-   */
-  handleCompressChange(file) {}
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   文件上传进度
-   * @return   {[type]}        [description]
-   */
-  handleCompressProgress(event, file, fileList) {
-  	this.compressUpload.progress = event.percent
-  }
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-23
-   * @detail   文件上传成功
-   * @return   {[type]}        [description]
-   */
-  handleCompressSuccess(res) {
-    this.form.files = res.data[0].id
-    this.$message({showClose: true, message: '文件上传成功', type: 'success'})
-    this.compressUpload.loading = false
-  }
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-28
-   * @detail   图片上传之前做判断
-   * @return   {[type]}   [description]
-   */
-  beforeCompressUpload(file) {
-    const isLt200M = file.size / 1024 / 1024 > 200
-    if(isLt200M) {
-      this.$message.error('上传的文件大小限制是200MB~')
-      return false
-    }
-    if(this.compressUpload.loading) {
-      this.$message.error('文件正在上传，请勿重复提交~')
-      return false
-    }
+  handleChooseCompress() {
+
+    // 已经上传了文件
     if(this.form.files) {
-      this.$message.error('文件只能上传一个，请删除后重试~')
-      return false
-    }
-    const compress = compressExtS
-    const doc = docExt
-    if(compress.includes(this.getFileExt(file.name))) {
-      this.compressUpload.params.attach_type = 'compress'
-    }
-    if(doc.includes(this.getFileExt(file.name))) {
-      this.compressUpload.params.attach_type = 'doc'
-    }
-    if(this.currentUploadType && this.currentUploadType !== 'compressUpload') {
-      this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
+      this.$confirm('该操作会替换已上传的文件, 是否继续?', '确认提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
-        this.uploadTypeChange()
-        this.currentUploadType = null
-        this.setOtherDisabled('compressUpload')
+        this.form.files = ''
+        this.removeBeforeUpload()
+        document.querySelector('#compress').click()
+        document.querySelector('#compress').value = ''
+        if(this.xhr) this.handleAbortUpload()
       }).catch(() => {
         // nothing to do
       })
-      return false
     } else {
-      this.compressUpload.file = file
-      this.compressUpload.show = true
-      this.currentUploadType = 'compressUpload'
-      this.setOtherDisabled('compressUpload')
-      this.compressUpload.loading = true
+
+      // 已经选择了其他的发布类型
+      if(this.currentUploadType && this.currentUploadType !== 'Compress') {
+        this.$confirm('该操作会替换已上传的文件, 是否继续?', '确认提醒', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消'
+        }).then(() => {
+          this.form.files = ''
+          this.removeBeforeUpload()
+          document.querySelector('#compress').click()
+          document.querySelector('#compress').value = ''
+          if(this.xhr) this.handleAbortUpload()
+        }).catch(() => {
+          // nothing to do
+        })
+      } else {
+        document.querySelector('#compress').click()
+        document.querySelector('#compress').value = ''
+      }
     }
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-12-03
+   * @detail   处理选中的文件
+   * @return   {[type]}   [description]
+   */
+  handleChangeCompress() {
+    this.formData = new FormData()
+    this.files = document.querySelector('#compress').files[0]
+    this.formData.append('img1', this.files)
+    this.formData.append('attach_type', 'compress')
+    this.compressUpload.file = this.files
+    this.handleUploadCompress()
+    this.currentUploadType = 'Compress'
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-12-03
+   * @detail   上传选中的文件
+   * @return   {[type]}         [description]
+   */
+  handleUploadCompress(index) {
+    this.compressUpload.show = true
+    this.compressUpload.uploadProgress = 0
+    this.xhr = new XMLHttpRequest()
+    this.xhr.open('post', upload_api, true)
+    this.xhr.setRequestHeader('Authorization', getAccessToken())
+    this.xhr.setRequestHeader('Authorization-Sso', Cookies.get('Authorization-Sso'))
+    // 上传成功
+    this.xhr.onload = (res) => {
+      // 上传视频返回的数据
+      this.form.files = JSON.parse(res.target.responseText).data[0].id
+      this.$message({showClose: true, message: '文件上传成功', type: 'success'})
+      this.compressUpload.uploadProgress = 100
+    }
+    // 上传失败
+    this.xhr.onerror = (res) => {}
+    // 上传进度
+    this.xhr.upload.onprogress = (res) => {
+      this.compressUpload.uploadProgress = Math.round(res.loaded / res.total * 100) - 1
+      console.log(this.compressUpload.uploadProgress)
+    }
+    this.xhr.send(this.formData)
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-12-03
+   * @detail   取消上传文件
+   * @return   {[type]}       [description]
+   */
+  handleAbortCompress(res) {
+    this.xhr.abort()
   }
   /**
    * @Author   小书包
@@ -675,10 +618,8 @@ export default class ComponentCommentBox extends Vue {
   	this.compressUpload.file = {}
     this.form.files = ''
     this.currentUploadType = null
-    this.setOtherEnabled()
-    if(this.videoUpload.progress < 100) {
-      this.$refs.file.abort()
-      this.compressUpload.loading = false
+    if(this.videoUpload.uploadProgress < 100) {
+      this.xhr.abort()
     }
   }
 
@@ -688,24 +629,21 @@ export default class ComponentCommentBox extends Vue {
    * @detail   切换显示链接输入框
    * @return   {[type]}   [description]
    */
-  switchLinkBox() {
-    if(this.currentUploadType && this.currentUploadType !== 'link') {
+  handleInputLink() {
+    if(this.currentUploadType && this.currentUploadType !== 'Link') {
       this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
-        this.uploadTypeChange()
-        this.currentUploadType = null
+        this.removeBeforeUpload()
         this.inputLink.show = !this.inputLink.show
+        if(this.xhr) this.handleAbortUpload()
       }).catch(() => {
         // nothing to do
       })
     } else {
       this.inputLink.show = !this.inputLink.show
-      this.currentUploadType = 'link'
-      if(this.inputLink.value) {
-        this.form.urls = ''
-      }
+      if(this.inputLink.value) this.form.urls = ''
     }
   }
 
@@ -720,7 +658,25 @@ export default class ComponentCommentBox extends Vue {
     this.inputLink.show = false
     this.inputLink.value = ''
     this.currentUploadType = null
-    this.setOtherEnabled()
+  }
+  /**
+   * @Author   小书包
+   * @DateTime 2018-12-03
+   * @detail   移除之前上传的文件
+   * @return   {[type]}   [description]
+   */
+  removeBeforeUpload() {
+    this.form.urls = ''
+    this.form.videos = ''
+    this.form.files = ''
+    this.form.pictures = ''
+    this.commonList = []
+    this.compressUpload.show = false
+    this.compressUpload.file = {}
+    this.videoUpload.show = false
+    this.videoUpload.file = {}
+    this.inputLink.show = false
+    this.inputLink.value = ''
   }
   /**
    * @Author   小书包
@@ -732,6 +688,7 @@ export default class ComponentCommentBox extends Vue {
     const checkUrlReg = /^((https?|ftp|news):\/\/)?([a-z]([a-z0-9\-]*[\.。])+([a-z]{2}|aero|arpa|biz|com|coop|edu|gov|info|int|jobs|mil|museum|name|nato|net|org|pro|travel)|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))(\/[a-z0-9_\-\.~]+)*(\/([a-z0-9_\-\.]*)(\?[a-z0-9+_\-\.%=&]*)?)?(#[a-z][a-z0-9_]*)?$/ // 链接网址验证
     if(checkUrlReg.test(this.inputLink.value)) {
       this.form.urls = this.inputLink.value
+      this.currentUploadType = 'Link'
       this.inputLink.show = !this.inputLink.show
     } else {
       this.$message.error('不是合法的链接~')
@@ -774,7 +731,6 @@ export default class ComponentCommentBox extends Vue {
   resetForm() {
     // 清空之前编辑的内容
     this.inputLink.value = ''
-    this.compressUpload.file = {}
     this.compressUpload.show = false
     this.commonList = []
     this.videoUpload.show = false
@@ -842,77 +798,12 @@ export default class ComponentCommentBox extends Vue {
       if(domHeight < scrollHeight) dom.style.height = scrollHeight + 'px'
     }
   }
-
   /**
    * @Author   小书包
-   * @DateTime 2018-11-30
-   * @detail   上传方式改变
+   * @DateTime 2018-12-03
+   * @detail   dom树构建完成
    * @return   {[type]}   [description]
    */
-  uploadTypeChange() {
-    switch(this.currentUploadType) {
-      case 'imageUpload':
-        this.commonList = []
-        break
-      case 'compressUpload':
-        this.form.files = ''
-        this.compressUpload.file = {}
-        this.compressUpload.show = false
-        break
-      case 'link':
-        this.form.urls = ''
-        this.inputLink.value = ''
-        this.inputLink.show = false
-        break
-      case 'videoUpload':
-        this.form.videos = ''
-        this.videoUpload.file = {}
-        this.videoUpload.show = false
-        break
-      default:
-        break
-    }
-  }
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-30
-   * @detail   清空之前的上传
-   * @return   {[type]}   [description]
-   */
-  setOtherDisabled(type) {
-    ['imageUpload', 'compressUpload', 'videoUpload'].map(field => this[field].disabled = type === field ? false : true)
-  }
-
-  /**
-   * @Author   小书包
-   * @DateTime 2018-11-30
-   * @detail   清空之前的上传
-   * @return   {[type]}   [description]
-   */
-  setOtherEnabled(type = '') {
-    // const currentUploadType = this.currentUploadType
-    // if(currentUploadType !== type && type) {
-    //   this.uploadTypeChange()
-    //   this.currentUploadType = type
-    //   this.setOtherDisabled(type)
-    //   // this.$confirm('你上传的文件将会清除，确定切换吗？', '确认提醒', {
-    //   //   confirmButtonText: '确定',
-    //   //   cancelButtonText: '取消'
-    //   // }).then(() => {
-    //   //   this.uploadTypeChange()
-    //   //   this.currentUploadType = type
-    //   //   this.setOtherDisabled(type)
-    //   // }).catch(() => {
-    //   //   // nothing to do
-    //   // })
-    // } else {
-    //   ['imageUpload', 'compressUpload', 'videoUpload'].map(field => this[field].disabled = false)
-    // }
-    if(type === 'imageUpload') {
-      this.$message.error('一次发布最多只允许上传20张图片~')
-    }
-  }
-
   mounted() {
     const dom = this.$refs['note-content']
     dom.addEventListener('propertychange', () => { this.autoHeight(dom) })

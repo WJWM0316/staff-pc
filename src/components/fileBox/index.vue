@@ -12,7 +12,7 @@
           <p class="file-size">{{fileData.fileInfo.sizeM}}</p>
         </div>
         <div class="download-box">
-          <span @click.stop="download(fileData.fileInfo.url)"><i class="icon font_family icon-xiazai"></i></span>
+          <span @click.stop="download(fileData.fileInfo.vkey)"><i class="icon font_family icon-xiazai"></i></span>
         </div>
       </div>
       <div class="file-content" @click.stop="newWindow(fileData.url)" v-else>
@@ -20,7 +20,7 @@
           <img src="https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/postLink.png">
         </div>
         <div class="file-infos link">
-          <p class="file-title link">{{fileData.title}}</p>
+          <p class="file-title link">{{fileData.title ? fileData.title : '链接'}}</p>
         </div>
       </div>
     </template>
@@ -41,8 +41,8 @@
           <div class="date ellipsisOne">{{fileData.createdAt}}</div>
         </div>
         <div class="btnBox">
-          <span class="btn" @click.stop="download(fileData.fileInfo.url)"><i class="icon font_family icon-xiazai"></i>下载</span>
-          <span class="btn" @click.stop="filePreview(fileData.fileInfo.url)"><i class="icon font_family icon-yulan"></i>预览</span>
+          <span class="btn" @click.stop="download(fileData.fileInfo.vkey)"><i class="icon font_family icon-xiazai"></i>下载</span>
+          <span class="btn" @click.stop="filePreview(fileData.fileInfo.url)" v-if="fileData.fileInfo.attachType !=='compress'"><i class="icon font_family icon-yulan"></i>预览</span>
         </div>
       </div>
       <div class="file-content bigFileBox" v-else @click.stop="newWindow(fileData.url)">
@@ -66,6 +66,13 @@
 <script>
   import Vue from 'vue'
   import Component from 'vue-class-component'
+  import { getAccessToken } from '@/store/cacheService'
+  import Cookies from 'js-cookie'
+  let company = Cookies.get('code')
+  if(process.env.NODE_ENV === 'development') {
+    company = process.env.VUE_APP__TEST_COMPANY
+  }
+  const api = `${process.env.VUE_APP_API}/${company}/attaches/download`
   @Component({
     name: 'file-box',
     props: {
@@ -85,12 +92,12 @@
     }
   })
   export default class ComponentFileBox extends Vue {
-    download(fileLink) {
-      // require('downloadjs')(fileLink, fileLink, 'file')
-      let event = new MouseEvent('click')
-      let a = document.createElement('a')
-      a.href = fileLink
-      a.dispatchEvent(event)
+    download(vkey) {
+      window.open(`${api}/${vkey}?token=${getAccessToken()}`)
+      // let event = new MouseEvent('click')
+      // let a = document.createElement('a')
+      // a.href = fileLink
+      // a.dispatchEvent(event)
     }
     filePreview (fileLink) {
       let event = new MouseEvent('click')
