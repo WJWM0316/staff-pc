@@ -79,7 +79,7 @@
         <!-- 上传文件 start -->
 
         <!-- 上传链接 start -->
-        <li @click="handleInputLink"><i class="icon font_family icon-btn_link"></i>链接</li>
+        <li @click="handleInputLink"><i class="icon font_family icon-btn_link"></i> 链接</li>
         <!-- 上传链接 start -->
 			</ul>
 			<div class="submit-setting">
@@ -125,6 +125,8 @@ import Cookies from 'js-cookie'
   watch: {
     '$route': {
       handler() {
+        const jobCircleId = this.$route.query.id
+        this.form.content = jobCircleId !== lsCache.get('jobCircleId') ? '' : lsCache.get('editContent')
         this.removeBeforeUpload()
       },
       immediate: true
@@ -207,7 +209,7 @@ export default class ComponentCommentBox extends Vue {
         // nothing to do
       })
     } else {
-      if(this.commonList.length === 20) {
+      if(this.commonList.length === this.imageUpload.limit) {
         this.$message.error('一次发布最多只允许上传20张图片~')
         return
       }
@@ -241,7 +243,7 @@ export default class ComponentCommentBox extends Vue {
       reader.onload = (res) => {
         data.base64Src = res.target.result
         data.uploadProgress = 0
-        if(this.commonList.length === 20) return
+        if(this.commonList.length === this.imageUpload.limit) return
         this.commonList.push(data)
         this.handleImageRange()
       }
@@ -249,7 +251,7 @@ export default class ComponentCommentBox extends Vue {
       reader.onloadend = (res) => {}
       this.formData.append('img1', file)
       this.formData.append('attach_type', 'img')
-      if(this.commonList.length === 20) return
+      if(this.commonList.length === this.imageUpload.limit) return
       this.handleUploadImage()
     })
   }
@@ -497,9 +499,7 @@ export default class ComponentCommentBox extends Vue {
     this.videoUpload.file = {}
     this.videoUpload.show = false
     this.currentUploadType = null
-    if(this.videoUpload.uploadProgress < 100) {
-      this.xhr.abort()
-    }
+    if(this.videoUpload.uploadProgress < 100) this.xhr.abort()
   }
   /**
    * @Author   小书包
@@ -618,9 +618,7 @@ export default class ComponentCommentBox extends Vue {
   	this.compressUpload.file = {}
     this.form.files = ''
     this.currentUploadType = null
-    if(this.videoUpload.uploadProgress < 100) {
-      this.xhr.abort()
-    }
+    if(this.videoUpload.uploadProgress < 100) this.xhr.abort()
   }
 
   /**
@@ -806,12 +804,13 @@ export default class ComponentCommentBox extends Vue {
    */
   mounted() {
     const dom = this.$refs['note-content']
+    const jobCircleId = this.$route.query.id
+    this.form.content = jobCircleId !== lsCache.get('jobCircleId') ? '' : lsCache.get('editContent')
     dom.addEventListener('propertychange', () => { this.autoHeight(dom) })
     dom.addEventListener('keyup', () => {
       dom.removeAttribute('style')
       this.autoHeight(dom)
     })
-    if(lsCache.get('editContent')) this.form.content = lsCache.get('editContent')
   }
 }
 </script>

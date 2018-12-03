@@ -49,7 +49,7 @@
  		</div>
  	</div>
  	<div class="col-daptive">
- 		<comment-box v-if="jobcircleDetail.isOwner || jobcircleDetail.isMember" @input="bindInput"></comment-box>
+ 		<comment-box v-if="jobcircleDetail.isOwner || jobcircleDetail.isMember" @input="bindInput" :draft="editContent"></comment-box>
  		<div class="content-header">
  			<ul class="common-tab-box">
  				<li :class="{'tab-active': tabIndex === 'Pictures'}" @click="tabClick('Pictures')">相册</li>
@@ -283,15 +283,18 @@ export default class pageIndex extends Vue {
   		this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
   		return
   	}
-  	this.$confirm('是否保存当前的数据?', '提示', {
+  	this.$confirm('是否保存当前的草稿?', '提示', {
       confirmButtonText: '保留',
       cancelButtonText: '算了'
     }).then(() => {
+    	const jobCircleId = this.$route.query.id
+      lsCache.set('jobCircleId', jobCircleId, {exp: 1000 * 60 * 60 * 24 * 1})
     	lsCache.set('editContent', this.editContent, {exp: 1000 * 60 * 60 * 24 * 7})
       this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
     }).catch(() => {
     	this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
     	lsCache.delete('editContent')
+    	lsCache.delete('jobCircleId')
     })
   }
   /**
@@ -327,9 +330,31 @@ export default class pageIndex extends Vue {
     }
 		this[params.show].list.map(field => {
 			if(field.active) {
-				this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
-				this.getJobcircleDetail({id: this.currentJobCircleId})
-				this.$router.push({query: {id: this.currentJobCircleId, tab: params.show}})
+				// 不存在当前的草稿
+				if(!this.editContent) {
+  				this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
+					this.getJobcircleDetail({id: this.currentJobCircleId})
+					this.$router.push({query: {id: this.currentJobCircleId, tab: params.show}})
+  				return
+  			}
+  			// 存在草稿
+  			this.$confirm('是否保存当前的草稿?', '提示', {
+          confirmButtonText: '保留',
+          cancelButtonText: '算了'
+        }).then(() => {
+        	const jobCircleId = this.$route.query.id
+        	lsCache.set('jobCircleId', jobCircleId, {exp: 1000 * 60 * 60 * 24 * 1})
+        	lsCache.set('editContent', this.editContent, {exp: 1000 * 60 * 60 * 24 * 1})
+          this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
+					this.getJobcircleDetail({id: this.currentJobCircleId})
+					this.$router.push({query: {id: this.currentJobCircleId, tab: params.show}})
+        }).catch(() => {
+        	lsCache.delete('editContent')
+        	lsCache.delete('jobCircleId')
+        	this.getLists({id: this.currentJobCircleId, params: {page: 1, count: 35}})
+					this.getJobcircleDetail({id: this.currentJobCircleId})
+					this.$router.push({query: {id: this.currentJobCircleId, tab: params.show}})
+        })
 			}
 		})
 	}
@@ -488,14 +513,17 @@ export default class pageIndex extends Vue {
   				this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
   				return
   			}
-  			this.$confirm('是否保存当前的数据?', '提示', {
+  			this.$confirm('是否保存当前的草稿?', '提示', {
           confirmButtonText: '保留',
           cancelButtonText: '算了'
         }).then(() => {
-        	lsCache.set('editContent', this.editContent, {exp: 1000 * 60 * 60 * 24 * 7})
+        	const jobCircleId = this.$route.query.id
+        	lsCache.set('jobCircleId', jobCircleId, {exp: 1000 * 60 * 60 * 24 * 1})
+        	lsCache.set('editContent', this.editContent, {exp: 1000 * 60 * 60 * 24 * 1})
           this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
         }).catch(() => {
         	lsCache.delete('editContent')
+        	lsCache.delete('jobCircleId')
         	this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
         })
   			break
