@@ -229,6 +229,7 @@ import { lsCache } from '@/store/cacheService'
     'currentJobCircleId': {
       handler(currentJobCircleId) {
       	if(currentJobCircleId) {
+      		this.isNewJobCircle = true
       		// this.$router.push({query: {id: this.currentJobCircleId, tab: this.currentActivetab}})
       	}
       },

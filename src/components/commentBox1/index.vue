@@ -111,15 +111,21 @@ import Cookies from 'js-cookie'
 			'postJobCircleNoteApi'
 		])
 	},
+  props: {
+    isNewJobCircle: {
+      type: Boolean,
+      default: false
+    }
+  },
   computed: {
     ...mapGetters([
-      'currentJobCircleId',
+      'currentJobCircleId'
     ])
   },
   watch: {
-    'commonList': {
-      handler(commonList) {
-        if(commonList.length) setTimeout(() => {this.handleImageRange()})
+    '$route': {
+      handler() {
+        this.removeBeforeUpload()
       },
       immediate: true
     },
@@ -194,7 +200,6 @@ export default class ComponentCommentBox extends Vue {
       }).then(() => {
         this.form.videos = ''
         this.removeBeforeUpload()
-        this.currentUploadType = 'Image'
         document.querySelector('#image').click()
         document.querySelector('#image').value = ''
         if(this.xhr) this.handleAbortUpload()
@@ -206,7 +211,6 @@ export default class ComponentCommentBox extends Vue {
         this.$message.error('一次发布最多只允许上传20张图片~')
         return
       }
-      this.currentUploadType = 'Image'
       document.querySelector('#image').click()
       document.querySelector('#image').value = ''
     }
@@ -238,6 +242,7 @@ export default class ComponentCommentBox extends Vue {
         data.uploadProgress = 0
         if(this.commonList.length === 20) return
         this.commonList.push(data)
+        this.handleImageRange()
       }
       // 读取完成，无论成功失败
       reader.onloadend = (res) => {}
@@ -261,6 +266,7 @@ export default class ComponentCommentBox extends Vue {
     // 上传成功
     this.xhr.onload = (res) => {
       // 上传图片返回的数据
+      this.currentUploadType = 'Image'
       const imageItem = JSON.parse(res.target.responseText).data[0]
       this.commonList.map(field => {
         if(field.name === imageItem.fileName) field = Object.assign(field, imageItem)
@@ -401,7 +407,6 @@ export default class ComponentCommentBox extends Vue {
       }).then(() => {
         this.form.videos = ''
         this.removeBeforeUpload()
-        this.currentUploadType = 'Video'
         document.querySelector('#video').click()
         document.querySelector('#video').value = ''
         if(this.xhr) this.handleAbortUpload()
@@ -416,7 +421,6 @@ export default class ComponentCommentBox extends Vue {
         }).then(() => {
           this.form.videos = ''
           this.removeBeforeUpload()
-          this.currentUploadType = 'Video'
           document.querySelector('#video').click()
           document.querySelector('#video').value = ''
           if(this.xhr) this.handleAbortUpload()
@@ -424,7 +428,6 @@ export default class ComponentCommentBox extends Vue {
           // nothing to do
         })
       } else {
-        this.currentUploadType = 'Video'
         document.querySelector('#video').click()
         document.querySelector('#video').value = ''
       }
@@ -459,6 +462,7 @@ export default class ComponentCommentBox extends Vue {
     // 上传成功
     this.xhr.onload = (res) => {
       // 上传视频返回的数据
+      this.currentUploadType = 'Video'
       const videoItem = JSON.parse(res.target.responseText).data[0]
       this.videoUpload.infos = videoItem
       this.form.videos = videoItem.url
@@ -480,7 +484,6 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}       [description]
    */
   handleAbortUpload(res) {
-    console.log(111111111111)
     this.xhr.abort()
   }
   /**
@@ -514,7 +517,6 @@ export default class ComponentCommentBox extends Vue {
       }).then(() => {
         this.form.files = ''
         this.removeBeforeUpload()
-        this.currentUploadType = 'Compress'
         document.querySelector('#compress').click()
         document.querySelector('#compress').value = ''
         if(this.xhr) this.handleAbortUpload()
@@ -531,7 +533,6 @@ export default class ComponentCommentBox extends Vue {
         }).then(() => {
           this.form.files = ''
           this.removeBeforeUpload()
-          this.currentUploadType = 'Compress'
           document.querySelector('#compress').click()
           document.querySelector('#compress').value = ''
           if(this.xhr) this.handleAbortUpload()
@@ -540,7 +541,6 @@ export default class ComponentCommentBox extends Vue {
         })
       } else {
         document.querySelector('#compress').click()
-        this.currentUploadType = 'Compress'
         document.querySelector('#compress').value = ''
       }
     }
@@ -575,8 +575,9 @@ export default class ComponentCommentBox extends Vue {
     // 上传成功
     this.xhr.onload = (res) => {
       // 上传视频返回的数据
+      this.currentUploadType = 'Compress'
       this.form.files = JSON.parse(res.target.responseText).data[0].id
-       this.$message({showClose: true, message: '文件上传成功', type: 'success'})
+      this.$message({showClose: true, message: '文件上传成功', type: 'success'})
       this.compressUpload.uploadProgress = 100
     }
     // 上传失败
@@ -635,7 +636,6 @@ export default class ComponentCommentBox extends Vue {
         cancelButtonText: '取消'
       }).then(() => {
         this.removeBeforeUpload()
-        this.currentUploadType = 'Link'
         this.inputLink.show = !this.inputLink.show
         if(this.xhr) this.handleAbortUpload()
       }).catch(() => {
@@ -643,7 +643,6 @@ export default class ComponentCommentBox extends Vue {
       })
     } else {
       this.inputLink.show = !this.inputLink.show
-      this.currentUploadType = 'Link'
       if(this.inputLink.value) this.form.urls = ''
     }
   }
@@ -689,6 +688,7 @@ export default class ComponentCommentBox extends Vue {
     const checkUrlReg = /^((https?|ftp|news):\/\/)?([a-z]([a-z0-9\-]*[\.。])+([a-z]{2}|aero|arpa|biz|com|coop|edu|gov|info|int|jobs|mil|museum|name|nato|net|org|pro|travel)|(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]))(\/[a-z0-9_\-\.~]+)*(\/([a-z0-9_\-\.]*)(\?[a-z0-9+_\-\.%=&]*)?)?(#[a-z][a-z0-9_]*)?$/ // 链接网址验证
     if(checkUrlReg.test(this.inputLink.value)) {
       this.form.urls = this.inputLink.value
+      this.currentUploadType = 'Link'
       this.inputLink.show = !this.inputLink.show
     } else {
       this.$message.error('不是合法的链接~')
@@ -731,7 +731,6 @@ export default class ComponentCommentBox extends Vue {
   resetForm() {
     // 清空之前编辑的内容
     this.inputLink.value = ''
-    this.compressUpload.file = {}
     this.compressUpload.show = false
     this.commonList = []
     this.videoUpload.show = false
