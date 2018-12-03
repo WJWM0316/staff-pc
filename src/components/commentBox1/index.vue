@@ -529,7 +529,7 @@ export default class ComponentCommentBox extends Vue {
 
       // 已经选择了其他的发布类型
       if(this.currentUploadType && this.currentUploadType !== 'Compress') {
-        this.$confirm('该操作会替换已上传的文件, 是否继续1?', '确认提醒', {
+        this.$confirm('该操作会替换已上传的文件, 是否继续?', '确认提醒', {
           confirmButtonText: '确定',
           cancelButtonText: '取消'
         }).then(() => {

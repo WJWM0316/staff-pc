@@ -283,9 +283,9 @@ export default class pageIndex extends Vue {
   		this.$router.push(`/search?id=${this.currentJobCircleId}&keyword=${this.keyWord}&type=2,3,4`)
   		return
   	}
-  	this.$confirm('是否保存当前的草稿?', '提示', {
+  	this.$confirm('切换工作圈时，保存当前编辑内容，下次切换该工作圈时可继续编辑，确定保留吗?', '内容是否保留', {
       confirmButtonText: '保留',
-      cancelButtonText: '算了'
+      cancelButtonText: '算了，不保留'
     }).then(() => {
     	const jobCircleId = this.$route.query.id
       lsCache.set('jobCircleId', jobCircleId, {exp: 1000 * 60 * 60 * 24 * 1})
@@ -338,9 +338,9 @@ export default class pageIndex extends Vue {
   				return
   			}
   			// 存在草稿
-  			this.$confirm('是否保存当前的草稿?', '提示', {
+  			this.$confirm('切换工作圈时，保存当前编辑内容，下次切换该工作圈时可继续编辑，确定保留吗?', '内容是否保留', {
           confirmButtonText: '保留',
-          cancelButtonText: '算了'
+          cancelButtonText: '算了，不保留'
         }).then(() => {
         	const jobCircleId = this.$route.query.id
         	lsCache.set('jobCircleId', jobCircleId, {exp: 1000 * 60 * 60 * 24 * 1})
@@ -513,9 +513,9 @@ export default class pageIndex extends Vue {
   				this.$router.push({name: 'jobCircleUpdate', query: {id: this.currentJobCircleId}})
   				return
   			}
-  			this.$confirm('是否保存当前的草稿?', '提示', {
+  			this.$confirm('切换工作圈时，保存当前编辑内容，下次切换该工作圈时可继续编辑，确定保留吗?', '内容是否保留', {
           confirmButtonText: '保留',
-          cancelButtonText: '算了'
+          cancelButtonText: '算了，不保留'
         }).then(() => {
         	const jobCircleId = this.$route.query.id
         	lsCache.set('jobCircleId', jobCircleId, {exp: 1000 * 60 * 60 * 24 * 1})
