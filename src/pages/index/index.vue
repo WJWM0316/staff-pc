@@ -892,6 +892,7 @@ export default class pageIndex extends Vue {
 			cursor: pointer;
 			font-weight: 400;
 			color: #354048;
+			font-size: 14px;
 			&:before{
         position: absolute;
         bottom: 1px;
@@ -949,7 +950,7 @@ export default class pageIndex extends Vue {
 				width: 100%;
 				outline: unset;
 				border: unset;
-				padding: 5px;
+				padding: 5px 10px;
 				box-sizing: border-box;
 				position: absolute;
 				top: 0;
@@ -970,6 +971,7 @@ export default class pageIndex extends Vue {
 			float: right;
 			line-height: 46px;
 			cursor: pointer;
+			font-weight: 400;
 			.icon {
 				margin-right: 6px;
 			}

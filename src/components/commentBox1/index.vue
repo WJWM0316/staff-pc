@@ -23,7 +23,7 @@
         <img src="https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/postLink.png" alt="">   
       </div>
       <div class="file-infos">
-        <p class="file-name">{{form.urls}}</p>
+        <a class="file-name" :href="form.urls" target="_blank">{{form.urls}}</a>
       </div>
       <div class="action-box">
         <i class="icon font_family icon-icon_errorsvg" @click="handleRemoveLink"></i>
@@ -852,7 +852,7 @@ export default class ComponentCommentBox extends Vue {
     box-sizing: border-box;
     .limit-box {
       position: absolute;
-      bottom: 10px;
+      bottom: 4px;
       right: 8px;
       font-weight: 300;
       font-size: 14px;
@@ -870,6 +870,8 @@ export default class ComponentCommentBox extends Vue {
     resize: none;
     box-sizing: border-box;
     padding: 0;
+    font-weight: 400;
+    font-size: 14px;
 	}
 	textarea::-webkit-input-placeholder{
     color: #BCBCBC;
@@ -906,6 +908,7 @@ export default class ComponentCommentBox extends Vue {
 		}
     i{
       font-weight: 500;
+      font-size: 18px;
     }
 	}
 	.submit-setting {
@@ -931,15 +934,13 @@ export default class ComponentCommentBox extends Vue {
 		background:rgba(248,248,248,1);
 		font-size:14px;
 		font-weight:400;
-		color:rgba(146,146,146,1);
     white-space: nowrap;
     cursor: pointer;
-    color: #606266;
+    color: #354048;
     -webkit-appearance: none;
     box-sizing: border-box;
     outline: none;
     transition: .1s;
-    font-weight: 500;
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
@@ -994,6 +995,10 @@ export default class ComponentCommentBox extends Vue {
 			font-weight:300;
 			color:rgba(0,0,0,0.85);
 			line-height: 1;
+      margin: 12px 0 8px 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
 		}
 		.gray-line {
 			height:4px;
@@ -1050,6 +1055,7 @@ export default class ComponentCommentBox extends Vue {
       width: calc(100% - 56px - 52px);
       display: inline-block;
       vertical-align: middle;
+      line-height: 46px;
     }
     .file-name {
       font-size:14px;
@@ -1059,6 +1065,11 @@ export default class ComponentCommentBox extends Vue {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      margin: 0;
+      vertical-align: middle;
+      display:inline-block;
+      width: 100%;
+      text-decoration: none;
     }
     .gray-line {
       height:4px;
@@ -1086,7 +1097,7 @@ export default class ComponentCommentBox extends Vue {
 		box-sizing: border-box;
 		padding: 12px 8px;
 		input{
-			width: calc(100% - 44px);
+			width: calc(100% - 40px);
 			box-sizing: border-box;
 			display: inline-block;
 			vertical-align: middle;
@@ -1096,7 +1107,9 @@ export default class ComponentCommentBox extends Vue {
 			border: unset;
 			outline: unset;
 			-webkit-appearance: none;
-			padding: 0 16px;
+			padding: 0 12px;
+      font-size: 14px;
+      font-weight: 400;
 		}
 		input::-webkit-input-placeholder{
 	    color: #BCBCBC;
@@ -1104,7 +1117,6 @@ export default class ComponentCommentBox extends Vue {
 	    font-weight: 400;
 		}
 		button{
-			width: 44px;
 			height:38px;
 			background:transparent;
 			color:rgba(146,146,146,1);
@@ -1122,6 +1134,8 @@ export default class ComponentCommentBox extends Vue {
 			font-size:14px;
 			font-weight:500;
 			color:rgba(215,171,112,1);
+      float: right;
+      padding: 0;
 		}
 	}
 	.video-infos {
@@ -1199,7 +1213,7 @@ export default class ComponentCommentBox extends Vue {
       position: relative;
       box-sizing: border-box;
       border: dotted 1px #DCDCDC;
-      background: white;
+      background: #f5f7fa;
       > div {
         height: 100%;
         width: 100%;

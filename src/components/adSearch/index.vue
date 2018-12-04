@@ -48,7 +48,7 @@ import Component from 'vue-class-component'
   }
 })
 export default class ComponentAdSearch extends Vue {
-  checkList = [] // 筛选类型
+  checkList = ['3', '2', '4'] // 筛选类型
   keyWord = '' // 搜索关键词
   keyTime = '' // 搜索时间范围
   close () {
@@ -81,6 +81,8 @@ export default class ComponentAdSearch extends Vue {
         color: #666666;
         display: inline-block;
         text-align: right;
+        font-weight: 300;
+        margin-right: 10px;
       }
       .keyInPut {
         width: 300px;
@@ -132,6 +134,7 @@ export default class ComponentAdSearch extends Vue {
         box-sizing: border-box;
         border-radius: 4px;
         cursor: pointer;
+        margin-left: 10px;
         &.close {
           background: #fff;
           margin-left: 16px;
@@ -142,15 +145,31 @@ export default class ComponentAdSearch extends Vue {
   }
   ::-webkit-input-placeholder { /* WebKit, Blink, Edge */
     color: #BCBCBC;
+    font-size: 14px;
+    font-weight: 300;
   }
   :-moz-placeholder { /* Mozilla Firefox 4 to 18 */
      color: #BCBCBC;
+     font-size: 14px;
+     font-weight: 300;
   }
   ::-moz-placeholder { /* Mozilla Firefox 19+ */
      color: #BCBCBC;
+     font-size: 14px;
+     font-weight: 300;
   }
   :-ms-input-placeholder { /* Internet Explorer 10-11 */
      color: #BCBCBC;
+     font-size: 14px;
+     font-weight: 300;
   }
+}
+.el-popover__title{
+  font-weight: 500;
+  font-size: 16px;
+}
+.el-popover {
+  padding-left: 24px;
+  padding-right: 24px;
 }
 </style>
