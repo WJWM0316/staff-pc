@@ -248,7 +248,7 @@ export default class ComponentCommentBox extends Vue {
         if(this.commonList.length !== this.imageUpload.limit) {
           data.base64Src = res.target.result
           this.commonList.push(data)
-          // this.handleImageRange()
+          this.handleImageRange()
         }
       }
       // 读取完成，无论成功失败
@@ -257,7 +257,7 @@ export default class ComponentCommentBox extends Vue {
       formData.append('attach_type', 'img')
       this.xhrList.push(new XMLHttpRequest())
       if(this.commonList.length !== this.imageUpload.limit) {
-        this.handleUploadImage(index, formData)
+        this.handleUploadImage(formData)
       }
     })
   }
@@ -267,7 +267,8 @@ export default class ComponentCommentBox extends Vue {
    * @detail   上传选中的图片
    * @return   {[type]}         [description]
    */
-  handleUploadImage(index, formData) {
+  handleUploadImage(formData) {
+    const index = this.commonList.length
     this.xhrList[index].open('post', upload_api, true)
     this.xhrList[index].setRequestHeader('Authorization', getAccessToken())
     this.xhrList[index].setRequestHeader('Authorization-Sso', Cookies.get('Authorization-Sso'))
