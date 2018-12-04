@@ -567,12 +567,19 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   handleChangeCompress() {
-    this.formData = new FormData()
-    this.files = document.querySelector('#compress').files[0]
-    this.formData.append('img1', this.files)
-    this.formData.append('attach_type', 'compress')
-    this.compressUpload.file = this.files
-    this.handleUploadCompress()
+    const formData = new FormData()
+    const files = document.querySelector('#compress').files[0]
+    const compress = compressExtS
+    const doc = docExt
+    if(compress.includes(this.getFileExt(files.name))) {
+      formData.append('attach_type', 'compress')
+    }
+    if(doc.includes(this.getFileExt(files.name))) {
+      formData.append('attach_type', 'doc')
+    }
+    formData.append('img1', files)
+    this.compressUpload.file = files
+    this.handleUploadCompress(formData)
     this.currentUploadType = 'Compress'
   }
   /**
@@ -581,7 +588,7 @@ export default class ComponentCommentBox extends Vue {
    * @detail   上传选中的文件
    * @return   {[type]}         [description]
    */
-  handleUploadCompress(index) {
+  handleUploadCompress(formData) {
     this.compressUpload.show = true
     this.compressUpload.uploadProgress = 0
     this.xhr = new XMLHttpRequest()
@@ -602,7 +609,7 @@ export default class ComponentCommentBox extends Vue {
       const uploadProgress = Math.round(res.loaded / res.total * 100)
       this.compressUpload.uploadProgress = uploadProgress < 50 ? uploadProgress : uploadProgress - 1
     }
-    this.xhr.send(this.formData)
+    this.xhr.send(formData)
   }
   /**
    * @Author   小书包
