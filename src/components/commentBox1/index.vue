@@ -460,17 +460,17 @@ export default class ComponentCommentBox extends Vue {
    * @return   {[type]}   [description]
    */
   handleChangeVideo() {
-    this.formData = new FormData()
+    const formData = new FormData()
     this.currentUploadType = 'Video'
-    this.files = document.querySelector('#video').files[0]
+    const files = document.querySelector('#video').files[0]
     const isLt200M = files.size / 1024 / 1024 > 200
     if(isLt200M) {
       this.$message.error('上传的视频大小限制是200MB~')
       return false
     }
-    this.formData.append('img1', this.files)
-    this.formData.append('attach_type', 'video')
-    this.handleUploadVideo()
+    formData.append('img1', files)
+    formData.append('attach_type', 'video')
+    this.handleUploadVideo(formData)
   }
   /**
    * @Author   小书包
@@ -478,7 +478,7 @@ export default class ComponentCommentBox extends Vue {
    * @detail   上传选中的视频
    * @return   {[type]}         [description]
    */
-  handleUploadVideo(index) {
+  handleUploadVideo(formData) {
     this.videoUpload.show = true
     this.videoUpload.uploadProgress = 0
     this.xhr = new XMLHttpRequest()
@@ -501,7 +501,7 @@ export default class ComponentCommentBox extends Vue {
       const uploadProgress = Math.round(res.loaded / res.total * 100)
       this.videoUpload.uploadProgress = uploadProgress < 50 ? uploadProgress : uploadProgress - 1
     }
-    this.xhr.send(this.formData)
+    this.xhr.send(formData)
   }
   /**
    * @Author   小书包
