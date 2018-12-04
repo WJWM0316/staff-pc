@@ -23,7 +23,7 @@
         <img src="https://xplus-uploads-test.oss-cn-shenzhen.aliyuncs.com/default/postLink.png" alt="">   
       </div>
       <div class="file-infos">
-        <a class="file-name" :href="form.urls" target="_blank">{{form.urls}}</a>
+        <a class="file-name">{{form.urls}}</a>
       </div>
       <div class="action-box">
         <i class="icon font_family icon-icon_errorsvg" @click="handleRemoveLink"></i>
@@ -245,6 +245,11 @@ export default class ComponentCommentBox extends Vue {
       reader.onerror = (res) => {}
       // 成功读取
       reader.onload = (res) => {
+        const isLt5M = file.size / 1024 / 1024 > 5
+        if(isLt5M) {
+          this.$message.error('上传的图片大小是5MB~')
+          return false
+        }
         if(this.commonList.length !== this.imageUpload.limit) {
           data.base64Src = res.target.result
           this.commonList.push(data)
@@ -458,6 +463,11 @@ export default class ComponentCommentBox extends Vue {
     this.formData = new FormData()
     this.currentUploadType = 'Video'
     this.files = document.querySelector('#video').files[0]
+    const isLt200M = files.size / 1024 / 1024 > 200
+    if(isLt200M) {
+      this.$message.error('上传的视频大小限制是200MB~')
+      return false
+    }
     this.formData.append('img1', this.files)
     this.formData.append('attach_type', 'video')
     this.handleUploadVideo()
@@ -569,6 +579,11 @@ export default class ComponentCommentBox extends Vue {
   handleChangeCompress() {
     const formData = new FormData()
     const files = document.querySelector('#compress').files[0]
+    const isLt200M = files.size / 1024 / 1024 > 200
+    if(isLt200M) {
+      this.$message.error('上传的文件大小限制是200MB~')
+      return false
+    }
     const compress = compressExtS
     const doc = docExt
     if(compress.includes(this.getFileExt(files.name))) {

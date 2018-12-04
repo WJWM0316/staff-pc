@@ -763,6 +763,9 @@ export default class pageIndex extends Vue {
 				margin-bottom: 1px;
 				box-shadow:0px -1px 0px 0px rgba(235,238,245,1) inset;
 			}
+			i {
+				font-size: 18px;
+			}
 			.picOrVideo {
 				width: 140px;
 				height: 140px;
@@ -983,9 +986,9 @@ export default class pageIndex extends Vue {
 		.common-li {
 			background:rgba(255,255,255,1);
 			box-sizing: border-box;
-			padding: 22px 22px 0 22px;
+			padding: 24px 22px 0 22px;
 			.inner {
-				padding-bottom: 22px;
+				padding-bottom: 24px;
 				border-bottom: 1px solid #F5F7FA;
 			}
 		}
@@ -996,7 +999,6 @@ export default class pageIndex extends Vue {
 			width:30px;
 			height:30px;
 			border-radius: 50%;
-			background: gray;
 			display: inline-block;
 			vertical-align: middle;
 			position: relative;
