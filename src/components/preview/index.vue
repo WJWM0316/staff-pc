@@ -81,7 +81,7 @@ import {getPicMonthListJobci1rcleApi, getJobcirclePostaffixOfPictureApi} from 'A
       this.swiperBig.slideTo(val)
       this.swiperLittle.slideTo(val)
       if (window.video && !window.video.paused) {
-        window.video.pause()
+        // window.video.pause()
       }
       if ((this.curIndex === this.pickList.length - 1 && this.noNextData && this.noNextMonth) || (this.curIndex === 0 && this.noPrevData && this.noPrevMonth)) {
         this.$message({
