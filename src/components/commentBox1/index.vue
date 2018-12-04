@@ -245,18 +245,20 @@ export default class ComponentCommentBox extends Vue {
       reader.onerror = (res) => {}
       // 成功读取
       reader.onload = (res) => {
-        data.base64Src = res.target.result
-        if(this.commonList.length === this.imageUpload.limit) return
-        this.commonList.push(data)
-        this.handleImageRange()
+        if(this.commonList.length !== this.imageUpload.limit) {
+          data.base64Src = res.target.result
+          this.commonList.push(data)
+          // this.handleImageRange()
+        }
       }
       // 读取完成，无论成功失败
       reader.onloadend = (res) => {}
       formData.append('img1', file)
       formData.append('attach_type', 'img')
       this.xhrList.push(new XMLHttpRequest())
-      if(this.commonList.length === this.imageUpload.limit) return
-      this.handleUploadImage(index, formData)
+      if(this.commonList.length !== this.imageUpload.limit) {
+        this.handleUploadImage(index, formData)
+      }
     })
   }
   /**
@@ -275,15 +277,17 @@ export default class ComponentCommentBox extends Vue {
       const imageItem = JSON.parse(res.target.responseText).data[0]
       this.commonList.map(field => {
         if(field.name === imageItem.fileName) field = Object.assign(field, imageItem)
+        field.uploadProgress = 100
       })
-      this.commonList[index].uploadProgress = 100
     }
     // 上传失败
     this.xhrList[index].onerror = (res) => {}
     // 上传进度
     this.xhrList[index].upload.onprogress = (res) => {
       const uploadProgress = Math.round(res.loaded / res.total * 100)
-      this.commonList[index].uploadProgress = uploadProgress < 50 ? uploadProgress : uploadProgress - 1
+      if(index < this.imageUpload.limit) {
+        this.commonList[index].uploadProgress = uploadProgress < 50 ? uploadProgress : uploadProgress - 1
+      }
     }
     this.xhrList[index].send(formData)
   }
