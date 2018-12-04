@@ -144,7 +144,7 @@
 	 			<div v-for="(memberItem, memberIndex) in jobcircleDetail.memberInfo" :key="memberIndex">
 	 				<img :src="memberItem.avatarInfo.smallUrl" alt="">
 	 			</div>
-	 			<div class="gray" v-if="jobcircleDetail.memberInfo.length > 3"><i></i><i></i><i></i></div>
+	 			<div class="gray" v-if="jobcircleDetail.memberCount > 3"><i></i><i></i><i></i></div>
 	 		</div>
 	 		<p class="together-work-in">{{jobcircleDetail.memberCount ? `${jobcircleDetail.memberCount}人和你一起工作` : ''}}</p>
 			
