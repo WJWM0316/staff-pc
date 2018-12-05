@@ -249,7 +249,6 @@ export default class ComponentCommentBox extends Vue {
    */
   handleChangeImage() {
     this.files = document.querySelector('#image').files
-    this.currentUploadType = 'Image'
     Array.from(this.files).map((file, index) => {
       let reader = new FileReader()
       let data = {name: file.name, uploadProgress: 0, base64Src: ''}
@@ -272,6 +271,7 @@ export default class ComponentCommentBox extends Vue {
         }
         if(this.commonList.length !== this.imageUpload.limit) {
           data.base64Src = res.target.result
+          this.currentUploadType = 'Image'
           this.commonList.push(data)
           this.handleImageRange()
         }
