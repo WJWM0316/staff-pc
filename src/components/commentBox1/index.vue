@@ -219,7 +219,7 @@ export default class ComponentCommentBox extends Vue {
   handleChooseImage() {
     this.inputLink.show = false
     if(this.currentUploadType && this.currentUploadType !== 'Image') {
-      this.$confirm(`该操作会替换已上传的${this.getCurrentType()}, 是否继续?`, '确认提醒', {
+      this.$confirm(`您上传的${this.getCurrentType()}将会清除, 确定切换图片么?`, '确认提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
@@ -440,7 +440,7 @@ export default class ComponentCommentBox extends Vue {
   handleChooseVideo() {
     this.inputLink.show = false
     if(this.form.videos) {
-      this.$confirm(`该操作会替换已上传的${this.getCurrentType()}, 是否继续?`, '确认提醒', {
+      this.$confirm(`您上传的${this.getCurrentType()}将会清除, 确定更换么?`, '确认提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
@@ -454,7 +454,7 @@ export default class ComponentCommentBox extends Vue {
       })
     } else {
       if(this.currentUploadType && this.currentUploadType !== 'Video') {
-        this.$confirm(`该操作会替换已上传的${this.getCurrentType()}, 是否继续?`, '确认提醒', {
+        this.$confirm(`您上传的${this.getCurrentType()}将会清除, 确定切换视频么?`, '确认提醒', {
           confirmButtonText: '确定',
           cancelButtonText: '取消'
         }).then(() => {
@@ -555,7 +555,7 @@ export default class ComponentCommentBox extends Vue {
     this.inputLink.show = false
     // 已经上传了文件
     if(this.form.files) {
-      this.$confirm(`该操作会替换已上传的${this.getCurrentType()}, 是否继续?`, '确认提醒', {
+      this.$confirm(`您上传的${this.getCurrentType()}将会清除, 确定更换么?`, '确认提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
@@ -571,7 +571,7 @@ export default class ComponentCommentBox extends Vue {
 
       // 已经选择了其他的发布类型
       if(this.currentUploadType && this.currentUploadType !== 'Compress') {
-        this.$confirm(`该操作会替换已上传的${this.getCurrentType()}, 是否继续?`, '确认提醒', {
+        this.$confirm(`您上传的${this.getCurrentType()}将会清除, 确定切换其他附件么?`, '确认提醒', {
           confirmButtonText: '确定',
           cancelButtonText: '取消'
         }).then(() => {
@@ -686,7 +686,7 @@ export default class ComponentCommentBox extends Vue {
    */
   handleInputLink() {
     if(this.currentUploadType && this.currentUploadType !== 'Link') {
-      this.$confirm(`该操作会替换已上传的${this.getCurrentType()}, 是否继续?`, '确认提醒', {
+      this.$confirm(`您上传的${this.getCurrentType()}将会清除, 确定切换链接么?`, '确认提醒', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
       }).then(() => {
