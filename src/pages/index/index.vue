@@ -181,6 +181,7 @@ import adSearch from 'COMPONENTS/adSearch'
 import loadMore from 'COMPONENTS/loadMore'
 import commentBox from 'COMPONENTS/commentBox1'
 import { lsCache } from '@/store/cacheService'
+import Cookies from 'js-cookie'
 
 @Component({
 	components: {
@@ -209,7 +210,8 @@ import { lsCache } from '@/store/cacheService'
       'undataJobcirclePostaffixOfPictures',
       'undataJobcirclePostaffixOfFiles',
       'undataJobcirclePostaffixOfUrls',
-      'setActiveTab'
+      'setActiveTab',
+      'loginApi'
 		])
 	},
 	computed: {
@@ -561,8 +563,12 @@ export default class pageIndex extends Vue {
   	this.editContent = val
   }
 	created() {
-    this.reset()
-		this.init()
+    const code  = Cookies.get('code') ? Cookies.get('code') : process.env.VUE_APP__TEST_COMPANY
+    this.loginApi({code, 'Authorization-Sso': Cookies.get('Authorization-Sso')})
+        .then(() => {
+        	this.reset()
+					this.init()
+        })
 	}
 }
 </script>
